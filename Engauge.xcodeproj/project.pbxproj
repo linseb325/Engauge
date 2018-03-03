@@ -14,6 +14,8 @@
 		C80F32002049F456002F6FED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C80F31FF2049F456002F6FED /* Assets.xcassets */; };
 		C80F32032049F456002F6FED /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C80F32012049F456002F6FED /* LaunchScreen.storyboard */; };
 		C80F320B204A00C4002F6FED /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C80F320A204A00C4002F6FED /* GoogleService-Info.plist */; };
+		C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80F3210204A2CEF002F6FED /* AuthService.swift */; };
+		C80F3213204B4D6E002F6FED /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80F3212204B4D6E002F6FED /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		C80F32022049F456002F6FED /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C80F32042049F456002F6FED /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C80F320A204A00C4002F6FED /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		C80F3210204A2CEF002F6FED /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		C80F3212204B4D6E002F6FED /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		D59D261DD2848CECED032518 /* Pods-Engauge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Engauge.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Engauge/Pods-Engauge.debug.xcconfig"; sourceTree = "<group>"; };
 		E020E6CE04F8C5421691A37C /* Pods_Engauge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Engauge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -62,6 +66,7 @@
 		C80F31EC2049F456002F6FED = {
 			isa = PBXGroup;
 			children = (
+				C80F3212204B4D6E002F6FED /* Constants.swift */,
 				C80F31F72049F456002F6FED /* Engauge */,
 				C80F31F62049F456002F6FED /* Products */,
 				37392F56AF5AA9D340CD3C24 /* Pods */,
@@ -80,10 +85,11 @@
 		C80F31F72049F456002F6FED /* Engauge */ = {
 			isa = PBXGroup;
 			children = (
+				C80F31FC2049F456002F6FED /* Main.storyboard */,
+				C80F320F204A2CE0002F6FED /* Services */,
 				C80F320E204A0291002F6FED /* View */,
 				C80F320D204A028C002F6FED /* Model */,
 				C80F320C204A0284002F6FED /* Controller */,
-				C80F31FC2049F456002F6FED /* Main.storyboard */,
 				C80F31F82049F456002F6FED /* AppDelegate.swift */,
 				C80F31FF2049F456002F6FED /* Assets.xcassets */,
 				C80F32012049F456002F6FED /* LaunchScreen.storyboard */,
@@ -113,6 +119,14 @@
 			children = (
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		C80F320F204A2CE0002F6FED /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				C80F3210204A2CEF002F6FED /* AuthService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -251,8 +265,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,
 				C80F31F92049F456002F6FED /* AppDelegate.swift in Sources */,
+				C80F3213204B4D6E002F6FED /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
