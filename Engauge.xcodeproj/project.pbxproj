@@ -16,6 +16,10 @@
 		C80F320B204A00C4002F6FED /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C80F320A204A00C4002F6FED /* GoogleService-Info.plist */; };
 		C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80F3210204A2CEF002F6FED /* AuthService.swift */; };
 		C80F3213204B4D6E002F6FED /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80F3212204B4D6E002F6FED /* Constants.swift */; };
+		C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */; };
+		C8D51082204F742F00835AD3 /* School.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51081204F742F00835AD3 /* School.swift */; };
+		C8D51084204F79D800835AD3 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51083204F79D800835AD3 /* DataService.swift */; };
+		C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E939CC2052178A00CEAF87 /* StorageService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +34,10 @@
 		C80F320A204A00C4002F6FED /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C80F3210204A2CEF002F6FED /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		C80F3212204B4D6E002F6FED /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationTVC.swift; sourceTree = "<group>"; };
+		C8D51081204F742F00835AD3 /* School.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = School.swift; sourceTree = "<group>"; };
+		C8D51083204F79D800835AD3 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		C8E939CC2052178A00CEAF87 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		D59D261DD2848CECED032518 /* Pods-Engauge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Engauge.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Engauge/Pods-Engauge.debug.xcconfig"; sourceTree = "<group>"; };
 		E020E6CE04F8C5421691A37C /* Pods_Engauge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Engauge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -103,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				C80F31FA2049F456002F6FED /* SignInVC.swift */,
+				C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -110,6 +119,7 @@
 		C80F320D204A028C002F6FED /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				C8D51081204F742F00835AD3 /* School.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -125,6 +135,8 @@
 			isa = PBXGroup;
 			children = (
 				C80F3210204A2CEF002F6FED /* AuthService.swift */,
+				C8D51083204F79D800835AD3 /* DataService.swift */,
+				C8E939CC2052178A00CEAF87 /* StorageService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -266,8 +278,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */,
+				C8D51084204F79D800835AD3 /* DataService.swift in Sources */,
+				C8D51082204F742F00835AD3 /* School.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,
 				C80F31F92049F456002F6FED /* AppDelegate.swift in Sources */,
+				C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */,
+				C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */,
 				C80F3213204B4D6E002F6FED /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
