@@ -13,4 +13,5 @@ struct School {
     var schoolID: String
     var adminUID: String
     var domain: String
+    var eventIDs: [String]?
 }

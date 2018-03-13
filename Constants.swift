@@ -6,8 +6,14 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
+
 import Foundation
 import UIKit
+
+let TEST_EVENTS = [
+    Event(name: "Harv's Birthday Party", description: "Drop in to wish your favorite dad a happy birthday! Dinner will be Harvey fries.", startTime: Date(timeIntervalSince1970: 1524762000000), endTime: Date(timeIntervalSince1970: 1524780000000), location: "Living Room", schedulerUID: "uid1", schoolID: "sid1", imageURL: "https://firebasestorage.googleapis.com/v0/b/engauge-519fe.appspot.com/o/profile-pics-full%2F2CE30441-D4F0-454F-BF32-63C36DB39669?alt=media&token=27969f5c-30fb-4bd1-8e54-33152d290a6f", thumbnailURL: "https://firebasestorage.googleapis.com/v0/b/engauge-519fe.appspot.com/o/profile-pics-thumbnail%2F2CE30441-D4F0-454F-BF32-63C36DB39669?alt=media&token=5809e7f3-c2eb-4969-880a-6ddadc1dfbd3", qrCodeURL: "", associatedTransactionIDs: ["tid1", "tid2", "tid3"]),
+    Event(name: "Brennan's 22nd Birthday Party", description: "Drop in to wish your favorite brother a happy birthday! We'll be eating chili and watching March Madness. Later, there will be a heated game of Pictionary and a performance by Florence + The Machine. You won't want to miss it!", startTime: Date(timeIntervalSince1970: 1521959400000), endTime: Date(timeIntervalSince1970: 1522026000000), location: "Acuity Mutual Insurance Headquarters", schedulerUID: "uid1", schoolID: "sid1", imageURL: "https://firebasestorage.googleapis.com/v0/b/engauge-519fe.appspot.com/o/profile-pics-full%2FB3279C11-8713-4C20-BBB2-6DD2817D5385?alt=media&token=46169ec8-ffed-4043-bdf7-2201a47454e8", thumbnailURL: "https://firebasestorage.googleapis.com/v0/b/engauge-519fe.appspot.com/o/profile-pics-thumbnail%2FB3279C11-8713-4C20-BBB2-6DD2817D5385?alt=media&token=8454210c-4430-41d8-9ed1-6d65632b2ba0", qrCodeURL: "", associatedTransactionIDs: ["tid1", "tid2", "tid3"])
+]
 
 
 
@@ -28,6 +34,12 @@ extension UIViewController {
     
     @objc private func dismissKeyboard() {
         self.view.endEditing(true)
+    }
+    
+    func showErrorAlert(title: String = "Error", message: String) {
+        let errorAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(errorAlert, animated: true)
     }
 }
 
@@ -68,6 +80,7 @@ struct DatabaseKeys {
     
     static let SCHOOL = (key: "schools",
                          adminUID: "adminUID",
+                         events: "events",
                          domain: "domain",
                          name: "name")
     
@@ -98,6 +111,8 @@ struct DatabaseKeys {
 struct StorageKeys {
     static let PROFILE_PICS_FULL = "profile-pics-full"
     static let PROFILE_PICS_THUMBNAIL = "profile-pics-thumbnail"
+    static let EVENT_PICS_FULL = "event-pics-full"
+    static let EVENT_PICS_THUMBNAIL = "event-pics-thumbnail"
 }
 
 struct StorageImageQuality {
@@ -111,6 +126,7 @@ struct StorageImageQuality {
 protocol Expandable {
     var isExpanded: Bool { get set }
 }
+
 
 
 

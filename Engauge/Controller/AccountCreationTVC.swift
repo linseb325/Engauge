@@ -343,16 +343,6 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     
     
     
-    // MARK: Error message
-    
-    func showErrorAlert(title: String = "Error", message: String) {
-        let errorAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(errorAlert, animated: true)
-    }
-    
-    
-    
     // MARK: Picker View Methods
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {

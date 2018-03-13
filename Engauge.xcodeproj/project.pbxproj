@@ -16,7 +16,11 @@
 		C80F320B204A00C4002F6FED /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C80F320A204A00C4002F6FED /* GoogleService-Info.plist */; };
 		C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80F3210204A2CEF002F6FED /* AuthService.swift */; };
 		C80F3213204B4D6E002F6FED /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80F3212204B4D6E002F6FED /* Constants.swift */; };
+		C8137F322056D0130074D2AF /* EventListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F312056D0130074D2AF /* EventListVC.swift */; };
+		C8137F342056D0970074D2AF /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F332056D0970074D2AF /* Event.swift */; };
+		C8137F362056E0210074D2AF /* EventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F352056E0210074D2AF /* EventTableViewCell.swift */; };
 		C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */; };
+		C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B162058639700A24B95 /* FilterEventsTVC.swift */; };
 		C8D51082204F742F00835AD3 /* School.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51081204F742F00835AD3 /* School.swift */; };
 		C8D51084204F79D800835AD3 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51083204F79D800835AD3 /* DataService.swift */; };
 		C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E939CC2052178A00CEAF87 /* StorageService.swift */; };
@@ -34,7 +38,11 @@
 		C80F320A204A00C4002F6FED /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C80F3210204A2CEF002F6FED /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		C80F3212204B4D6E002F6FED /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C8137F312056D0130074D2AF /* EventListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListVC.swift; sourceTree = "<group>"; };
+		C8137F332056D0970074D2AF /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		C8137F352056E0210074D2AF /* EventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTableViewCell.swift; sourceTree = "<group>"; };
 		C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationTVC.swift; sourceTree = "<group>"; };
+		C8B98B162058639700A24B95 /* FilterEventsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterEventsTVC.swift; sourceTree = "<group>"; };
 		C8D51081204F742F00835AD3 /* School.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = School.swift; sourceTree = "<group>"; };
 		C8D51083204F79D800835AD3 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		C8E939CC2052178A00CEAF87 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
@@ -112,6 +120,8 @@
 			children = (
 				C80F31FA2049F456002F6FED /* SignInVC.swift */,
 				C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */,
+				C8137F312056D0130074D2AF /* EventListVC.swift */,
+				C8B98B162058639700A24B95 /* FilterEventsTVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -120,6 +130,7 @@
 			isa = PBXGroup;
 			children = (
 				C8D51081204F742F00835AD3 /* School.swift */,
+				C8137F332056D0970074D2AF /* Event.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -127,6 +138,7 @@
 		C80F320E204A0291002F6FED /* View */ = {
 			isa = PBXGroup;
 			children = (
+				C8137F352056E0210074D2AF /* EventTableViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -277,10 +289,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */,
 				C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */,
+				C8137F362056E0210074D2AF /* EventTableViewCell.swift in Sources */,
 				C8D51084204F79D800835AD3 /* DataService.swift in Sources */,
 				C8D51082204F742F00835AD3 /* School.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,
+				C8137F342056D0970074D2AF /* Event.swift in Sources */,
+				C8137F322056D0130074D2AF /* EventListVC.swift in Sources */,
 				C80F31F92049F456002F6FED /* AppDelegate.swift in Sources */,
 				C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */,
 				C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */,

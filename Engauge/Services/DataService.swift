@@ -47,7 +47,8 @@ class DataService {
                 for schoolID in schoolsDict.keys {
                     if let schoolInfo = schoolsDict[schoolID] as? [String: Any] {
                         if let adminUID = schoolInfo[DatabaseKeys.SCHOOL.adminUID] as? String, let domain = schoolInfo[DatabaseKeys.SCHOOL.domain] as? String, let name = schoolInfo[DatabaseKeys.SCHOOL.name] as? String {
-                            schools.append(School(name: name, schoolID: schoolID, adminUID: adminUID, domain: domain))
+                            // eventIDs is nil because this data will be used for displaying the names of the schools, not their events
+                            schools.append(School(name: name, schoolID: schoolID, adminUID: adminUID, domain: domain, eventIDs: nil))
                         }
                     }
                 }
@@ -62,23 +63,21 @@ class DataService {
         DataService.instance.REF_SCHOOLS.child(receiverSchoolID).observeSingleEvent(of: .value) { (snapshot) in
             // Can we grab the school's admin's UID?
             guard let schoolInfo = snapshot.value as? [String : Any], let adminUID = schoolInfo[DatabaseKeys.SCHOOL.adminUID] as? String else {
-                print("Brennan - Database error trying to get school's info. snapshot.value = \(String(describing: snapshot.value))")
-                completion?("Database error.")
+                completion?("Database error. Unable to deliver the notification to the Admin.")
                 return
             }
             
             // Make sure the admin user exists in the "users" node of the database.
             DataService.instance.REF_USERS.child(adminUID).observeSingleEvent(of: .value, with: { (snapshot) in
                 guard let adminInfo = snapshot.value as? [String : Any], adminInfo.count > 0 else {
-                    print("Brennan - Database error trying to get admin's user info. snapshot.value = \(String(describing: snapshot.value))")
-                    completion?("Database error.")
+                    completion?("Database error. Unable to deliver the notification to the Admin.")
                     return
                 }
                 
                 let notifID = DataService.instance.REF_NOTIFICATIONS.childByAutoId().key
                 let notifData = [DatabaseKeys.NOTIFICATION.senderUID: senderUID,
                                  DatabaseKeys.NOTIFICATION.receiverUID: adminUID]
-                let updates : [String : Any] = ["/\(DatabaseKeys.NOTIFICATION.key)/\(notifID)/": notifData,
+                let updates: [String : Any] = ["/\(DatabaseKeys.NOTIFICATION.key)/\(notifID)/": notifData,
                                "/\(DatabaseKeys.USER.key)/\(adminUID)/\(DatabaseKeys.USER.notifications)/\(notifID)/": true]
                 
                 DataService.instance.REF_ROOT.updateChildValues(updates, withCompletionBlock: { (error, ref) in
@@ -93,6 +92,62 @@ class DataService {
             })
         }
     }
+    
+    
+    
+    func getEventsForSchoolWithID(_ schoolID: String, completion: @escaping ([Event]) -> Void) {
+        var events = [Event]()
+        DataService.instance.REF_SCHOOLS.child(schoolID).child(DatabaseKeys.SCHOOL.events).observeSingleEvent(of: .value) { (snapshot) in
+            if let eventIDs = (snapshot.value as? [String : Any])?.keys {
+                var eventsToRetrieve = eventIDs.count
+                for eventID in eventIDs {
+                    DataService.instance.getEventWithID(eventID) { (event) in
+                        eventsToRetrieve -= 1
+                        if event != nil {
+                            events.append(event!)
+                        }
+                        if eventsToRetrieve <= 0 {
+                            completion(events)
+                        }
+                    }
+                }
+            } else {
+                completion(events)
+            }
+        }
+    }
+    
+    
+    
+    func getEventWithID(_ eventID: String, completion: @escaping (Event?) -> Void) {
+        DataService.instance.REF_EVENTS.child(eventID).observeSingleEvent(of: .value, with: { (snapshot) in
+            if let eventData = snapshot.value as? [String : Any],
+               let name = eventData[DatabaseKeys.EVENT.name] as? String,
+               let startTimeDouble = eventData[DatabaseKeys.EVENT.startTime] as? Double,
+               let endTimeDouble = eventData[DatabaseKeys.EVENT.endTime] as? Double,
+               let location = eventData[DatabaseKeys.EVENT.location] as? String,
+               let schedulerUID = eventData[DatabaseKeys.EVENT.schedulerUID] as? String,
+               let schoolID = eventData[DatabaseKeys.EVENT.schoolID] as? String,
+               let qrCodeURL = eventData[DatabaseKeys.EVENT.qrCodeURL] as? String {
+                // Optional info for an event
+                let description = eventData[DatabaseKeys.EVENT.description] as? String
+                let imageURL = eventData[DatabaseKeys.EVENT.imageURL] as? String
+                let thumbnailURL = eventData[DatabaseKeys.EVENT.thumbnailURL] as? String
+                let associatedTransactionIDs = Array((eventData[DatabaseKeys.EVENT.associatedTransactions] as? [String : Any])?.keys ?? [String : Any]().keys)
+                // Converting Doubles to Dates
+                let startTime = Date(timeIntervalSince1970: startTimeDouble)
+                let endTime = Date(timeIntervalSince1970: endTimeDouble)
+                
+                let retrievedEvent = Event(name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL, associatedTransactionIDs: associatedTransactionIDs.isEmpty ? nil : associatedTransactionIDs)
+                
+                completion(retrievedEvent)
+            } else {
+                completion(nil)
+            }
+        })
+
+    }
+    
     
     
     

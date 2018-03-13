@@ -17,6 +17,9 @@ class StorageService {
     
     let REF_PROFILE_PICS_FULL = Storage.storage().reference().child(StorageKeys.PROFILE_PICS_FULL)
     let REF_PROFILE_PICS_THUMBNAIL = Storage.storage().reference().child(StorageKeys.PROFILE_PICS_THUMBNAIL)
+    let REF_EVENT_PICS_FULL = Storage.storage().reference().child(StorageKeys.EVENT_PICS_FULL)
+    let REF_EVENT_PICS_THUMBNAIL = Storage.storage().reference().child(StorageKeys.EVENT_PICS_THUMBNAIL)
+    
     
     
     
