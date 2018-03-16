@@ -12,8 +12,13 @@ import FirebaseDatabase
 
 class SignInVC: UIViewController, UITextFieldDelegate {
     
-    @IBOutlet weak var emailTextField: UITextField!
-    @IBOutlet weak var passwordTextField: UITextField!
+    deinit {
+        print("Brennan - deallocating SignInVC from memory")
+    }
+    
+    // MARK: Outlets
+    @IBOutlet weak var emailTextField: UITextField! { didSet { emailTextField.delegate = self } }
+    @IBOutlet weak var passwordTextField: UITextField! { didSet { passwordTextField.delegate = self } }
     
     
     
@@ -22,17 +27,33 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if let currUser = Auth.auth().currentUser {
+            print("Brennan - found current user in SignInVC viewDidLoad: \(currUser.email!)")
+            self.dismiss(animated: true, completion: {
+                print("Brennan - dismissed SignInVC because there's already a current user")
+            })
+        } else {
+            print("Brennan - no current user in SignInVC viewDidLoad")
+        }
+        
         self.dismissKeyboardWhenTappedOutside()
         
-        emailTextField.delegate = self
-        passwordTextField.delegate = self
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        print("Brennan - Current user = \(Auth.auth().currentUser?.email ?? "nil")")
+    override func viewWillAppear(_ animated: Bool) {
+        /*
+        // Sign out.
+        do {
+            try Auth.auth().signOut()
+        } catch let signOutError {
+            print("Brennan - error signing out: \(signOutError.localizedDescription)")
+        }
+        */
     }
     
     
+    
+    // MARK: Actions
     
     // Sign In
     @IBAction func signInButtonTapped(_ sender: UIButton) {
@@ -43,15 +64,13 @@ class SignInVC: UIViewController, UITextFieldDelegate {
         
         // Typed an e-mail address?
         guard let email = emailTextField.text, email != "" else {
-            errorAlert.message = "E-mail is required to sign in."
-            self.present(errorAlert, animated: true)
+            self.showErrorAlert(message: "E-mail is required to sign in.")
             return
         }
         
         // Typed a password?
         guard let password = passwordTextField.text, password != "" else {
-            errorAlert.message = "Password is required to sign in."
-            self.present(errorAlert, animated: true)
+            self.showErrorAlert(message: "Password is required to sign in.")
             return
         }
         
@@ -59,8 +78,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
         AuthService.instance.signIn(email: email, password: password) { (errorMessage, user) in
             if errorMessage != nil {
                 // There was a sign-in error.
-                errorAlert.message = errorMessage!
-                self.present(errorAlert, animated: true)
+                self.showErrorAlert(message: errorMessage!)
             } else {
                 // Successfully signed in.
                 
@@ -79,9 +97,23 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                 guard signedInUser.isEmailVerified else {
                     // Tell the user to verify his/her e-mail. Resend the e-mail if necessary.
                     let notVerifiedAlert = UIAlertController(title: "Not verified", message: "Please verify your e-mail address.", preferredStyle: .alert)
-                    notVerifiedAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                    notVerifiedAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (action) in
+                        // Sign out.
+                        do {
+                            try Auth.auth().signOut()
+                        } catch let signOutError {
+                            print("Brennan - error signing out: \(signOutError.localizedDescription)")
+                        }
+                    }))
                     notVerifiedAlert.addAction(UIAlertAction(title: "Resend e-mail", style: .default, handler: { (action) in
                         AuthService.instance.sendEmailVerification(toUser: signedInUser, completion: { (errorMessage, user) in
+                            // Sign out.
+                            do {
+                                try Auth.auth().signOut()
+                            } catch let signOutError {
+                                print("Brennan - error signing out: \(signOutError.localizedDescription)")
+                            }
+                            
                             if errorMessage != nil {
                                 errorAlert.message = errorMessage!
                                 self.present(errorAlert, animated: true)
@@ -101,8 +133,15 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                     // Can we verify the user's role?
                     guard let userData = snapshot.value as? [String : Any], let role = userData[DatabaseKeys.USER.role] as? Int else {
                         // Couldn't verify the user's role.
-                        errorAlert.message = "Database error: Couldn't verify your user role."
-                        self.present(errorAlert, animated: true)
+                        
+                        // Sign out.
+                        do {
+                            try Auth.auth().signOut()
+                        } catch let signOutError {
+                            print("Brennan - error signing out: \(signOutError.localizedDescription)")
+                        }
+                        
+                        self.showErrorAlert(message: "Database error: Couldn't verify your user role.")
                         return
                     }
                     
@@ -110,15 +149,22 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                     if role == UserRole.scheduler.toInt {
                         // Has the Scheduler been approved?
                         guard userData[DatabaseKeys.USER.approvedForScheduler] as? Bool == true else {
-                            errorAlert.message = "Your school's Admin hasn't approved you for Scheduler status."
-                            self.present(errorAlert, animated: true)
+                            // Scheduler hasn't been approved.
+                            // Sign out.
+                            do {
+                                try Auth.auth().signOut()
+                            } catch let signOutError {
+                                print("Brennan - error signing out: \(signOutError.localizedDescription)")
+                            }
+                            
+                            self.showErrorAlert(message: "Your school's Admin hasn't approved you for Scheduler status.")
                             return
                         }
                     }
                     
                     // PASSED ALL CHECKS
-                    print("Brennan - sign-in successful. User is verified and approved if a Scheduler.")
-                    self.dismiss(animated: true)
+                    print("Brennan - sign-in successful. User is verified (and approved if a Scheduler).")
+                    self.dismiss(animated: true) { print("Brennan - dismissed SignInVC because sign-in was successful.") }
                 })
             }
         }
@@ -128,6 +174,10 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     @IBAction func createAccountButtonTapped(_ sender: UIButton) {
         self.view.endEditing(true)
     }
+    
+    
+    
+    // MARK: Keyboard
     
     // Dismiss the keyboard when the user taps the "return" button.
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

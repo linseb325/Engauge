@@ -65,9 +65,10 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         // Need to sign out before returning to the sign-in screen.
+        // Sign out.
         do {
             print("Brennan - gonna try to sign out now in viewWillDisappear.")
-        try Auth.auth().signOut()
+            try Auth.auth().signOut()
         } catch let signOutError {
             print("Brennan - error signing out: \(signOutError.localizedDescription)")
         }
@@ -284,6 +285,13 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                             // TODO: Sign the user out right away?
                             print("Brennan - all 5 account creation steps COMPLETE.")
                             
+                            // Sign out.
+                            do {
+                                try Auth.auth().signOut()
+                            } catch let signOutError {
+                                print("Brennan - error signing out: \(signOutError.localizedDescription)")
+                            }
+                            
                             // Show the user a success message and instruct him/her to verify his/her e-mail address.
                             let successAlert = UIAlertController(title: "Success", message: "You're almost done! Check your inbox for a verification e-mail.", preferredStyle: .alert)
                             successAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
@@ -334,11 +342,11 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
         if let selectedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
             self.profileImageView.image = selectedImage
             self.didSelectImage = true
+            picker.dismiss(animated: true)
         } else {
             print("Brennan - Didn't retrieve an image from the image picker")
+            picker.dismiss(animated: true)
         }
-        
-        picker.dismiss(animated: true)
     }
     
     

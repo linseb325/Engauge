@@ -24,7 +24,7 @@ class EventTableViewCell: UITableViewCell {
     func configureCell(event: Event, thumbnailImageFromCache: UIImage? = nil) {
         self.event = event
         let formatter = DateFormatter()
-        formatter.dateStyle = .none
+        formatter.dateStyle = .medium
         formatter.timeStyle = .short
         self.startTimeLabel.text = formatter.string(from: event.startTime)
         self.nameLabel.text = event.name

@@ -13,6 +13,8 @@ class AuthService {
     
     static let instance = AuthService()
     
+    var userSignedIn = false
+    
     // Signing in. Completion parameters are an error message and a user.
     func signIn(email: String, password: String, completion: ((String?, User?) -> Void)?) {
         // Sign in stuff

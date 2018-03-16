@@ -8,6 +8,7 @@
 
 import Foundation
 import FirebaseDatabase
+import FirebaseAuth
 
 class DataService {
     
@@ -23,6 +24,13 @@ class DataService {
     let REF_SCHOOLS = Database.database().reference().child(DatabaseKeys.SCHOOL.key)
     let REF_TRANSACTIONS = Database.database().reference().child(DatabaseKeys.TRANSACTION.key)
     let REF_USERS = Database.database().reference().child(DatabaseKeys.USER.key)
+    
+    var REF_CURRENT_USER: DatabaseReference? {
+        if let currentUser = Auth.auth().currentUser {
+            return DataService.instance.REF_USERS.child(currentUser.uid)
+        }
+        return nil
+    }
     
     
     
@@ -40,6 +48,43 @@ class DataService {
     
     
     
+    func getRoleForUserWithUID(_ uid: String, completion: @escaping (Int?) -> Void) {
+        DataService.instance.REF_USERS.child("/\(uid)/\(DatabaseKeys.USER.role)").observeSingleEvent(of: .value) { (snapshot) in
+            if let role = snapshot.value as? Int {
+                completion(role)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    func getSchoolIDForUserWithUID(_ uid: String, completion: @escaping (String?) -> Void) {
+        DataService.instance.REF_USERS.child("/\(uid)/\(DatabaseKeys.USER.schoolID)").observeSingleEvent(of: .value) { (snapshot) in
+            if let schoolID = snapshot.value as? String {
+                completion(schoolID)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    
+    
+    // Event IDs are not sorted in any way
+    func getFavoriteEventIDsForUserWithUID(_ uid: String, completion: @escaping ([String]?) -> Void) {
+        DataService.instance.REF_USERS.child("/\(uid)/\(DatabaseKeys.USER.favoriteEvents)").observeSingleEvent(of: .value) { (snapshot) in
+            if let favorites = snapshot.value as? [String : Bool], favorites.count > 0 {
+                let favoriteIDs = Array(favorites.keys)
+                completion(favoriteIDs)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    
+    
+    // Schools are not sorted in any way
     func getAllSchools(completion: @escaping ([School]) -> Void) {
         var schools = [School]()
         DataService.instance.REF_SCHOOLS.observeSingleEvent(of: .value) { (snapshot) in
@@ -56,6 +101,7 @@ class DataService {
             completion(schools)
         }
     }
+    
     
     
     func sendRoleRequestNotification(fromUserWithUID senderUID: String, forSchoolWithID receiverSchoolID: String, completion: ((String?) -> Void)?) {
@@ -95,6 +141,7 @@ class DataService {
     
     
     
+    // Events are not sorted in any way
     func getEventsForSchoolWithID(_ schoolID: String, completion: @escaping ([Event]) -> Void) {
         var events = [Event]()
         DataService.instance.REF_SCHOOLS.child(schoolID).child(DatabaseKeys.SCHOOL.events).observeSingleEvent(of: .value) { (snapshot) in
@@ -138,7 +185,7 @@ class DataService {
                 let startTime = Date(timeIntervalSince1970: startTimeDouble)
                 let endTime = Date(timeIntervalSince1970: endTimeDouble)
                 
-                let retrievedEvent = Event(name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL, associatedTransactionIDs: associatedTransactionIDs.isEmpty ? nil : associatedTransactionIDs)
+                let retrievedEvent = Event(eventID: eventID, name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL, associatedTransactionIDs: associatedTransactionIDs.isEmpty ? nil : associatedTransactionIDs)
                 
                 completion(retrievedEvent)
             } else {
