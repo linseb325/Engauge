@@ -27,8 +27,29 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // Event data
     // private var events: [[Event]] = [[Event](), [Event]()]
-    private var events = [Event]()
-    private var filteredEvents: [Event]?
+    
+    private var events = [Date : [Event]]() {
+        didSet {
+            sectionKeys = events.keys.sorted()
+        }
+    }
+    private var filteredEvents: [Date : [Event]]? {
+        didSet {
+            if filteredEvents != nil {
+                sectionKeys = filteredEvents!.keys.sorted()
+            } else {
+                sectionKeys = events.keys.sorted()
+            }
+        }
+    }
+    private var sectionKeys = [Date]()
+    
+    private let formatter: DateFormatter = {
+        let f = DateFormatter()
+        f.timeStyle = .none
+        f.dateStyle = .short
+        return f
+    }()
     
     // Searching
     private var searchOn: Bool { return searchText != nil }
@@ -70,6 +91,8 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
     }
     
+    
+    
     // For profile image thumbnails
     static var imageCache = NSCache<NSString, UIImage>()
     
@@ -88,12 +111,12 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
             if let currUser = user {
                 // User is logged in, so retrieve events.
                 print("Brennan - EventListVC auth listener in viewDidLoad says current user's e-mail is: \(currUser.email ?? "nil")")
-                self.events = TEST_EVENTS
+                // TODO: self.events = TEST_EVENTS
                 DataService.instance.getSchoolIDForUserWithUID(currUser.uid) { (schoolID) in
                     if let userSchoolID = schoolID {
                         // Got the user's school ID.
-                        DataService.instance.getEventsForSchoolWithID(userSchoolID) { (events) in
-                            self.events.append(contentsOf: events)
+                        DataService.instance.getEventsSectionedByDateForSchoolWithID(userSchoolID) { (events) in
+                            self.events = events
                             self.tableView.reloadData()
                         }
                     } else {
@@ -105,9 +128,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                 // User is not logged in, so present SignInVC
                 print("Brennan - EventListVC auth listener in viewDidLoad says nobody is signed in!")
                 self.events.removeAll()
-                self.presentSignInVC(completion: {
-                    print("Brennan - presented SignInVC")
-                })
+                self.presentSignInVC(completion: { print("Brennan - presented SignInVC") })
             }
         }
         // Auth.auth().removeStateDidChangeListener(handle)
@@ -127,16 +148,16 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     // MARK: Table View methods
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return (filteredEvents != nil) ? self.filteredEvents!.count : self.events.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return (filteredEvents != nil) ? self.filteredEvents!.count : self.events.count
+        return (filteredEvents != nil) ? (self.filteredEvents![sectionKeys[section]]!.count) : (self.events[sectionKeys[section]]!.count)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "EventTableViewCell") as? EventTableViewCell
-        let currEvent = (filteredEvents != nil) ? self.filteredEvents![indexPath.row] : self.events[indexPath.row]     // TODO: Change this array access because self.events will be a 2-D array eventually.
+        let currEvent = (filteredEvents != nil) ? self.filteredEvents![sectionKeys[indexPath.section]]![indexPath.row] : self.events[sectionKeys[indexPath.section]]![indexPath.row]
         if let thumbImageURL = currEvent.thumbnailURL {
             // The event has a thumbnail image.
             cell?.configureCell(event: currEvent, thumbnailImageFromCache: EventListVC.imageCache.object(forKey: thumbImageURL as NSString))
@@ -146,6 +167,26 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
         return cell ?? UITableViewCell()
     }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return titleForSection(section)
+    }
+    
+    // Helper for titleForHeaderInSection function above.
+    // This function is only for English-speaking locales:
+    func stringForWeekday(_ num: Int, abbreviated: Bool) -> String? {
+        return abbreviated ? WEEKDAY_INTS_TO_STRINGS_ABBREVIATED[num] : WEEKDAY_INTS_TO_STRINGS[num]
+    }
+    
+    // Helper for titleForHeaderInSection function above.
+    func titleForSection(_ sectionNum: Int) -> String {
+        let sectionDate = sectionKeys[sectionNum]
+        let dayTitle = stringForWeekday(formatter.calendar.component(.weekday, from: sectionDate), abbreviated: true)!
+        return "\(dayTitle) \(formatter.string(from: sectionDate))"
+    }
+
+    
+    
     
     
     
@@ -190,23 +231,55 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     // MARK: Filtering and searching events
     
     func applyFilters() {
-        if filtersOn {
-            // Filter through all events
-            self.filteredEvents = self.events
-            for filter in filters! {
-                self.filteredEvents = self.filteredEvents!.filter(filter)
+        guard filtersOn else { return }
+        
+        var numFiltersApplied = 0
+        self.filteredEvents = [Date : [Event]]()
+        
+        for filter in filters! {
+            if numFiltersApplied > 0 {
+                // The events have already been filtered once, so apply this filter to the sections in the already-filtered events.
+                for daySection in filteredEvents! {
+                    self.filteredEvents![daySection.key] = daySection.value.filter(filter)
+                    // If all the events for a day are filtered out, remove that day from the filtered events.
+                    if self.filteredEvents![daySection.key]!.isEmpty {
+                        self.filteredEvents![daySection.key] = nil
+                    }
+                }
+            } else {
+                // Go through each day's events and filter them with the current filter.
+                for daySection in events {
+                    self.filteredEvents![daySection.key] = daySection.value.filter(filter)
+                    // If all the events for a day are filtered out, remove that day from the filtered events.
+                    if self.filteredEvents![daySection.key]!.isEmpty {
+                        self.filteredEvents![daySection.key] = nil
+                    }
+                }
+                
             }
+            numFiltersApplied += 1
         }
     }
     
     func applySearch() {
-        if searchOn {
-            if filtersOn {
-                // Search through already filtered events
-                self.filteredEvents = self.filteredEvents?.filter { $0.name.lowercased().contains(searchText!.lowercased()) }
-            } else {
-                // Search through all events
-                self.filteredEvents = self.events.filter { $0.name.lowercased().contains(searchText!.lowercased()) }
+        guard searchOn else { return }
+        
+        if filtersOn {
+            // Search through already filtered events
+            for daySection in filteredEvents! {
+                self.filteredEvents![daySection.key] = daySection.value.filter { $0.name.lowercased().contains(searchText!.lowercased()) }
+                if self.filteredEvents![daySection.key]!.isEmpty {
+                    self.filteredEvents![daySection.key] = nil
+                }
+            }
+        } else {
+            // Search through all events
+            self.filteredEvents = [Date : [Event]]()
+            for daySection in events {
+                self.filteredEvents![daySection.key] = daySection.value.filter { $0.name.lowercased().contains(searchText!.lowercased()) }
+                if self.filteredEvents![daySection.key]!.isEmpty {
+                    self.filteredEvents![daySection.key] = nil
+                }
             }
         }
     }

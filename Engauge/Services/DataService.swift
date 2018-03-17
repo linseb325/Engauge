@@ -32,6 +32,8 @@ class DataService {
         return nil
     }
     
+    let formatter = DateFormatter()
+    
     
     
     func createUserInDatabase(uid: String, userInfo: [String : Any], completion: ((String?) -> Void)?) {
@@ -164,6 +166,45 @@ class DataService {
         }
     }
     
+    func getEventsSectionedByDateForSchoolWithID(_ schoolID: String, completion: @escaping ([Date : [Event]]) -> Void) {
+        var allEvents = [Event]()
+        DataService.instance.REF_SCHOOLS.child(schoolID).child(DatabaseKeys.SCHOOL.events).observeSingleEvent(of: .value) { (snapshot) in
+            if let eventIDs = (snapshot.value as? [String : Any])?.keys {
+                var eventsToRetrieve = eventIDs.count
+                for eventID in eventIDs {
+                    DataService.instance.getEventWithID(eventID) { (event) in
+                        eventsToRetrieve -= 1
+                        if event != nil {
+                            allEvents.append(event!)
+                        }
+                        if eventsToRetrieve <= 0 {
+                            // Done getting events
+                            var groupedEvents = groupEventsByDate(events: allEvents)
+                            // Sort each day's events from earliest to latest start time.
+                            for dateSection in groupedEvents {
+                                groupedEvents[dateSection.key] = dateSection.value.sorted { $0.startTime < $1.startTime }
+                            }
+                            completion(groupedEvents)
+                        }
+                    }
+                }
+            } else {
+                // Couldn't get any events. Pass an empty dictionary to the completion handler.
+                completion([Date : [Event]]())
+            }
+        }
+        
+        
+        // Nested function:
+        func groupEventsByDate(events: [Event]) -> [Date : [Event]] {
+            return Dictionary(grouping: events, by: { (event) in
+                return DataService.instance.formatter.calendar.date(bySettingHour: 0, minute: 0, second: 0, of: event.startTime) ?? Date(timeIntervalSince1970: 0)
+            })
+        }
+        
+        
+
+    }
     
     
     func getEventWithID(_ eventID: String, completion: @escaping (Event?) -> Void) {

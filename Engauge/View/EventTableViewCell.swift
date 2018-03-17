@@ -24,9 +24,9 @@ class EventTableViewCell: UITableViewCell {
     func configureCell(event: Event, thumbnailImageFromCache: UIImage? = nil) {
         self.event = event
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
+        formatter.dateStyle = .none
         formatter.timeStyle = .short
-        self.startTimeLabel.text = formatter.string(from: event.startTime)
+        self.startTimeLabel.text = "\(formatter.string(from: event.startTime)) - \(formatter.string(from: event.endTime))"
         self.nameLabel.text = event.name
         self.locationLabel.text = event.location
         
@@ -46,6 +46,9 @@ class EventTableViewCell: UITableViewCell {
                     EventListVC.imageCache.setObject(retrievedImage, forKey: thumbImageURL as NSString)
                 }
             })
+        } else {
+            // This event doesn't have an associated image, so use the default image.
+            self.thumbnailImageView.image = UIImage(named: "gauge")
         }
     }
 }
