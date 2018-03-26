@@ -46,8 +46,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     private let formatter: DateFormatter = {
         let f = DateFormatter()
-        f.timeStyle = .none
-        f.dateStyle = .short
+        f.setLocalizedDateFormatFromTemplate("E, MMM d, yyyy")
         return f
     }()
     
@@ -112,10 +111,10 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                 // User is logged in, so retrieve events.
                 print("Brennan - EventListVC auth listener in viewDidLoad says current user's e-mail is: \(currUser.email ?? "nil")")
                 // TODO: self.events = TEST_EVENTS
-                DataService.instance.getSchoolIDForUserWithUID(currUser.uid) { (schoolID) in
+                DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
                     if let userSchoolID = schoolID {
                         // Got the user's school ID.
-                        DataService.instance.getEventsSectionedByDateForSchoolWithID(userSchoolID) { (events) in
+                        DataService.instance.getEventsSectionedByDateForSchool(withID: userSchoolID) { (events) in
                             self.events = events
                             self.tableView.reloadData()
                         }
@@ -136,11 +135,10 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        
-        
+    override func viewDidAppear(_ animated: Bool) {
+        if let selectedIndexPath = tableView.indexPathForSelectedRow {
+            tableView.deselectRow(at: selectedIndexPath, animated: true)
+        }
     }
     
     
@@ -181,8 +179,16 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     // Helper for titleForHeaderInSection function above.
     func titleForSection(_ sectionNum: Int) -> String {
         let sectionDate = sectionKeys[sectionNum]
-        let dayTitle = stringForWeekday(formatter.calendar.component(.weekday, from: sectionDate), abbreviated: true)!
-        return "\(dayTitle) \(formatter.string(from: sectionDate))"
+        return formatter.string(from: sectionDate)
+    }
+    
+    // Tapped a table view cell
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let selectedEvent = (tableView.cellForRow(at: indexPath) as? EventTableViewCell)?.event {
+            performSegue(withIdentifier: "toEventDetailsVC", sender: selectedEvent)
+        } else {
+            tableView.deselectRow(at: indexPath, animated: true)
+        }
     }
 
     
@@ -247,6 +253,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                     }
                 }
             } else {
+                // This is the first filter we'll apply.
                 // Go through each day's events and filter them with the current filter.
                 for daySection in events {
                     self.filteredEvents![daySection.key] = daySection.value.filter(filter)
@@ -296,6 +303,10 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                 filters = nil
                 searchBar.text = nil
                 searchText = nil
+            case "toEventDetailsVC":
+                if let selectedEvent = sender as? Event, let destinationVC = segue.destination as? EventDetailsVC {
+                    destinationVC.event = selectedEvent
+                }
             default:
                 // Do nothing
                 break

@@ -65,7 +65,7 @@ class FilterEventsTVC: UITableViewController {
         
         // The user can only filter by favorites if he/she is a Student.
         if let currUser = Auth.auth().currentUser {
-            DataService.instance.getRoleForUserWithUID(currUser.uid, completion: { (role) in
+            DataService.instance.getRoleForUser(withUID: currUser.uid, completion: { (role) in
                 if let roleNum = role {
                     if roleNum != UserRole.student.toInt {
                         // User is not a student. Can't filter by favorites.
@@ -233,7 +233,7 @@ class FilterEventsTVC: UITableViewController {
         if favoritesSwitch.isOn {
             // Add favorites filter
             if let currUser = Auth.auth().currentUser {
-                DataService.instance.getFavoriteEventIDsForUserWithUID(currUser.uid, completion: { (eventIDs) in
+                DataService.instance.getFavoriteEventIDsForUser(withUID: currUser.uid, completion: { (eventIDs) in
                     print("Brennan - just retrieved \(String(describing: currUser.email))'s favorite events. About to execute the completion block now.)")
                     if eventIDs != nil {
                         // Successfully retrieved the favorite event IDs.

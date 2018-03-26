@@ -19,13 +19,18 @@
 		C8137F322056D0130074D2AF /* EventListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F312056D0130074D2AF /* EventListVC.swift */; };
 		C8137F342056D0970074D2AF /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F332056D0970074D2AF /* Event.swift */; };
 		C8137F362056E0210074D2AF /* EventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F352056E0210074D2AF /* EventTableViewCell.swift */; };
+		C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85333612062D52400D01734 /* EventDetailsVC.swift */; };
 		C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */; };
 		C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B162058639700A24B95 /* FilterEventsTVC.swift */; };
 		C8B98B1920596E1400A24B95 /* EventFilterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B1820596E1400A24B95 /* EventFilterFactory.swift */; };
 		C8B98B1D205C086000A24B95 /* MyTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B1C205C086000A24B95 /* MyTabBarController.swift */; };
+		C8B9D80F2065FC7A0011EC7B /* FavoriteBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B9D80E2065FC7A0011EC7B /* FavoriteBarButtonItem.swift */; };
+		C8CB84BD2064374600913E20 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8CB84BC2064374600913E20 /* Transaction.swift */; };
+		C8CB84BF206485C900913E20 /* TransactionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8CB84BE206485C900913E20 /* TransactionTableViewCell.swift */; };
 		C8D51082204F742F00835AD3 /* School.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51081204F742F00835AD3 /* School.swift */; };
 		C8D51084204F79D800835AD3 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51083204F79D800835AD3 /* DataService.swift */; };
 		C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E939CC2052178A00CEAF87 /* StorageService.swift */; };
+		C8FA5AF72063054A00EE7F64 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FA5AF62063054A00EE7F64 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,13 +48,18 @@
 		C8137F312056D0130074D2AF /* EventListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListVC.swift; sourceTree = "<group>"; };
 		C8137F332056D0970074D2AF /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		C8137F352056E0210074D2AF /* EventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTableViewCell.swift; sourceTree = "<group>"; };
+		C85333612062D52400D01734 /* EventDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsVC.swift; sourceTree = "<group>"; };
 		C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationTVC.swift; sourceTree = "<group>"; };
 		C8B98B162058639700A24B95 /* FilterEventsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterEventsTVC.swift; sourceTree = "<group>"; };
 		C8B98B1820596E1400A24B95 /* EventFilterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFilterFactory.swift; sourceTree = "<group>"; };
 		C8B98B1C205C086000A24B95 /* MyTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabBarController.swift; sourceTree = "<group>"; };
+		C8B9D80E2065FC7A0011EC7B /* FavoriteBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteBarButtonItem.swift; sourceTree = "<group>"; };
+		C8CB84BC2064374600913E20 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		C8CB84BE206485C900913E20 /* TransactionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableViewCell.swift; sourceTree = "<group>"; };
 		C8D51081204F742F00835AD3 /* School.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = School.swift; sourceTree = "<group>"; };
 		C8D51083204F79D800835AD3 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		C8E939CC2052178A00CEAF87 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		C8FA5AF62063054A00EE7F64 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		D59D261DD2848CECED032518 /* Pods-Engauge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Engauge.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Engauge/Pods-Engauge.debug.xcconfig"; sourceTree = "<group>"; };
 		E020E6CE04F8C5421691A37C /* Pods_Engauge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Engauge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -86,7 +96,6 @@
 		C80F31EC2049F456002F6FED = {
 			isa = PBXGroup;
 			children = (
-				C80F3212204B4D6E002F6FED /* Constants.swift */,
 				C80F31F72049F456002F6FED /* Engauge */,
 				C80F31F62049F456002F6FED /* Products */,
 				37392F56AF5AA9D340CD3C24 /* Pods */,
@@ -106,6 +115,8 @@
 			isa = PBXGroup;
 			children = (
 				C80F31FC2049F456002F6FED /* Main.storyboard */,
+				C80F3212204B4D6E002F6FED /* Constants.swift */,
+				C8FA5AF62063054A00EE7F64 /* Extensions.swift */,
 				C80F320F204A2CE0002F6FED /* Services */,
 				C80F320E204A0291002F6FED /* View */,
 				C80F320D204A028C002F6FED /* Model */,
@@ -127,6 +138,7 @@
 				C8137F312056D0130074D2AF /* EventListVC.swift */,
 				C8B98B162058639700A24B95 /* FilterEventsTVC.swift */,
 				C8B98B1C205C086000A24B95 /* MyTabBarController.swift */,
+				C85333612062D52400D01734 /* EventDetailsVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -137,6 +149,7 @@
 				C8D51081204F742F00835AD3 /* School.swift */,
 				C8137F332056D0970074D2AF /* Event.swift */,
 				C8B98B1820596E1400A24B95 /* EventFilterFactory.swift */,
+				C8CB84BC2064374600913E20 /* Transaction.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -145,6 +158,8 @@
 			isa = PBXGroup;
 			children = (
 				C8137F352056E0210074D2AF /* EventTableViewCell.swift */,
+				C8CB84BE206485C900913E20 /* TransactionTableViewCell.swift */,
+				C8B9D80E2065FC7A0011EC7B /* FavoriteBarButtonItem.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -296,18 +311,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */,
+				C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */,
+				C8B9D80F2065FC7A0011EC7B /* FavoriteBarButtonItem.swift in Sources */,
 				C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */,
 				C8137F362056E0210074D2AF /* EventTableViewCell.swift in Sources */,
 				C8D51084204F79D800835AD3 /* DataService.swift in Sources */,
 				C8B98B1920596E1400A24B95 /* EventFilterFactory.swift in Sources */,
+				C8CB84BD2064374600913E20 /* Transaction.swift in Sources */,
 				C8D51082204F742F00835AD3 /* School.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,
 				C8137F342056D0970074D2AF /* Event.swift in Sources */,
 				C8137F322056D0130074D2AF /* EventListVC.swift in Sources */,
 				C80F31F92049F456002F6FED /* AppDelegate.swift in Sources */,
+				C8FA5AF72063054A00EE7F64 /* Extensions.swift in Sources */,
 				C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */,
 				C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */,
 				C80F3213204B4D6E002F6FED /* Constants.swift in Sources */,
+				C8CB84BF206485C900913E20 /* TransactionTableViewCell.swift in Sources */,
 				C8B98B1D205C086000A24B95 /* MyTabBarController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

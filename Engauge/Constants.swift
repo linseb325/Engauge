@@ -22,45 +22,14 @@ let TEST_EVENTS = [
 
 
 
-extension UIViewController {
-    var contentsViewController: UIViewController {
-        if let navigationController = self as? UINavigationController {
-            return navigationController.visibleViewController ?? self
-        } else {
-            return self
-        }
-    }
-    
-    // If the user taps somewhere outside the keyboard while editing text, dismiss the keyboard.
-    func dismissKeyboardWhenTappedOutside() {
-        let tapOutsideKeyboard: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        self.view.addGestureRecognizer(tapOutsideKeyboard)
-    }
-    
-    @objc private func dismissKeyboard() {
-        self.view.endEditing(true)
-    }
-    
-    func showErrorAlert(title: String = "Error", message: String) {
-        let errorAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(errorAlert, animated: true)
-    }
-    
-    func presentSignInVC(completion: (() -> Void)? = nil) {
-        let signInScreen = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SignInVC")
-        self.present(signInScreen, animated: true, completion: completion)
-    }
-}
-
-
-
 // User roles mapped to ints and strings
 struct UserRole {
     static let student = (toInt: 0, toString: "student")
     static let scheduler = (toInt: 1, toString: "scheduler")
     static let admin = (toInt: 2, toString: "admin")
 }
+
+
 
 struct DatabaseKeys {
     static let EVENT = (key: "events",
@@ -96,18 +65,19 @@ struct DatabaseKeys {
     
     static let TRANSACTION = (key: "transactions",
                               eventID: "eventID",
-                              manualInitiator: "manualInitiator",
+                              manualInitiatorUID: "manualInitiatorUID",
                               pointValue: "pointValue",
                               prizeID: "prizeID",
                               schoolID: "schoolID",
                               timestamp: "timestamp",
                               userID: "userID")
     
+    static let USER_FAVORITE_EVENTS_KEY = "userFavoriteEvents"
+    
     static let USER = (key: "users",
                        approvedForScheduler: "approvedForScheduler",
                        emailAddress: "emailAddress",
                        events: "events",
-                       favoriteEvents: "favoriteEvents",
                        firstName: "firstName",
                        imageURL: "imageURL",
                        lastName: "lastName",
@@ -118,6 +88,8 @@ struct DatabaseKeys {
                        thumbnailURL: "thumbnailURL")
 }
 
+
+
 struct StorageKeys {
     static let PROFILE_PICS_FULL = "profile-pics-full"
     static let PROFILE_PICS_THUMBNAIL = "profile-pics-thumbnail"
@@ -125,19 +97,12 @@ struct StorageKeys {
     static let EVENT_PICS_THUMBNAIL = "event-pics-thumbnail"
 }
 
+
+
 struct StorageImageQuality {
     static let FULL: CGFloat = 1.0
     static let THUMBNAIL: CGFloat = 0.1
 }
-
-
-
-// For use with expandable content (for example, table view cells)
-protocol Expandable {
-    var isExpanded: Bool { get set }
-}
-
-
 
 
 
