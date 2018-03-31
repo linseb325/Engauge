@@ -31,61 +31,73 @@ struct UserRole {
 
 
 
-struct DatabaseKeys {
-    static let EVENT = (key: "events",
-                        associatedTransactions: "associatedTransactions",
-                        description: "description",
-                        endTime: "endTime",
-                        imageURL: "imageURL",
-                        location: "location",
-                        name: "name",
-                        qrCodeURL: "qrCodeURL",
-                        schedulerUID: "schedulerUID",
-                        schoolID: "schoolID",
-                        startTime: "startTime",
-                        thumbnailURL: "thumbnailURL")
+struct DBKeys {
+    struct EVENT {
+        static let key = "events"
+        static let associatedTransactions = "associatedTransactions"
+        static let description = "description"
+        static let endTime = "endTime"
+        static let imageURL = "imageURL"
+        static let location = "location"
+        static let name = "name"
+        static let qrCodeURL = "qrCodeURL"
+        static let schedulerUID = "schedulerUID"
+        static let schoolID = "schoolID"
+        static let startTime = "startTime"
+        static let thumbnailURL = "thumbnailURL"
+    }
     
-    static let NOTIFICATION = (key: "notifications",
-                               receiverUID: "receiverUID",
-                               senderUID: "senderUID")
+    struct NOTIFICATION {
+        static let key = "notifications"
+        static let receiverUID = "receiverUID"
+        static let senderUID = "senderUID"
+    }
     
-    static let PRIZE = (key: "prizes",
-                        cost: "cost",
-                        description: "description",
-                        imageURL: "imageURL",
-                        name: "name",
-                        schoolID: "schoolID",
-                        thumbnailURL: "thumbnailURL")
+    struct PRIZE {
+        static let key = "prizes"
+        static let cost = "cost"
+        static let description = "description"
+        static let imageURL = "imageURL"
+        static let name = "name"
+        static let schoolID = "schoolID"
+        static let thumbnailURL = "thumbnailURL"
+    }
     
-    static let SCHOOL = (key: "schools",
-                         adminUID: "adminUID",
-                         events: "events",
-                         domain: "domain",
-                         name: "name")
+    struct SCHOOL {
+        static let key = "schools"
+        static let adminUID = "adminUID"
+        static let events = "events"
+        static let domain = "domain"
+        static let name = "name"
+    }
     
-    static let TRANSACTION = (key: "transactions",
-                              eventID: "eventID",
-                              manualInitiatorUID: "manualInitiatorUID",
-                              pointValue: "pointValue",
-                              prizeID: "prizeID",
-                              schoolID: "schoolID",
-                              timestamp: "timestamp",
-                              userID: "userID")
+    struct TRANSACTION {
+        static let key = "transactions"
+        static let eventID = "eventID"
+        static let manualInitiatorUID = "manualInitiatorUID"
+        static let pointValue = "pointValue"
+        static let prizeID = "prizeID"
+        static let schoolID = "schoolID"
+        static let timestamp = "timestamp"
+        static let userID = "userID"
+    }
     
     static let USER_FAVORITE_EVENTS_KEY = "userFavoriteEvents"
     
-    static let USER = (key: "users",
-                       approvedForScheduler: "approvedForScheduler",
-                       emailAddress: "emailAddress",
-                       events: "events",
-                       firstName: "firstName",
-                       imageURL: "imageURL",
-                       lastName: "lastName",
-                       notifications: "notifications",
-                       pointBalance: "pointBalance",
-                       role: "role",
-                       schoolID: "schoolID",
-                       thumbnailURL: "thumbnailURL")
+    struct USER {
+        static let key = "users"
+        static let approvedForScheduler = "approvedForScheduler"
+        static let emailAddress = "emailAddress"
+        static let events = "events"
+        static let firstName = "firstName"
+        static let imageURL = "imageURL"
+        static let lastName = "lastName"
+        static let notifications = "notifications"
+        static let pointBalance = "pointBalance"
+        static let role = "role"
+        static let schoolID = "schoolID"
+        static let thumbnailURL = "thumbnailURL"
+    }
 }
 
 
@@ -95,6 +107,7 @@ struct StorageKeys {
     static let PROFILE_PICS_THUMBNAIL = "profile-pics-thumbnail"
     static let EVENT_PICS_FULL = "event-pics-full"
     static let EVENT_PICS_THUMBNAIL = "event-pics-thumbnail"
+    static let QR_CODE_PICS = "qr-code-pics"
 }
 
 

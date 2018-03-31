@@ -25,7 +25,7 @@ class FilterEventsTVC: UITableViewController {
     
     var filtersCreated: [EventFilterFactory.EventFilter]?
     
-    let formatter: DateFormatter = {
+    static let formatter: DateFormatter = {
         let form = DateFormatter()
         form.timeStyle = .none
         form.dateStyle = .medium
@@ -35,7 +35,7 @@ class FilterEventsTVC: UITableViewController {
     var startDate: Date? {
         didSet {
             if let newDate = startDate {
-                startDateLabel.text = formatter.string(from: newDate)
+                startDateLabel.text = FilterEventsTVC.formatter.string(from: newDate)
             } else {
                 startDateLabel.text = "-"
             }
@@ -45,7 +45,7 @@ class FilterEventsTVC: UITableViewController {
     var endDate: Date? {
         didSet {
             if let newDate = endDate {
-                endDateLabel.text = formatter.string(from: newDate)
+                endDateLabel.text = FilterEventsTVC.formatter.string(from: newDate)
             } else {
                 endDateLabel.text = "-"
             }

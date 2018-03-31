@@ -131,7 +131,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                 // If the user is a Scheduler, has he/she been approved for the role?
                 DataService.instance.REF_USERS.child(signedInUser.uid).observeSingleEvent(of: .value, with: { (snapshot) in
                     // Can we verify the user's role?
-                    guard let userData = snapshot.value as? [String : Any], let role = userData[DatabaseKeys.USER.role] as? Int else {
+                    guard let userData = snapshot.value as? [String : Any], let role = userData[DBKeys.USER.role] as? Int else {
                         // Couldn't verify the user's role.
                         
                         // Sign out.
@@ -148,7 +148,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                     // Is the user a Scheduler?
                     if role == UserRole.scheduler.toInt {
                         // Has the Scheduler been approved?
-                        guard userData[DatabaseKeys.USER.approvedForScheduler] as? Bool == true else {
+                        guard userData[DBKeys.USER.approvedForScheduler] as? Bool == true else {
                             // Scheduler hasn't been approved.
                             // Sign out.
                             do {

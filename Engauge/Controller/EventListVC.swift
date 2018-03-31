@@ -23,11 +23,10 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     
     
+    
     // MARK: Properties
     
     // Event data
-    // private var events: [[Event]] = [[Event](), [Event]()]
-    
     private var events = [Date : [Event]]() {
         didSet {
             sectionKeys = events.keys.sorted()
@@ -44,7 +43,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     }
     private var sectionKeys = [Date]()
     
-    private let formatter: DateFormatter = {
+    static let formatter: DateFormatter = {
         let f = DateFormatter()
         f.setLocalizedDateFormatFromTemplate("E, MMM d, yyyy")
         return f
@@ -90,12 +89,12 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
     }
     
-    
-    
     // For profile image thumbnails
     static var imageCache = NSCache<NSString, UIImage>()
     
     private var authListenerHandle: AuthStateDidChangeListenerHandle?
+    
+    
     
     
     // MARK: View Controller Lifecycle
@@ -106,14 +105,28 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         // Checking to see if a user is signed in
         // EXECUTES ANY TIME THE AUTH STATE CHANGES
         self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            print("Brennan - Auth listener in EventListVC fired")
             if let currUser = user {
                 // User is logged in, so retrieve events.
                 print("Brennan - EventListVC auth listener in viewDidLoad says current user's e-mail is: \(currUser.email ?? "nil")")
-                // TODO: self.events = TEST_EVENTS
+                
+                // If the current user is a Scheduler or Admin, show the "add event" button.
+                DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
+                    if roleNum != nil {
+                        switch roleNum! {
+                        case UserRole.admin.toInt, UserRole.scheduler.toInt:
+                            self.navigationItem.rightBarButtonItem = nil
+                            let newEventButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(self.handleNewEventTapped))
+                            self.navigationItem.rightBarButtonItem = newEventButton
+                        default:
+                            break
+                        }
+                    }
+                }
+                
+                // Get the user's school ID
                 DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
                     if let userSchoolID = schoolID {
-                        // Got the user's school ID.
+                        // Got the user's school ID, so retrieve the school's events.
                         DataService.instance.getEventsSectionedByDateForSchool(withID: userSchoolID) { (events) in
                             self.events = events
                             self.tableView.reloadData()
@@ -140,6 +153,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
             tableView.deselectRow(at: selectedIndexPath, animated: true)
         }
     }
+    
     
     
     
@@ -179,7 +193,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     // Helper for titleForHeaderInSection function above.
     func titleForSection(_ sectionNum: Int) -> String {
         let sectionDate = sectionKeys[sectionNum]
-        return formatter.string(from: sectionDate)
+        return EventListVC.formatter.string(from: sectionDate)
     }
     
     // Tapped a table view cell
@@ -190,8 +204,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
             tableView.deselectRow(at: indexPath, animated: true)
         }
     }
-
-    
     
     
     
@@ -231,6 +243,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         searchBar.setShowsCancelButton(false, animated: true)
     }
+    
     
     
     
@@ -293,6 +306,17 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     
     
+    
+    // MARK: Bar button item actions
+    
+    @objc private func handleNewEventTapped() {
+        print("Brennan - got into the handler")
+        performSegue(withIdentifier: "toNewEventTVC", sender: nil)
+    }
+    
+    
+    
+    
     // MARK: Segues
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -319,6 +343,13 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
             self.filters = newFilters
         }
     }
+    
+    @IBAction func unwindFromNewEventVC(sender: UIStoryboardSegue) {
+        if let sourceVC = sender.source as? NewEventTVC, let newEvent = sourceVC.eventCreated {
+            // TODO: Add the new event to the model and table view?
+        }
+    }
+    
     
     
     

@@ -19,6 +19,7 @@
 		C8137F322056D0130074D2AF /* EventListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F312056D0130074D2AF /* EventListVC.swift */; };
 		C8137F342056D0970074D2AF /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F332056D0970074D2AF /* Event.swift */; };
 		C8137F362056E0210074D2AF /* EventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F352056E0210074D2AF /* EventTableViewCell.swift */; };
+		C83C4BD42069D8B000456851 /* NewEventTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C83C4BD32069D8B000456851 /* NewEventTVC.swift */; };
 		C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85333612062D52400D01734 /* EventDetailsVC.swift */; };
 		C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */; };
 		C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B162058639700A24B95 /* FilterEventsTVC.swift */; };
@@ -48,6 +49,7 @@
 		C8137F312056D0130074D2AF /* EventListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListVC.swift; sourceTree = "<group>"; };
 		C8137F332056D0970074D2AF /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		C8137F352056E0210074D2AF /* EventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTableViewCell.swift; sourceTree = "<group>"; };
+		C83C4BD32069D8B000456851 /* NewEventTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEventTVC.swift; sourceTree = "<group>"; };
 		C85333612062D52400D01734 /* EventDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsVC.swift; sourceTree = "<group>"; };
 		C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationTVC.swift; sourceTree = "<group>"; };
 		C8B98B162058639700A24B95 /* FilterEventsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterEventsTVC.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				C8B98B162058639700A24B95 /* FilterEventsTVC.swift */,
 				C8B98B1C205C086000A24B95 /* MyTabBarController.swift */,
 				C85333612062D52400D01734 /* EventDetailsVC.swift */,
+				C83C4BD32069D8B000456851 /* NewEventTVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -204,7 +207,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = "Brennan Linse";
 				TargetAttributes = {
 					C80F31F42049F456002F6FED = {
@@ -315,6 +318,7 @@
 				C8B9D80F2065FC7A0011EC7B /* FavoriteBarButtonItem.swift in Sources */,
 				C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */,
 				C8137F362056E0210074D2AF /* EventTableViewCell.swift in Sources */,
+				C83C4BD42069D8B000456851 /* NewEventTVC.swift in Sources */,
 				C8D51084204F79D800835AD3 /* DataService.swift in Sources */,
 				C8B98B1920596E1400A24B95 /* EventFilterFactory.swift in Sources */,
 				C8CB84BD2064374600913E20 /* Transaction.swift in Sources */,
@@ -368,6 +372,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -375,6 +380,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -425,6 +431,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -432,6 +439,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

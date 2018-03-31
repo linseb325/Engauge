@@ -86,7 +86,7 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     // TODO: Show a spinner while saving the new user in Auth/Storage/Database.
     // User wants to submit the new account details.
     @IBAction func createButtonTapped(_ sender: UIBarButtonItem) {
-        self.view.endEditing(true)
+        dismissKeyboard()
         
         // Typed a first name?
         guard let firstName = firstNameTextField.text, firstName != "" else {
@@ -169,14 +169,9 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
             }))
             self.present(areYouSureAlert, animated: true)
         } else {
-            // START HERE
             // Continue with Firebase sign-up actions without presenting the "are you sure" prompt.
             completeAccountCreationTasks(firstName: firstName, lastName: lastName, schoolPicked: schoolPicked, email: email, password: password, selectedRoleIndex: selectedRoleIndex, profileImage: profileImage, imageDataFull: imageDataFull, imageDataThumbnail: imageDataThumbnail)
         }
-        
-        // PASSED ALL ERROR CHECKS
-        // **************************************************************************************************
-        // PUT ALL OF THIS IN THE HELPER FUNCTION:
         
     }
     
@@ -231,21 +226,21 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                     
                     // 4) Save the new user's info in the database.
                     var userData: [String : Any] = [
-                        DatabaseKeys.USER.emailAddress: email,
-                        DatabaseKeys.USER.firstName: firstName,
-                        DatabaseKeys.USER.imageURL: downloadURLFull,
-                        DatabaseKeys.USER.lastName: lastName,
-                        DatabaseKeys.USER.role: selectedRoleIndex,
-                        DatabaseKeys.USER.schoolID: schoolPicked.schoolID,
-                        DatabaseKeys.USER.thumbnailURL: downloadURLThumbnail
+                        DBKeys.USER.emailAddress: email,
+                        DBKeys.USER.firstName: firstName,
+                        DBKeys.USER.imageURL: downloadURLFull,
+                        DBKeys.USER.lastName: lastName,
+                        DBKeys.USER.role: selectedRoleIndex,
+                        DBKeys.USER.schoolID: schoolPicked.schoolID,
+                        DBKeys.USER.thumbnailURL: downloadURLThumbnail
                     ]
                     
                     // Students and Schedulers get extra fields
                     switch selectedRoleIndex {
                     case UserRole.student.toInt:
-                        userData[DatabaseKeys.USER.pointBalance] = 0
+                        userData[DBKeys.USER.pointBalance] = 0
                     case UserRole.scheduler.toInt:
-                        userData[DatabaseKeys.USER.approvedForScheduler] = false
+                        userData[DBKeys.USER.approvedForScheduler] = false
                     default:
                         break
                     }
@@ -258,7 +253,7 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                         }
                         
                         // If the user wants to be a a Scheduler, the school's Admin must be notified.
-                        if userData[DatabaseKeys.USER.role] as? Int == UserRole.scheduler.toInt {
+                        if userData[DBKeys.USER.role] as? Int == UserRole.scheduler.toInt {
                             print("Brennan - about to try to send a notification")
                             DataService.instance.sendRoleRequestNotification(fromUserWithUID: newUser.uid, forSchoolWithID: schoolPicked.schoolID) { (errorMessage) in
                                 guard errorMessage == nil else {
@@ -313,8 +308,9 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     
     // User wants to add a profile image
     @IBAction func addImageTapped(_ sender: UITapGestureRecognizer) {
-        self.imagePicker.allowsEditing = true
-        self.imagePicker.delegate = self
+        dismissKeyboard()
+        imagePicker.allowsEditing = true
+        imagePicker.delegate = self
         
         // Does the user want to choose an existing image or create a new image?
         let prompt = UIAlertController(title: "Where is your profile image?", message: nil, preferredStyle: .actionSheet)
@@ -322,7 +318,7 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
             self.imagePicker.sourceType = .camera
             self.present(self.imagePicker, animated: true)
         }))
-        prompt.addAction(UIAlertAction(title: "Choose Photo", style: .default, handler: { (action) in
+        prompt.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: { (action) in
             self.imagePicker.sourceType = .photoLibrary
             self.present(self.imagePicker, animated: true)
         }))
@@ -333,20 +329,16 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     
     // User pressed cancel in the image picker
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        print("Brennan - canceled picking an image")
         picker.dismiss(animated: true)
     }
     
-    // What to do when an image is selected
+    // User selected a profile image.
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let selectedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
-            self.profileImageView.image = selectedImage
-            self.didSelectImage = true
-            picker.dismiss(animated: true)
-        } else {
-            print("Brennan - Didn't retrieve an image from the image picker")
-            picker.dismiss(animated: true)
+            profileImageView.image = selectedImage
+            didSelectImage = true
         }
+        picker.dismiss(animated: true)
     }
     
     
@@ -422,7 +414,7 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     // MARK: Text Field Delegate
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        self.view.endEditing(true)
+        dismissKeyboard()
         return true
     }
 }

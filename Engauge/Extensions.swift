@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import FirebaseAuth
 
 extension Date {
     var monthAsString: String {
@@ -68,6 +69,14 @@ extension UIViewController {
         self.present(signInScreen, animated: true, completion: completion)
     }
     
+    func signOutOfFirebaseForDebugging() {
+        do {
+            try Auth.auth().signOut()
+            print("Brennan - signed out successfully")
+        } catch {
+            print("Brennan - error signing out: \(error.localizedDescription)")
+        }
+    }
     
 }
 
@@ -85,4 +94,20 @@ extension CGPoint {
     }
     
 }
+
+
+
+
+extension String {
+    var isWhitespaceOrEmpty: Bool {
+        return self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+}
+
+
+
+
+
+
+
 
