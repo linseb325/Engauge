@@ -23,17 +23,83 @@ extension Date {
         return formatter.string(from: self)
     }
     
+    var firstMoment: Date {
+        return Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: self)!
+    }
+    
+    var roundingDownToNearestMinute: Date {
+        return Calendar.current.date(bySetting: .second, value: 0, of: self)!
+    }
+    
 }
 
 extension Array where Element == Event {
     
     var groupedByDate: [Date : [Event]] {
         return Dictionary(grouping: self, by: { (event) in
-            return Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: event.startTime) ?? Date(timeIntervalSince1970: 0)
+            return event.startTime.firstMoment
         })
     }
     
+    func indexOfEvent(withID eventID: String) -> Int? {
+        for i in 0..<self.count {
+            if self[i].eventID == eventID {
+                return i
+            }
+        }
+        return nil
+    }
+    
+    mutating func insertEvent(_ event: Event) {
+        for i in 0..<self.count {
+            if event.startTime < self[i].startTime {
+                self.insert(event, at: i)
+                return
+            }
+        }
+        self.append(event)
+    }
+    
 }
+
+
+
+
+extension Dictionary where Key == Date, Value == [Event] {
+    
+    mutating func insertEvent(_ event: Event) {
+        let eventStartZeroed = event.startTime.firstMoment
+        if self.keys.contains(eventStartZeroed) {
+            self[eventStartZeroed]?.insertEvent(event)
+        } else {
+            self[eventStartZeroed] = [event]
+        }
+    }
+    
+    mutating func removeEvent(withID eventID: String) -> Event? {
+        for (dateKey, eventsOnDate) in self {
+            if let eventPos = eventsOnDate.indexOfEvent(withID: eventID) {
+                let removedEvent = self[dateKey]?.remove(at: eventPos)
+                // If we just removed the last event for a certain date, remove that date from the dictionary.
+                if (self[dateKey]?.isEmpty ?? false) {
+                    self[dateKey] = nil
+                }
+                return removedEvent
+            }
+        }
+        return nil
+    }
+    
+    func containsEvent(withID eventID: String) -> Bool {
+        for (_, value) in self {
+            if value.contains(where: { $0.eventID == eventID }) {
+                return true
+            }
+        }
+        return false
+    }
+}
+
 
 
 

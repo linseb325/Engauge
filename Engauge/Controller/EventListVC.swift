@@ -8,9 +8,10 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseDatabase
 
 class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
-
+    
     // MARK: Outlets
     
     @IBOutlet weak var tableView: UITableView! {
@@ -27,6 +28,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     // MARK: Properties
     
     // Event data
+    private var refSchoolEventIDs: DatabaseReference?
     private var events = [Date : [Event]]() {
         didSet {
             sectionKeys = events.keys.sorted()
@@ -126,14 +128,36 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                 // Get the user's school ID
                 DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
                     if let userSchoolID = schoolID {
-                        // Got the user's school ID, so retrieve the school's events.
-                        DataService.instance.getEventsSectionedByDateForSchool(withID: userSchoolID) { (events) in
-                            self.events = events
+                        
+                        // TODO: Set up listeners so the table view updates when event data changes.
+                        self.refSchoolEventIDs = DataService.instance.REF_SCHOOLS.child("/\(userSchoolID)/\(DBKeys.SCHOOL.events)")
+                        
+                        // Event added for this school
+                        self.refSchoolEventIDs?.observe(.childAdded) { (snapshot) in
+                            let eventAddedID = snapshot.key
+                            print("Brennan - added event \(eventAddedID)")
+                            DataService.instance.getEvent(withID: eventAddedID) { (event) in
+                                if event != nil {
+                                    self.events.insertEvent(event!)
+                                    self.applyFilters()
+                                    self.applySearch()
+                                    self.tableView.reloadData()
+                                }
+                            }
+                        }
+                        
+                        // Event removed for this school
+                        self.refSchoolEventIDs?.observe(.childRemoved) { (snapshot) in
+                            let eventRemovedID = snapshot.key
+                            print("Brennan - removed event \(eventRemovedID)")
+                            self.events.removeEvent(withID: eventRemovedID)
+                            self.applyFilters()
+                            self.applySearch()
                             self.tableView.reloadData()
                         }
                     } else {
                         // Couldn't get the user's school ID.
-                        self.showErrorAlert(message: "Database error: Couldn't retrieve your school's events.")
+                        self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
                     }
                 }
             } else {
@@ -219,7 +243,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // User tapped "Search." Sets the search text to whatever the user typed in the bar.
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        self.view.endEditing(true)
+        dismissKeyboard()
         guard let search = searchBar.text, !search.isEmpty else {
             // Searched without typing anything in the search bar.
             searchText = nil
@@ -231,7 +255,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     // User tapped "Cancel" on the search bar. Resets the search bar's text to reflect the current search.
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = searchText
-        self.view.endEditing(true)
+        dismissKeyboard()
     }
     
     // Show the cancel button when the keyboard is visible.
@@ -249,6 +273,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // MARK: Filtering and searching events
     
+    // Only affects the data model, not UI
     func applyFilters() {
         guard filtersOn else { return }
         
@@ -281,6 +306,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
     }
     
+    // Only affects the data model, not UI
     func applySearch() {
         guard searchOn else { return }
         
@@ -309,8 +335,8 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // MARK: Bar button item actions
     
+    // User wants to create a new event
     @objc private func handleNewEventTapped() {
-        print("Brennan - got into the handler")
         performSegue(withIdentifier: "toNewEventTVC", sender: nil)
     }
     
@@ -344,19 +370,21 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
     }
     
+    /*
     @IBAction func unwindFromNewEventVC(sender: UIStoryboardSegue) {
         if let sourceVC = sender.source as? NewEventTVC, let newEvent = sourceVC.eventCreated {
             // TODO: Add the new event to the model and table view?
         }
     }
-    
+    */
     
     
     
     // MARK: Deinitializer
     
-    // Remove the auth state listener when this VC is deallocated.
+    // Remove Database and Auth event listeners when this VC is deallocated.
     deinit {
+        self.refSchoolEventIDs?.removeAllObservers()
         if self.authListenerHandle != nil {
             Auth.auth().removeStateDidChangeListener(self.authListenerHandle!)
         }

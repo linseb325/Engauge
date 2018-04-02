@@ -169,7 +169,7 @@ class DataService {
             ]
             
             DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
-                completion?(error != nil ? "Database error: There was an issue adding the new event to the database." : nil)
+                completion?(error != nil ? "Database error: There was a problem adding the new event to the database." : nil)
             }
             
         }
@@ -204,14 +204,12 @@ class DataService {
                 let endTime = Date(timeIntervalSince1970: endTimeDouble)
                 
                 let retrievedEvent = Event(eventID: eventID, name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL, associatedTransactionIDs: associatedTransactionIDs.isEmpty ? nil : associatedTransactionIDs)
-
                 
                 completion(retrievedEvent)
             } else {
                 completion(nil)
             }
         })
-
     }
     
     // Retrieved events are not sorted in any way
@@ -271,6 +269,7 @@ class DataService {
     
     func deleteEvent(_ eventToDelete: Event, completion: ((String?) -> Void)?) {
         // Must delete event ID from the school's list of events, the EVENTS node, the user who scheduled the event, and from the favorites list of all users who have favorited the event.
+        // TODO: Delete the event's image, thumbnail image, and QR code image from Storage.
         var updates = [String : Any?]()
         
         // FIXME: This query will become less and less efficient as the database grows.

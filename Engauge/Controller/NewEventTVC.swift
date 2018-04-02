@@ -175,6 +175,7 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
     }
     
     @IBAction func doneButtonTapped(_ sender: UIBarButtonItem) {
+        dismissKeyboard()
         
         // Make sure everything is filled out, then save the new event to Firebase Storage and Database.
         
@@ -188,12 +189,12 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
             return
         }
         
-        guard let eventStartTime = startTime else {
+        guard let eventStartTime = startTime?.roundingDownToNearestMinute else {
             showErrorAlert(message: "Please select a start time for your event.")
             return
         }
         
-        guard let eventEndTime = endTime else {
+        guard let eventEndTime = endTime?.roundingDownToNearestMinute else {
             showErrorAlert(message: "Please select an end time for your event.")
             return
         }
@@ -203,14 +204,17 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
             return
         }
         
+        guard eventStartTime > Date() else {
+            showErrorAlert(message: "Please ensure your event's start time is after the current date and time.")
+            return
+        }
+        
         guard let eventSchedulerUID = Auth.auth().currentUser?.uid else {
             presentSignInVC()
             return
         }
         
-        
         let eventImageDataFull = didSelectImage ? UIImageJPEGRepresentation(imageView.image!, StorageImageQuality.FULL) : nil
-        
         let eventImageDataThumbnail = didSelectImage ? UIImageJPEGRepresentation(imageView.image!, StorageImageQuality.THUMBNAIL) : nil
         
         let eventDescription = descriptionTextView.text.isWhitespaceOrEmpty ? nil : descriptionTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -224,18 +228,16 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
         ]
         eventData[DBKeys.EVENT.description] = eventDescription
         
-        self.saveEventToFirebase(eventData: eventData, eventImageDataFull: eventImageDataFull, eventImageDataThumbnail: eventImageDataThumbnail)
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        // Get the school ID, add it to the event data, and call the saveEventToFirebase function.
+        DataService.instance.getSchoolIDForUser(withUID: Auth.auth().currentUser?.uid ?? "") { (currUserSchoolID) in
+            guard let eventSchoolID = currUserSchoolID else {
+                self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
+                return
+            }
+            
+            eventData[DBKeys.EVENT.schoolID] = eventSchoolID
+            self.saveEventToFirebase(eventData: eventData, eventImageDataFull: eventImageDataFull, eventImageDataThumbnail: eventImageDataThumbnail)
+        }
     }
     
     
@@ -311,12 +313,17 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
         
         let qrFilter = CIFilter(name: "CIQRCodeGenerator", withInputParameters: ["inputMessage" : eventIDEncoded,
                                                                                  "inputCorrectionLevel" : "Q"])
-        guard let outputImage = qrFilter?.outputImage else {
+        guard let outputCIImage = qrFilter?.outputImage, let outputCGImage = CIContext(options: nil).createCGImage(outputCIImage, from: outputCIImage.extent) else {
             return nil
         }
         
-        return UIImage(ciImage: outputImage)
+        return UIImage(cgImage: outputCGImage)
     }
+    
+    
+    
+    
+    // MARK:
     
     private func saveEventToFirebase(eventData: [String : Any], eventImageDataFull: Data?, eventImageDataThumbnail: Data?) {
         
