@@ -6,6 +6,8 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
+// TODO: How to handle event updates? Manual refreshing, or updates observed in the database?
+
 import UIKit
 import FirebaseAuth
 import FirebaseDatabase
@@ -29,9 +31,10 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // Event data
     private var refSchoolEventIDs: DatabaseReference?
+    private var eventDataChangedHandle: UInt?
     private var events = [Date : [Event]]() {
         didSet {
-            sectionKeys = events.keys.sorted()
+            sectionKeys = (filteredEvents == nil) ? events.keys.sorted() : filteredEvents!.keys.sorted()
         }
     }
     private var filteredEvents: [Date : [Event]]? {
@@ -129,8 +132,20 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                 DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
                     if let userSchoolID = schoolID {
                         
-                        // TODO: Set up listeners so the table view updates when event data changes.
                         self.refSchoolEventIDs = DataService.instance.REF_SCHOOLS.child("/\(userSchoolID)/\(DBKeys.SCHOOL.events)")
+                        
+                        // Some data for an event changed
+                        self.eventDataChangedHandle = DataService.instance.REF_EVENTS.observe(.childChanged) { (snapshot) in
+                            let eventID = snapshot.key
+                            print("Brennan - event \(eventID) was changed")
+                            if self.events.containsEvent(withID: eventID), let eventData = snapshot.value as? [String : Any], let updatedEvent = DataService.instance.eventFromSnapshotValues(eventData, withID: eventID) {
+                                self.events.removeEvent(withID: eventID)
+                                self.events.insertEvent(updatedEvent)
+                                self.applyFilters()
+                                self.applySearch()
+                                self.tableView.reloadData()
+                            }
+                        }
                         
                         // Event added for this school
                         self.refSchoolEventIDs?.observe(.childAdded) { (snapshot) in
@@ -380,11 +395,25 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     
     
+    
+    // MARK: Responding to event updates
+    
+    private func updateUIForEventChanges(oldEvent: Event, newEvent: Event) {
+        
+    }
+    
+    
+    
     // MARK: Deinitializer
     
     // Remove Database and Auth event listeners when this VC is deallocated.
     deinit {
         self.refSchoolEventIDs?.removeAllObservers()
+        
+        if eventDataChangedHandle != nil {
+            DataService.instance.REF_EVENTS.removeObserver(withHandle: eventDataChangedHandle!)
+        }
+        
         if self.authListenerHandle != nil {
             Auth.auth().removeStateDidChangeListener(self.authListenerHandle!)
         }

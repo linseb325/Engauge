@@ -24,14 +24,19 @@ extension Date {
     }
     
     var firstMoment: Date {
-        return Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: self)!
+        return Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: self))!
     }
     
     var roundingDownToNearestMinute: Date {
-        return Calendar.current.date(bySetting: .second, value: 0, of: self)!
+        let calendar = Calendar.current
+        let dateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: self)
+        return calendar.date(from: dateComponents)!
     }
-    
+
 }
+
+
+
 
 extension Array where Element == Event {
     
@@ -80,7 +85,7 @@ extension Dictionary where Key == Date, Value == [Event] {
         for (dateKey, eventsOnDate) in self {
             if let eventPos = eventsOnDate.indexOfEvent(withID: eventID) {
                 let removedEvent = self[dateKey]?.remove(at: eventPos)
-                // If we just removed the last event for a certain date, remove that date from the dictionary.
+                // If we just removed the last event for a certain date, remove that date key from the dictionary.
                 if (self[dateKey]?.isEmpty ?? false) {
                     self[dateKey] = nil
                 }
@@ -97,6 +102,16 @@ extension Dictionary where Key == Date, Value == [Event] {
             }
         }
         return false
+    }
+    
+    func indexPathForEvent(withID eventID: String) -> IndexPath? {
+        let dateKeysInOrder = self.keys.sorted()
+        for sectionNum in 0..<dateKeysInOrder.count {
+            if let rowNum = self[dateKeysInOrder[sectionNum]]?.indexOfEvent(withID: eventID) {
+                return IndexPath(row: rowNum, section: sectionNum)
+            }
+        }
+        return nil
     }
 }
 
@@ -124,9 +139,9 @@ extension UIViewController {
         self.view.endEditing(true)
     }
     
-    func showErrorAlert(title: String = "Error", message: String) {
+    func showErrorAlert(title: String = "Error", message: String, dismissHandler: ((UIAlertAction) -> Void)? = nil) {
         let errorAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: dismissHandler))
         self.present(errorAlert, animated: true)
     }
     

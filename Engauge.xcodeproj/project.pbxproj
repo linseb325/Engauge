@@ -30,6 +30,7 @@
 		C8CB84BF206485C900913E20 /* TransactionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8CB84BE206485C900913E20 /* TransactionTableViewCell.swift */; };
 		C8D51082204F742F00835AD3 /* School.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51081204F742F00835AD3 /* School.swift */; };
 		C8D51084204F79D800835AD3 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51083204F79D800835AD3 /* DataService.swift */; };
+		C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E9153C20792D7700E4E973 /* EditEventTVC.swift */; };
 		C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E939CC2052178A00CEAF87 /* StorageService.swift */; };
 		C8FA5AF72063054A00EE7F64 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FA5AF62063054A00EE7F64 /* Extensions.swift */; };
 /* End PBXBuildFile section */
@@ -60,6 +61,7 @@
 		C8CB84BE206485C900913E20 /* TransactionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableViewCell.swift; sourceTree = "<group>"; };
 		C8D51081204F742F00835AD3 /* School.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = School.swift; sourceTree = "<group>"; };
 		C8D51083204F79D800835AD3 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		C8E9153C20792D7700E4E973 /* EditEventTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventTVC.swift; sourceTree = "<group>"; };
 		C8E939CC2052178A00CEAF87 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		C8FA5AF62063054A00EE7F64 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		D59D261DD2848CECED032518 /* Pods-Engauge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Engauge.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Engauge/Pods-Engauge.debug.xcconfig"; sourceTree = "<group>"; };
@@ -135,13 +137,14 @@
 		C80F320C204A0284002F6FED /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				C8B98B1C205C086000A24B95 /* MyTabBarController.swift */,
 				C80F31FA2049F456002F6FED /* SignInVC.swift */,
 				C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */,
 				C8137F312056D0130074D2AF /* EventListVC.swift */,
 				C8B98B162058639700A24B95 /* FilterEventsTVC.swift */,
-				C8B98B1C205C086000A24B95 /* MyTabBarController.swift */,
 				C85333612062D52400D01734 /* EventDetailsVC.swift */,
 				C83C4BD32069D8B000456851 /* NewEventTVC.swift */,
+				C8E9153C20792D7700E4E973 /* EditEventTVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -323,6 +326,7 @@
 				C8B98B1920596E1400A24B95 /* EventFilterFactory.swift in Sources */,
 				C8CB84BD2064374600913E20 /* Transaction.swift in Sources */,
 				C8D51082204F742F00835AD3 /* School.swift in Sources */,
+				C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,
 				C8137F342056D0970074D2AF /* Event.swift in Sources */,
 				C8137F322056D0130074D2AF /* EventListVC.swift in Sources */,

@@ -22,6 +22,14 @@ class StorageService {
     let REF_QR_CODE_PICS = Storage.storage().reference().child(StorageKeys.QR_CODE_PICS)
     
     
+    func deleteImage(atURL imageURL: String, completion: ((String?) -> Void)? = nil) {
+        Storage.storage().reference(forURL: imageURL).delete { (error) in
+            completion?(error != nil ? self.messageForStorageError(error! as NSError) : nil)
+        }
+    }
+    
+    
+    
     
     
     
@@ -32,9 +40,9 @@ class StorageService {
         
         switch errorCode {
         case .objectNotFound:
-            return "File not found in storage."
+            return "Failed to find a file in storage."
         default:
-            return "An unknown storage error occurred."
+            return "A storage error occurred."
         }
     }
     

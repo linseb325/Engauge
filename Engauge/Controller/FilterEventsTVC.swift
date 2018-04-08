@@ -176,7 +176,6 @@ class FilterEventsTVC: UITableViewController {
         
         var filtersAdded = [EventFilterFactory.EventFilter]()
         
-        
         // Date filter on?
         if dateSwitch.isOn {
             // Input check: At least one date must be selected.
@@ -234,7 +233,6 @@ class FilterEventsTVC: UITableViewController {
             // Add favorites filter
             if let currUser = Auth.auth().currentUser {
                 DataService.instance.getFavoriteEventIDsForUser(withUID: currUser.uid, completion: { (eventIDs) in
-                    print("Brennan - just retrieved \(String(describing: currUser.email))'s favorite events. About to execute the completion block now.)")
                     if eventIDs != nil {
                         // Successfully retrieved the favorite event IDs.
                         let newFilter = EventFilterFactory.filterForFavorites(inListOfEventIDs: eventIDs!)

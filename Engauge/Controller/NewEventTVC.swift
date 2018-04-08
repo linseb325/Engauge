@@ -46,12 +46,9 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
     
     // MARK: Properties
     
-    var eventCreated: Event?
-    
     private var formatter: DateFormatter = {
         let form = DateFormatter()
         form.setLocalizedDateFormatFromTemplate("EEE MMM d at h:mm a")
-        print("Brennan - date format: \(form.dateFormat)")
         return form
     }()
     
@@ -94,10 +91,8 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
         let today = Date()
         startTimePicker.minimumDate = today
         endTimePicker.minimumDate = today
-        
-        
-        
     }
+    
     
     
     
@@ -114,11 +109,6 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
     @IBAction func endTimePickerChanged(_ sender: UIDatePicker) {
         endTime = sender.date
     }
-    
-    
-    
-    
-    
     
     
     
@@ -160,10 +150,6 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
         }
         return super.tableView(tableView, heightForRowAt: indexPath)
     }
-    
-    
-    
-    
     
     
     
@@ -283,8 +269,6 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
     
     
     
-    
-    
     // MARK: Text Field methods
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -323,7 +307,7 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
     
     
     
-    // MARK:
+    // MARK: Saving to Firebase services
     
     private func saveEventToFirebase(eventData: [String : Any], eventImageDataFull: Data?, eventImageDataThumbnail: Data?) {
         
@@ -345,7 +329,7 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
                 return
             }
             
-            guard let qrURL = metadata?.downloadURLs?[0].absoluteString else {
+            guard let qrURL = metadata?.downloadURL()?.absoluteString else {
                 self.showErrorAlert(message: "There was a problem saving the QR code to storage.")
                 return
             }
@@ -362,7 +346,7 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
                         return
                     }
                     
-                    guard let imageURL = metadata?.downloadURLs?[0].absoluteString else {
+                    guard let imageURL = metadata?.downloadURL()?.absoluteString else {
                         self.showErrorAlert(message: "There was a problem saving the event image to storage.")
                         return
                     }
@@ -376,7 +360,7 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
                             return
                         }
                         
-                        guard let thumbnailURL = metadata?.downloadURLs?[0].absoluteString else {
+                        guard let thumbnailURL = metadata?.downloadURL()?.absoluteString else {
                             self.showErrorAlert(message: "There was a problem saving the event image to storage.")
                             return
                         }
@@ -417,6 +401,8 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
     
     
     
+    // MARK: Success alert
+    
     private func showSuccessAlert() {
         let successAlert = UIAlertController(title: "Success!", message: "Successfully created the event.", preferredStyle: .alert)
         successAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (okAction) in
@@ -424,14 +410,6 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
         }))
         present(successAlert, animated: true)
     }
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     

@@ -171,12 +171,18 @@ class DataService {
             DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
                 completion?(error != nil ? "Database error: There was a problem adding the new event to the database." : nil)
             }
-            
         }
-        
-        
-        
-        
+    }
+    
+    
+    
+    
+    // MARK: Editing events
+    
+    func updateEventData(_ eventDataUpdates: [String : Any], forEventWithID eventID: String, completion: ((String?) -> Void)?) {
+        DataService.instance.REF_EVENTS.child(eventID).updateChildValues(eventDataUpdates) { (error, ref) in
+            completion?(error != nil ? "Database error: There was a problem updating the event data." : nil)
+        }
     }
     
     
@@ -210,6 +216,32 @@ class DataService {
                 completion(nil)
             }
         })
+    }
+    
+    // Tries to build an Event object from a Firebase Database snapshot.
+    func eventFromSnapshotValues(_ eventData: [String : Any], withID eventID: String) -> Event? {
+        if let name = eventData[DBKeys.EVENT.name] as? String,
+            let startTimeDouble = eventData[DBKeys.EVENT.startTime] as? Double,
+            let endTimeDouble = eventData[DBKeys.EVENT.endTime] as? Double,
+            let location = eventData[DBKeys.EVENT.location] as? String,
+            let schedulerUID = eventData[DBKeys.EVENT.schedulerUID] as? String,
+            let schoolID = eventData[DBKeys.EVENT.schoolID] as? String,
+            let qrCodeURL = eventData[DBKeys.EVENT.qrCodeURL] as? String {
+            // Optional info for an event
+            let description = eventData[DBKeys.EVENT.description] as? String
+            let imageURL = eventData[DBKeys.EVENT.imageURL] as? String
+            let thumbnailURL = eventData[DBKeys.EVENT.thumbnailURL] as? String
+            let associatedTransactionIDs = Array((eventData[DBKeys.EVENT.associatedTransactions] as? [String : Any])?.keys ?? [String : Any]().keys)
+            // Converting Doubles to Dates
+            let startTime = Date(timeIntervalSince1970: startTimeDouble)
+            let endTime = Date(timeIntervalSince1970: endTimeDouble)
+            
+            let retrievedEvent = Event(eventID: eventID, name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL, associatedTransactionIDs: associatedTransactionIDs.isEmpty ? nil : associatedTransactionIDs)
+            
+            return retrievedEvent
+        } else {
+            return nil
+        }
     }
     
     // Retrieved events are not sorted in any way
@@ -270,6 +302,7 @@ class DataService {
     func deleteEvent(_ eventToDelete: Event, completion: ((String?) -> Void)?) {
         // Must delete event ID from the school's list of events, the EVENTS node, the user who scheduled the event, and from the favorites list of all users who have favorited the event.
         // TODO: Delete the event's image, thumbnail image, and QR code image from Storage.
+        
         var updates = [String : Any?]()
         
         // FIXME: This query will become less and less efficient as the database grows.
@@ -294,11 +327,20 @@ class DataService {
             
             // Perform the updates to delete the event from the database.
             DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
-                if error != nil {
+                guard error == nil else {
                     completion?("Database error: Unable to delete the event.")
-                } else {
-                    completion?(nil)
+                    return
                 }
+                
+                // Database updates are complete. Now, delete the event's associated images from Storage.
+                StorageService.instance.deleteImage(atURL: eventToDelete.qrCodeURL)
+                if eventToDelete.imageURL != nil {
+                    StorageService.instance.deleteImage(atURL: eventToDelete.imageURL!)
+                }
+                if eventToDelete.thumbnailURL != nil {
+                    StorageService.instance.deleteImage(atURL: eventToDelete.thumbnailURL!)
+                }
+                completion?(nil)
             }
         }
         DataService.instance.REF_USERS.removeObserver(withHandle: queryForFavoriters)
