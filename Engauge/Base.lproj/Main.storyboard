@@ -126,7 +126,7 @@
                                 <rect key="frame" x="0.0" y="120" width="320" height="399"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="EventTableViewCell" id="UrF-JO-LLn" customClass="EventTableViewCell" customModule="Engauge" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="EventTableViewCell" id="UrF-JO-LLn" customClass="EventTableViewCell" customModule="Engauge" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="320" height="80"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="UrF-JO-LLn" id="2Gf-0q-CiB">
@@ -377,7 +377,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="BrE-67-KHi">
-                                                    <rect key="frame" x="310" y="6.5" width="51" height="31"/>
+                                                    <rect key="frame" x="255" y="6.5" width="51" height="31"/>
                                                 </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Only Favorites" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Ew-nf-uGS">
                                                     <rect key="frame" x="16" y="11.5" width="117" height="21"/>
@@ -994,7 +994,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="45s-XC-qoZ">
-                                                    <rect key="frame" x="351" y="11" width="8" height="21"/>
+                                                    <rect key="frame" x="296" y="11" width="8" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1016,7 +1016,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="jER-nn-XaB">
-                                                    <rect key="frame" x="16" y="0.0" width="343" height="200"/>
+                                                    <rect key="frame" x="16" y="0.0" width="288" height="200"/>
                                                     <date key="date" timeIntervalSinceReferenceDate="543857228.23644304">
                                                         <!--2018-03-27 15:27:08 +0000-->
                                                     </date>
@@ -1047,7 +1047,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="riB-nB-gIH">
-                                                    <rect key="frame" x="351" y="11" width="8" height="21"/>
+                                                    <rect key="frame" x="296" y="11" width="8" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1069,7 +1069,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="Hgj-bZ-rjO">
-                                                    <rect key="frame" x="16" y="0.0" width="343" height="199.5"/>
+                                                    <rect key="frame" x="16" y="0.0" width="288" height="199.5"/>
                                                     <date key="date" timeIntervalSinceReferenceDate="543857243.95269001">
                                                         <!--2018-03-27 15:27:23 +0000-->
                                                     </date>
@@ -1297,7 +1297,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zo6-Zc-VzW">
-                                                    <rect key="frame" x="351" y="12" width="8" height="20.5"/>
+                                                    <rect key="frame" x="296" y="12" width="8" height="20.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1319,7 +1319,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="LcS-X6-bE8">
-                                                    <rect key="frame" x="16" y="0.0" width="343" height="200"/>
+                                                    <rect key="frame" x="16" y="0.0" width="288" height="200"/>
                                                     <date key="date" timeIntervalSinceReferenceDate="544815121.601614">
                                                         <!--2018-04-07 17:32:01 +0000-->
                                                     </date>
@@ -1350,7 +1350,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ob5-qK-c3Q">
-                                                    <rect key="frame" x="351" y="11.5" width="8" height="20.5"/>
+                                                    <rect key="frame" x="296" y="11.5" width="8" height="20.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1372,7 +1372,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="Nzx-7N-dZO">
-                                                    <rect key="frame" x="16" y="0.0" width="343" height="199.5"/>
+                                                    <rect key="frame" x="16" y="0.0" width="288" height="199.5"/>
                                                     <date key="date" timeIntervalSinceReferenceDate="544815121.601614">
                                                         <!--2018-04-07 17:32:01 +0000-->
                                                     </date>

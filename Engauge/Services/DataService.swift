@@ -19,11 +19,16 @@ class DataService {
     
     // References to the root's immediate children
     let REF_EVENTS = Database.database().reference().child(DBKeys.EVENT.key)
+    let REF_EVENT_TRANSACTIONS = Database.database().reference().child(DBKeys.EVENT_TRANSACTIONS_KEY)
     let REF_NOTIFICATIONS = Database.database().reference().child(DBKeys.NOTIFICATION.key)
     let REF_PRIZES = Database.database().reference().child(DBKeys.PRIZE.key)
     let REF_SCHOOLS = Database.database().reference().child(DBKeys.SCHOOL.key)
+    let REF_SCHOOL_EVENTS = Database.database().reference().child(DBKeys.SCHOOL_EVENTS_KEY)
+    let REF_SCHOOL_TRANSACTIONS = Database.database().reference().child(DBKeys.SCHOOL_TRANSACTIONS_KEY)
     let REF_TRANSACTIONS = Database.database().reference().child(DBKeys.TRANSACTION.key)
+    let REF_USER_EVENTS = Database.database().reference().child(DBKeys.USER_EVENTS_KEY)
     let REF_USER_FAVORITE_EVENTS = Database.database().reference().child(DBKeys.USER_FAVORITE_EVENTS_KEY)
+    let REF_USER_TRANSACTIONS = Database.database().reference().child(DBKeys.USER_TRANSACTIONS_KEY)
     let REF_USERS = Database.database().reference().child(DBKeys.USER.key)
     
     var REF_CURRENT_USER: DatabaseReference? {
@@ -164,8 +169,8 @@ class DataService {
             
             let updates: [String : Any] = [
                 "/\(DBKeys.EVENT.key)/\(eventID)" : eventData,
-                "/\(DBKeys.SCHOOL.key)/\(newEventSchoolID)/\(DBKeys.SCHOOL.events)/\(eventID)" : true,
-                "/\(DBKeys.USER.key)/\(newEventSchedulerUID)/\(DBKeys.USER.events)/\(eventID)" : true
+                "/\(DBKeys.SCHOOL_EVENTS_KEY)/\(newEventSchoolID)/\(eventID)" : true,
+                "/\(DBKeys.USER_EVENTS_KEY)/\(newEventSchedulerUID)/\(eventID)" : true
             ]
             
             DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
@@ -204,12 +209,11 @@ class DataService {
                 let description = eventData[DBKeys.EVENT.description] as? String
                 let imageURL = eventData[DBKeys.EVENT.imageURL] as? String
                 let thumbnailURL = eventData[DBKeys.EVENT.thumbnailURL] as? String
-                let associatedTransactionIDs = Array((eventData[DBKeys.EVENT.associatedTransactions] as? [String : Any])?.keys ?? [String : Any]().keys)
                 // Converting Doubles to Dates
                 let startTime = Date(timeIntervalSince1970: startTimeDouble)
                 let endTime = Date(timeIntervalSince1970: endTimeDouble)
                 
-                let retrievedEvent = Event(eventID: eventID, name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL, associatedTransactionIDs: associatedTransactionIDs.isEmpty ? nil : associatedTransactionIDs)
+                let retrievedEvent = Event(eventID: eventID, name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL)
                 
                 completion(retrievedEvent)
             } else {
@@ -231,12 +235,11 @@ class DataService {
             let description = eventData[DBKeys.EVENT.description] as? String
             let imageURL = eventData[DBKeys.EVENT.imageURL] as? String
             let thumbnailURL = eventData[DBKeys.EVENT.thumbnailURL] as? String
-            let associatedTransactionIDs = Array((eventData[DBKeys.EVENT.associatedTransactions] as? [String : Any])?.keys ?? [String : Any]().keys)
             // Converting Doubles to Dates
             let startTime = Date(timeIntervalSince1970: startTimeDouble)
             let endTime = Date(timeIntervalSince1970: endTimeDouble)
             
-            let retrievedEvent = Event(eventID: eventID, name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL, associatedTransactionIDs: associatedTransactionIDs.isEmpty ? nil : associatedTransactionIDs)
+            let retrievedEvent = Event(eventID: eventID, name: name, description: description, startTime: startTime, endTime: endTime, location: location, schedulerUID: schedulerUID, schoolID: schoolID, imageURL: imageURL, thumbnailURL: thumbnailURL, qrCodeURL: qrCodeURL)
             
             return retrievedEvent
         } else {
@@ -247,7 +250,7 @@ class DataService {
     // Retrieved events are not sorted in any way
     func getEventsForSchool(withID schoolID: String, completion: @escaping ([Event]) -> Void) {
         var events = [Event]()
-        DataService.instance.REF_SCHOOLS.child(schoolID).child(DBKeys.SCHOOL.events).observeSingleEvent(of: .value) { (snapshot) in
+        DataService.instance.REF_SCHOOL_EVENTS.child(schoolID).observeSingleEvent(of: .value) { (snapshot) in
             if let eventIDs = (snapshot.value as? [String : Any])?.keys {
                 var eventsToRetrieve = eventIDs.count
                 for eventID in eventIDs {
@@ -269,7 +272,7 @@ class DataService {
     
     func getEventsSectionedByDateForSchool(withID schoolID: String, completion: @escaping ([Date : [Event]]) -> Void) {
         var allEvents = [Event]()
-        DataService.instance.REF_SCHOOLS.child(schoolID).child(DBKeys.SCHOOL.events).observeSingleEvent(of: .value) { (snapshot) in
+        DataService.instance.REF_SCHOOL_EVENTS.child(schoolID).observeSingleEvent(of: .value) { (snapshot) in
             if let eventIDs = (snapshot.value as? [String : Any])?.keys {
                 var eventsToRetrieve = eventIDs.count
                 for eventID in eventIDs {
@@ -301,7 +304,6 @@ class DataService {
     
     func deleteEvent(_ eventToDelete: Event, completion: ((String?) -> Void)?) {
         // Must delete event ID from the school's list of events, the EVENTS node, the user who scheduled the event, and from the favorites list of all users who have favorited the event.
-        // TODO: Delete the event's image, thumbnail image, and QR code image from Storage.
         
         var updates = [String : Any?]()
         
@@ -316,10 +318,10 @@ class DataService {
             }
             
             // Delete this event's ID from the school's list of events
-            updates.updateValue(nil, forKey: "/\(DBKeys.SCHOOL.key)/\(eventToDelete.schoolID)/\(DBKeys.SCHOOL.events)/\(eventToDelete.eventID)")
+            updates.updateValue(nil, forKey: "/\(DBKeys.SCHOOL_EVENTS_KEY)/\(eventToDelete.schoolID)/\(eventToDelete.eventID)")
             
             // Delete this event's ID from the scheduler's list of events
-            updates.updateValue(nil, forKey: "/\(DBKeys.USER.key)/\(eventToDelete.schedulerUID)/\(DBKeys.USER.events)/\(eventToDelete.eventID)")
+            updates.updateValue(nil, forKey: "/\(DBKeys.USER_EVENTS_KEY)/\(eventToDelete.schedulerUID)/\(eventToDelete.eventID)")
             
             // Delete this event's data from the events node
             updates.updateValue(nil, forKey: "/\(DBKeys.EVENT.key)/\(eventToDelete.eventID)")
@@ -344,9 +346,6 @@ class DataService {
             }
         }
         DataService.instance.REF_USERS.removeObserver(withHandle: queryForFavoriters)
-        
-        
-        
     }
     
     
@@ -367,9 +366,9 @@ class DataService {
     
     
     func wasEventScheduledByUser(withUID uid: String, eventID: String, completion: @escaping (Bool) -> Void) {
-        DataService.instance.REF_USERS.child(uid).child(DBKeys.USER.events).observeSingleEvent(of: .value) { (snapshot) in
-            if let userEventIDs = snapshot.value as? [String : Any] {
-                completion(userEventIDs.keys.contains(eventID))
+        DataService.instance.REF_USER_EVENTS.child("\(uid)/\(eventID)").observeSingleEvent(of: .value) { (snapshot) in
+            if let dummyValue = snapshot.value as? Bool {
+                completion(dummyValue)
             } else {
                 completion(false)
             }

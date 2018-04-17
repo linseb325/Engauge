@@ -20,7 +20,6 @@ struct Event {
     var imageURL: String?
     var thumbnailURL: String?
     var qrCodeURL: String
-    var associatedTransactionIDs: [String]?
     
     
     // Returns an array containing database keys for which these two events have different values.
@@ -60,10 +59,6 @@ struct Event {
         if a.qrCodeURL != b.qrCodeURL {
             keysWithDifferentValues.append(DBKeys.EVENT.qrCodeURL)
         }
-        if a.associatedTransactionIDs != b.associatedTransactionIDs {
-            keysWithDifferentValues.append(DBKeys.EVENT.associatedTransactions)
-        }
-        
         return keysWithDifferentValues
     }
     
