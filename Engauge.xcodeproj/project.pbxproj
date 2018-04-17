@@ -19,6 +19,7 @@
 		C8137F322056D0130074D2AF /* EventListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F312056D0130074D2AF /* EventListVC.swift */; };
 		C8137F342056D0970074D2AF /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F332056D0970074D2AF /* Event.swift */; };
 		C8137F362056E0210074D2AF /* EventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F352056E0210074D2AF /* EventTableViewCell.swift */; };
+		C837D1B32085062D00D90D61 /* ProfileDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C837D1B22085062D00D90D61 /* ProfileDetailsVC.swift */; };
 		C83C4BD42069D8B000456851 /* NewEventTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C83C4BD32069D8B000456851 /* NewEventTVC.swift */; };
 		C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85333612062D52400D01734 /* EventDetailsVC.swift */; };
 		C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */; };
@@ -50,6 +51,7 @@
 		C8137F312056D0130074D2AF /* EventListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListVC.swift; sourceTree = "<group>"; };
 		C8137F332056D0970074D2AF /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		C8137F352056E0210074D2AF /* EventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTableViewCell.swift; sourceTree = "<group>"; };
+		C837D1B22085062D00D90D61 /* ProfileDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailsVC.swift; sourceTree = "<group>"; };
 		C83C4BD32069D8B000456851 /* NewEventTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEventTVC.swift; sourceTree = "<group>"; };
 		C85333612062D52400D01734 /* EventDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsVC.swift; sourceTree = "<group>"; };
 		C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationTVC.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				C85333612062D52400D01734 /* EventDetailsVC.swift */,
 				C83C4BD32069D8B000456851 /* NewEventTVC.swift */,
 				C8E9153C20792D7700E4E973 /* EditEventTVC.swift */,
+				C837D1B22085062D00D90D61 /* ProfileDetailsVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -331,6 +334,7 @@
 				C8137F342056D0970074D2AF /* Event.swift in Sources */,
 				C8137F322056D0130074D2AF /* EventListVC.swift in Sources */,
 				C80F31F92049F456002F6FED /* AppDelegate.swift in Sources */,
+				C837D1B32085062D00D90D61 /* ProfileDetailsVC.swift in Sources */,
 				C8FA5AF72063054A00EE7F64 /* Extensions.swift in Sources */,
 				C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */,
 				C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */,
