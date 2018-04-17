@@ -450,6 +450,21 @@ class DataService {
         }
     }
     
+    func getTransactionIDsForEvent(withID eventID: String, completion: @escaping ([String]) -> Void) {
+        DataService.instance.REF_EVENT_TRANSACTIONS.child(eventID).observeSingleEvent(of: .value) { (snapshot) in
+            let theTIDs = Array((snapshot.value as? [String : Any])?.keys ?? [String : Any]().keys)
+            completion(theTIDs)
+        }
+    }
+    
+    func getTransactionsForEvent(withID eventID: String, completion: @escaping ([Transaction]) -> Void) {
+        DataService.instance.getTransactionIDsForEvent(withID: eventID) { (transactionIDs) in
+            DataService.instance.getTransactions(withIDs: transactionIDs, completion: { (transactions) in
+                completion(transactions)
+            })
+        }
+    }
+    
     
     
     

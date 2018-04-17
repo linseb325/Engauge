@@ -11,17 +11,22 @@ import UIKit
 class FavoriteBarButtonItem: UIBarButtonItem {
     
     // MARK: Properties
-    var isFilled: Bool
-    let filledStarImage = UIImage(named: "filled-star")
-    let emptyStarImage = UIImage(named: "empty-star")
     
+    private var _isFilled: Bool
+    
+    var isFilled: Bool {
+        return _isFilled
+    }
+    
+    static let filledStarImage = UIImage(named: "filled-star")
+    static let emptyStarImage = UIImage(named: "empty-star")
     
     
     
     // MARK: Initializers
     
     init(isFilled: Bool, target: AnyObject?, action: Selector?) {
-        self.isFilled = isFilled
+        _isFilled = isFilled
         super.init()
         self.setImage(filled: isFilled)
         self.target = target
@@ -35,16 +40,16 @@ class FavoriteBarButtonItem: UIBarButtonItem {
     
     
     // MARK: Public API
-    func toggleImage() {
-        self.isFilled = !isFilled
-        self.setImage(filled: isFilled)
+    func toggle() {
+        _isFilled = !_isFilled
+        self.setImage(filled: _isFilled)
     }
     
     
     
     // MARK: Private API
     private func setImage(filled: Bool) {
-        self.image = filled ? filledStarImage : emptyStarImage
+        self.image = filled ? FavoriteBarButtonItem.filledStarImage : FavoriteBarButtonItem.emptyStarImage
     }
     
 }

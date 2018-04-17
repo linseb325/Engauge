@@ -97,8 +97,8 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
                                 // Schedulers can edit and delete events they scheduled.
                                 self.setUpEditAndDeleteUI()
                                 // Schedulers can view transactions for events they scheduled.
-                                DataService.instance.getTransactions(withIDs: self.event.associatedTransactionIDs ?? [String]()) { (transactionsRetrieved) in
-                                    self.transactions = transactionsRetrieved
+                                DataService.instance.getTransactionsForEvent(withID: self.event.eventID){ (retrievedTransactions) in
+                                    self.transactions = retrievedTransactions
                                     self.transactionsTableView.reloadData()
                                 }
                             } else {
@@ -112,8 +112,8 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
                         // Admins can edit and delete any event.
                         self.setUpEditAndDeleteUI()
                         // Admins can view transactions for any event.
-                        DataService.instance.getTransactions(withIDs: self.event.associatedTransactionIDs ?? [String]()) { (transactionsRetrieved) in
-                            self.transactions = transactionsRetrieved
+                        DataService.instance.getTransactionsForEvent(withID: self.event.eventID){ (retrievedTransactions) in
+                            self.transactions = retrievedTransactions
                             self.transactionsTableView.reloadData()
                         }
                     default:
@@ -158,10 +158,10 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     
     @objc func handleFavoriteButtonTapped() {
         if let favoriteButton = self.navigationItem.rightBarButtonItem as? FavoriteBarButtonItem {
-            favoriteButton.toggleImage()
+            favoriteButton.toggle()
             DataService.instance.setFavorite(favoriteButton.isFilled, eventWithID: self.event.eventID, forUserWithUID: Auth.auth().currentUser?.uid ?? "no-current-user") { (errMsg) in
                 guard errMsg == nil else {
-                    favoriteButton.toggleImage()
+                    favoriteButton.toggle()
                     self.showErrorAlert(message: errMsg!)
                     return
                 }

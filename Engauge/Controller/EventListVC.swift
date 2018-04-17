@@ -132,7 +132,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                 DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
                     if let userSchoolID = schoolID {
                         
-                        self.refSchoolEventIDs = DataService.instance.REF_SCHOOLS.child("/\(userSchoolID)/\(DBKeys.SCHOOL.events)")
+                        self.refSchoolEventIDs = DataService.instance.REF_SCHOOL_EVENTS.child(userSchoolID)
                         
                         // Some data for an event changed
                         self.eventDataChangedHandle = DataService.instance.REF_EVENTS.observe(.childChanged) { (snapshot) in
