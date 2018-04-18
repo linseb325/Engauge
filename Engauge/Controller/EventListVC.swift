@@ -182,9 +182,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                 self.presentSignInVC(completion: { print("Brennan - presented SignInVC") })
             }
         }
-        // Auth.auth().removeStateDidChangeListener(handle)
-        
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -409,14 +406,8 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     // Remove Database and Auth event listeners when this VC is deallocated.
     deinit {
         self.refSchoolEventIDs?.removeAllObservers()
-        
-        if eventDataChangedHandle != nil {
-            DataService.instance.REF_EVENTS.removeObserver(withHandle: eventDataChangedHandle!)
-        }
-        
-        if self.authListenerHandle != nil {
-            Auth.auth().removeStateDidChangeListener(self.authListenerHandle!)
-        }
+        if eventDataChangedHandle != nil { DataService.instance.REF_EVENTS.removeObserver(withHandle: eventDataChangedHandle!) }
+        if self.authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(self.authListenerHandle!) }
     }
     
 }

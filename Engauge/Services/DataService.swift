@@ -40,6 +40,27 @@ class DataService {
     
     
     
+    
+    
+    
+    func getUser(withUID uid: String, completion: @escaping (EngaugeUser?) -> Void) {
+        DataService.instance.REF_USERS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
+            if let userData = snapshot.value as? [String : Any], let userFirstName = userData[DBKeys.USER.firstName] as? String, let userLastName = userData[DBKeys.USER.lastName] as? String, let userEmailAddress = userData[DBKeys.USER.emailAddress] as? String, let userRole = userData[DBKeys.USER.role] as? Int, let userSchoolID = userData[DBKeys.USER.schoolID] as? String, let userImageURL = userData[DBKeys.USER.imageURL] as? String, let userThumbnailURL = userData[DBKeys.USER.thumbnailURL] as? String {
+                // Optional values for a user
+                let userPointBalance = userData[DBKeys.USER.pointBalance] as? Int
+                let userApprovedForScheduler = userData[DBKeys.USER.approvedForScheduler] as? Bool
+                
+                let retrievedUser = EngaugeUser(userID: uid, firstName: userFirstName, lastName: userLastName, emailAddress: userEmailAddress, role: userRole, schoolID: userSchoolID, imageURL: userImageURL, thumbnailURL: userThumbnailURL, pointBalance: userPointBalance, approvedForScheduler: userApprovedForScheduler)
+                
+                completion(retrievedUser)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    
+    
     func createUserInDatabase(uid: String, userInfo: [String : Any], completion: ((String?) -> Void)?) {
         DataService.instance.REF_USERS.child(uid).updateChildValues(userInfo) { (error, ref) in
             if error != nil {
@@ -96,11 +117,12 @@ class DataService {
         DataService.instance.REF_SCHOOLS.observeSingleEvent(of: .value) { (snapshot) in
             if let schoolsDict = snapshot.value as? [String: Any] {
                 for schoolID in schoolsDict.keys {
-                    if let schoolInfo = schoolsDict[schoolID] as? [String: Any] {
-                        if let adminUID = schoolInfo[DBKeys.SCHOOL.adminUID] as? String, let domain = schoolInfo[DBKeys.SCHOOL.domain] as? String, let name = schoolInfo[DBKeys.SCHOOL.name] as? String {
-                            // eventIDs is nil because this data will be used for displaying the names of the schools, not their events
-                            schools.append(School(name: name, schoolID: schoolID, adminUID: adminUID, domain: domain, eventIDs: nil))
-                        }
+                    if let schoolInfo = schoolsDict[schoolID] as? [String: Any],
+                        let adminUID = schoolInfo[DBKeys.SCHOOL.adminUID] as? String,
+                        let domain = schoolInfo[DBKeys.SCHOOL.domain] as? String,
+                        let name = schoolInfo[DBKeys.SCHOOL.name] as? String {
+                        // eventIDs is nil because this data will be used for displaying the names of the schools, not their events
+                        schools.append(School(name: name, schoolID: schoolID, adminUID: adminUID, domain: domain, eventIDs: nil))
                     }
                 }
             }

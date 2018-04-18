@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseStorage
 
 class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -18,6 +20,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     @IBOutlet weak var roleLabel: UILabel!
     @IBOutlet weak var emailLabel: UILabel!
     @IBOutlet weak var balanceLabel: UILabel!
+    
+    @IBOutlet weak var signOutButton: UIButton!
     
     @IBOutlet weak var recentTransactionsEventsHeaderLabel: UILabel!
     @IBOutlet weak var recentTransactionsEventsTableView: UITableView! {
@@ -32,15 +36,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // MARK: Properties
     
-    var userID: String!
-    
-    
-    
-    
-    
-    
-    
-    
+    var authListenerHandle: AuthStateDidChangeListenerHandle?
+    var userID: String?
     
     
     
@@ -50,13 +47,75 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // TODO: Download the user's info based on the userID.
-        // TODO: Download the user's profile image.
-        // TODO: Add an Edit button if this is my profile.
-        // TODO: Remove the sign out button if this is not my profile.
-        // TODO: If this is a student, download recent transactions and populate the table view.
-        // TODO: If this is a scheduler or admin, download recent events and populate the table view.
-        // TODO: If I'm an admin or scheduler AND this VC is the root "Profile" VC, show the "All Profiles" bar button item on the left.
+        self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
+            if let currUser = user {
+                // TODO: Download the user's info based on the userID.
+                let userIDForLookup = self.userID ?? currUser.uid
+                DataService.instance.getUser(withUID: userIDForLookup) { (user) in
+                    guard let thisProfileUser = user else {
+                        // TODO: Couldn't retrieve the user info for this screen.
+                        return
+                    }
+                    
+                    // Download and display the user's profile image.
+                    Storage.storage().reference(forURL: thisProfileUser.imageURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
+                        if error != nil, data != nil {
+                            self.imageView.image = UIImage(data: data!)
+                        }
+                    }
+                    
+                    // Am I viewing my own profile or not?
+                    if thisProfileUser.userID == currUser.uid {
+                        // This is me! Add an edit button.
+                        let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.handleEditTapped))
+                        self.navigationItem.setRightBarButton(editButton, animated: true)
+                    } else {
+                        // This is someone else. Remove the sign out button.
+                        self.signOutButton.isHidden = true
+                        self.signOutButton.removeFromSuperview()
+                        self.view.layoutIfNeeded()
+                    }
+                    
+                    switch thisProfileUser.role {
+                    case UserRole.student.toInt:
+                        self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
+                        // TODO: Download recent transactions and populate the table view.
+                        
+                        // If I'm an admin looking at a student, I can initiate a manual transaction from here.
+                        DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
+                            if roleNum == UserRole.admin.toInt {
+                                let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "add-transaction"), style: .plain, target: self, action: #selector(self.handleManualTransactionButtonTapped))
+                                self.navigationItem.setRightBarButton(manualTransactionButton, animated: true)
+                            }
+                        }
+                    case UserRole.scheduler.toInt, UserRole.admin.toInt:
+                        self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
+                        // TODO: Download recent events and populate the table view.
+                    default:
+                        // TODO: User role number is invalid.
+                        break
+                    }
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                }
+                
+                
+                
+                // TODO: If I'm an admin or scheduler AND this VC is the root "Profile" VC (AND this is my profile), show the "All Profiles" bar button item on the left.
+                // TODO: If I'm an admin, I need the ability to add a manual transaction
+            } else {
+                // TODO: There is no user signed in!
+            }
+        }
         
         
         
@@ -84,8 +143,35 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         // TODO: Sign out and show the sign-in screen.
     }
     
+    @objc private func handleEditTapped() {
+        print("Brennan - edit tapped")
+        // TODO: Navigate to the edit profile screen.
+    }
+    
+    @objc private func handleAllProfilesTapped() {
+        print("Brennan - all profiles tapped")
+        // TODO: Navigate to the all profiles screen.
+    }
+    
+    @objc private func handleManualTransactionButtonTapped() {
+        print("Brennan - manual transaction tapped")
+        // TODO: Navigate to the manual transaction screen, pre-populate the UI with the current user's data, and
+    }
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    deinit {
+        if self.authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(self.authListenerHandle!) }
+    }
     
     
 }

@@ -27,6 +27,20 @@ struct UserRole {
     static let student = (toInt: 0, toString: "student")
     static let scheduler = (toInt: 1, toString: "scheduler")
     static let admin = (toInt: 2, toString: "admin")
+    
+    static func stringFromInt(_ roleInt: Int) -> String? {
+        switch roleInt {
+        case UserRole.student.toInt:
+            return UserRole.student.toString
+        case UserRole.scheduler.toInt:
+            return UserRole.scheduler.toString
+        case UserRole.admin.toInt:
+            return UserRole.admin.toString
+        default:
+            return nil
+        }
+    }
+    
 }
 
 

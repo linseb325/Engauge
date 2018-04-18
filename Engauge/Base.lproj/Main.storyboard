@@ -563,6 +563,7 @@
                         <outlet property="recentTransactionsEventsHeaderLabel" destination="9os-nV-JIo" id="0NM-jS-6TG"/>
                         <outlet property="recentTransactionsEventsTableView" destination="va6-Ot-Avw" id="xaN-FW-qdY"/>
                         <outlet property="roleLabel" destination="4s9-gj-YA7" id="rOl-Lo-Neg"/>
+                        <outlet property="signOutButton" destination="vt4-xE-Noa" id="Pyy-dC-CHM"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4my-hI-rUI" userLabel="First Responder" sceneMemberID="firstResponder"/>
