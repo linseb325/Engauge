@@ -57,12 +57,19 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         return
                     }
                     
+                    // Display the user's info.
+                    self.nameLabel.text = "\(thisProfileUser.firstName) \(thisProfileUser.lastName)"
+                    self.roleLabel.text = UserRole.stringFromInt(thisProfileUser.role) ?? "-"
+                    self.emailLabel.text = thisProfileUser.emailAddress
+                    self.balanceLabel.text = thisProfileUser.role == UserRole.student.toInt ? "Balance: \(thisProfileUser.pointBalance ?? 0) points" : "-"
+                    
                     // Download and display the user's profile image.
                     Storage.storage().reference(forURL: thisProfileUser.imageURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
                         if error != nil, data != nil {
                             self.imageView.image = UIImage(data: data!)
                         }
                     }
+                    
                     
                     // Am I viewing my own profile or not?
                     if thisProfileUser.userID == currUser.uid {
@@ -76,6 +83,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         self.view.layoutIfNeeded()
                     }
                     
+                    
+                    // Configure UI based on the profile user's role.
                     switch thisProfileUser.role {
                     case UserRole.student.toInt:
                         self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
@@ -89,6 +98,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                             }
                         }
                     case UserRole.scheduler.toInt, UserRole.admin.toInt:
+                        self.balanceLabel.removeFromSuperview()
+                        self.view.layoutIfNeeded()
                         self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
                         // TODO: Download recent events and populate the table view.
                     default:
@@ -155,7 +166,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     @objc private func handleManualTransactionButtonTapped() {
         print("Brennan - manual transaction tapped")
-        // TODO: Navigate to the manual transaction screen, pre-populate the UI with the current user's data, and
+        // TODO: Navigate to the manual transaction screen, pre-populate the UI with this user's data, and make sure the user can only go back here from the next screen.
     }
     
     

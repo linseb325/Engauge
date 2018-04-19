@@ -90,6 +90,8 @@ struct DBKeys {
     
     static let SCHOOL_TRANSACTIONS_KEY = "schoolTransactions"
     
+    static let SCHOOL_USERS_KEY = "schoolUsers"
+    
     struct TRANSACTION {
         static let key = "transactions"
         static let eventID = "eventID"

@@ -245,7 +245,7 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                         break
                     }
                     
-                    DataService.instance.createUserInDatabase(uid: newUser.uid, userInfo: userData) { (errorMessage) in
+                    DataService.instance.createUserInDatabase(withUID: newUser.uid, forSchoolWithID: schoolPicked.schoolID, userInfo: userData) { (errorMessage) in
                         // Check for errors
                         guard errorMessage == nil else {
                             self.showErrorAlert(message: errorMessage!)

@@ -25,6 +25,7 @@ class DataService {
     let REF_SCHOOLS = Database.database().reference().child(DBKeys.SCHOOL.key)
     let REF_SCHOOL_EVENTS = Database.database().reference().child(DBKeys.SCHOOL_EVENTS_KEY)
     let REF_SCHOOL_TRANSACTIONS = Database.database().reference().child(DBKeys.SCHOOL_TRANSACTIONS_KEY)
+    let REF_SCHOOL_USERS = Database.database().reference().child(DBKeys.SCHOOL_USERS_KEY)
     let REF_TRANSACTIONS = Database.database().reference().child(DBKeys.TRANSACTION.key)
     let REF_USER_EVENTS = Database.database().reference().child(DBKeys.USER_EVENTS_KEY)
     let REF_USER_FAVORITE_EVENTS = Database.database().reference().child(DBKeys.USER_FAVORITE_EVENTS_KEY)
@@ -60,16 +61,15 @@ class DataService {
     }
     
     
-    
-    func createUserInDatabase(uid: String, userInfo: [String : Any], completion: ((String?) -> Void)?) {
-        DataService.instance.REF_USERS.child(uid).updateChildValues(userInfo) { (error, ref) in
-            if error != nil {
-                // An error occurred while adding the user to the database.
-                completion?(error!.localizedDescription)     // TODO: Is the localized description suitable to display to the user?
-            } else {
-                // Successfully added the user to the database.
-                completion?(nil)
-            }
+    // TODO: Test this function by creating a user
+    func createUserInDatabase(withUID uid: String, forSchoolWithID schoolID: String, userInfo: [String : Any], completion: ((String?) -> Void)?) {
+        var updates: [String : Any] = [
+            "/\(DBKeys.USER.key)/\(uid)" : userInfo,
+            "/\(DBKeys.SCHOOL_USERS_KEY)/\(schoolID)/\(uid)" : true
+        ]
+        
+        DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
+            completion?(error != nil ? error!.localizedDescription : nil)
         }
     }
     
