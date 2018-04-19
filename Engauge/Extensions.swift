@@ -113,6 +113,7 @@ extension Dictionary where Key == Date, Value == [Event] {
         }
         return nil
     }
+    
 }
 
 
@@ -127,6 +128,22 @@ extension UIViewController {
         } else {
             return self
         }
+    }
+    
+    // Am I at the root of a tab in a tab bar controller?
+    var isFirstVisibleVCofATab: Bool {
+        guard self.tabBarController != nil else {
+            return false
+        }
+        
+        if let myNavCon = self.navigationController {
+            // I'm in a navcon
+            return myNavCon.viewControllers.count == 1 && myNavCon.visibleViewController === self && (self.tabBarController!.viewControllers?.contains(myNavCon) ?? false)
+        } else {
+            // I'm not in a navcon
+            return self.tabBarController!.viewControllers?.contains(self) ?? false
+        }
+        
     }
     
     // If the user taps somewhere outside the keyboard while editing text, dismiss the keyboard.

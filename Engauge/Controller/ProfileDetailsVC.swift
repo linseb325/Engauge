@@ -38,6 +38,10 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     var authListenerHandle: AuthStateDidChangeListenerHandle?
     var userID: String?
+    var thisProfileUser: EngaugeUser?
+    
+    var usersScheduledEvents: [Event]?
+    var usersRecentTransactions: [Transaction]?
     
     
     
@@ -49,23 +53,38 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         
         self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
             if let currUser = user {
-                // TODO: Download the user's info based on the userID.
+                // There is a user signed in.
+                
                 let userIDForLookup = self.userID ?? currUser.uid
+                
                 DataService.instance.getUser(withUID: userIDForLookup) { (user) in
                     guard let thisProfileUser = user else {
                         // TODO: Couldn't retrieve the user info for this screen.
                         return
                     }
                     
+                    self.thisProfileUser = thisProfileUser
+                    
+                    // Is the current user authorized to view all profiles from this screen?
+                    if self.isFirstVisibleVCofATab, userIDForLookup == currUser.uid {
+                        DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
+                            if let currUserRoleNum = roleNum, (currUserRoleNum == UserRole.admin.toInt || currUserRoleNum == UserRole.scheduler.toInt) {
+                                // User can navigate to the profile list from here.
+                                let allProfilesButton = UIBarButtonItem(title: "All Profiles", style: .plain, target: self, action: #selector(self.handleAllProfilesTapped))
+                                self.navigationItem.setLeftBarButton(allProfilesButton, animated: true)
+                            }
+                        }
+                    }
+                    
                     // Display the user's info.
                     self.nameLabel.text = "\(thisProfileUser.firstName) \(thisProfileUser.lastName)"
-                    self.roleLabel.text = UserRole.stringFromInt(thisProfileUser.role) ?? "-"
+                    self.roleLabel.text = UserRole.stringFromInt(thisProfileUser.role)?.capitalized ?? "-"
                     self.emailLabel.text = thisProfileUser.emailAddress
                     self.balanceLabel.text = thisProfileUser.role == UserRole.student.toInt ? "Balance: \(thisProfileUser.pointBalance ?? 0) points" : "-"
                     
                     // Download and display the user's profile image.
-                    Storage.storage().reference(forURL: thisProfileUser.imageURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
-                        if error != nil, data != nil {
+                    Storage.storage().reference(forURL: thisProfileUser.thumbnailURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
+                        if error == nil, data != nil {
                             self.imageView.image = UIImage(data: data!)
                         }
                     }
@@ -84,12 +103,17 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                     }
                     
                     
-                    // Configure UI based on the profile user's role.
+                    // What kind of user am I looking at? (role)
                     switch thisProfileUser.role {
                     case UserRole.student.toInt:
+                        // I'm looking at a student
                         self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
                         // TODO: Download recent transactions and populate the table view.
-                        
+                        DataService.instance.getTransactionsForUser(withUID: thisProfileUser.userID) { (studentsTransactions) in
+                            self.usersRecentTransactions = studentsTransactions
+                            self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
+                            self.recentTransactionsEventsTableView.reloadData()
+                        }
                         // If I'm an admin looking at a student, I can initiate a manual transaction from here.
                         DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
                             if roleNum == UserRole.admin.toInt {
@@ -98,33 +122,25 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                             }
                         }
                     case UserRole.scheduler.toInt, UserRole.admin.toInt:
+                        // I'm looking at a scheduler or admin
                         self.balanceLabel.removeFromSuperview()
                         self.view.layoutIfNeeded()
+                        // Download recent events and populate the table view.
                         self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
-                        // TODO: Download recent events and populate the table view.
+                        DataService.instance.getEventsScheduledByUser(withUID: thisProfileUser.userID) { (schedulersEvents) in
+                            self.usersScheduledEvents = schedulersEvents
+                            self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
+                            self.recentTransactionsEventsTableView.reloadData()
+                        }
                     default:
                         // TODO: User role number is invalid.
                         break
                     }
                     
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
                 }
-                
-                
-                
-                // TODO: If I'm an admin or scheduler AND this VC is the root "Profile" VC (AND this is my profile), show the "All Profiles" bar button item on the left.
-                // TODO: If I'm an admin, I need the ability to add a manual transaction
             } else {
                 // TODO: There is no user signed in!
+                print("Nobody is signed in")
             }
         }
         
@@ -142,6 +158,15 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        
+        
+        
+        
+        
+        
+        
+        
         return UITableViewCell()
     }
     
@@ -151,6 +176,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     // MARK: Button Actions
 
     @IBAction func signOutTapped(_ sender: UIButton) {
+        print("Brennan - sign out tapped")
         // TODO: Sign out and show the sign-in screen.
     }
     

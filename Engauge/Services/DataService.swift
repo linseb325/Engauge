@@ -63,7 +63,8 @@ class DataService {
     
     // TODO: Test this function by creating a user
     func createUserInDatabase(withUID uid: String, forSchoolWithID schoolID: String, userInfo: [String : Any], completion: ((String?) -> Void)?) {
-        var updates: [String : Any] = [
+        
+        let updates: [String : Any] = [
             "/\(DBKeys.USER.key)/\(uid)" : userInfo,
             "/\(DBKeys.SCHOOL_USERS_KEY)/\(schoolID)/\(uid)" : true
         ]
@@ -89,20 +90,6 @@ class DataService {
         DataService.instance.REF_USERS.child("/\(uid)/\(DBKeys.USER.schoolID)").observeSingleEvent(of: .value) { (snapshot) in
             if let schoolID = snapshot.value as? String {
                 completion(schoolID)
-            } else {
-                completion(nil)
-            }
-        }
-    }
-    
-    
-    
-    // Event IDs are not sorted in any way
-    func getFavoriteEventIDsForUser(withUID uid: String, completion: @escaping ([String]?) -> Void) {
-        DataService.instance.REF_USER_FAVORITE_EVENTS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
-            if let favorites = snapshot.value as? [String : Bool], favorites.count > 0 {
-                let favoriteIDs = Array(favorites.keys)
-                completion(favoriteIDs)
             } else {
                 completion(nil)
             }
@@ -269,11 +256,46 @@ class DataService {
         }
     }
     
+    func getEventsScheduledByUser(withUID schedulerUID: String, completion: @escaping ([Event]) -> Void) {
+        DataService.instance.REF_USER_EVENTS.child(schedulerUID).observeSingleEvent(of: .value) { (snapshot) in
+            guard let eventIDs = (snapshot.value as? [String : Any])?.keys else {
+                completion([Event]())
+                return
+            }
+            
+            DataService.instance.getEvents(withIDs: Array(eventIDs)) { (events) in
+                completion(events)
+            }
+        }
+    }
+    
+    func getEvents(withIDs eventIDs: [String], completion: @escaping ([Event]) -> Void) {
+        var events = [Event]()
+        
+        var eventsToRetrieve = eventIDs.count
+        guard eventsToRetrieve > 0 else {
+            completion(events)
+            return
+        }
+        
+        for eventID in eventIDs {
+            DataService.instance.getEvent(withID: eventID) { (retrievedEvent) in
+                eventsToRetrieve -= 1
+                if retrievedEvent != nil {
+                    events.append(retrievedEvent!)
+                }
+                if eventsToRetrieve <= 0 {
+                    completion(events)
+                }
+            }
+        }
+    }
+    
     // Retrieved events are not sorted in any way
     func getEventsForSchool(withID schoolID: String, completion: @escaping ([Event]) -> Void) {
         var events = [Event]()
         DataService.instance.REF_SCHOOL_EVENTS.child(schoolID).observeSingleEvent(of: .value) { (snapshot) in
-            if let eventIDs = (snapshot.value as? [String : Any])?.keys {
+            if let eventIDs = (snapshot.value as? [String : Any])?.keys, eventIDs.count > 0 {
                 var eventsToRetrieve = eventIDs.count
                 for eventID in eventIDs {
                     DataService.instance.getEvent(withID: eventID) { (event) in
@@ -295,7 +317,7 @@ class DataService {
     func getEventsSectionedByDateForSchool(withID schoolID: String, completion: @escaping ([Date : [Event]]) -> Void) {
         var allEvents = [Event]()
         DataService.instance.REF_SCHOOL_EVENTS.child(schoolID).observeSingleEvent(of: .value) { (snapshot) in
-            if let eventIDs = (snapshot.value as? [String : Any])?.keys {
+            if let eventIDs = (snapshot.value as? [String : Any])?.keys, eventIDs.count > 0 {
                 var eventsToRetrieve = eventIDs.count
                 for eventID in eventIDs {
                     DataService.instance.getEvent(withID: eventID) { (event) in
@@ -324,6 +346,7 @@ class DataService {
     
     
     
+    // Deletes the event's data from the database and
     func deleteEvent(_ eventToDelete: Event, completion: ((String?) -> Void)?) {
         // Must delete event ID from the school's list of events, the EVENTS node, the user who scheduled the event, and from the favorites list of all users who have favorited the event.
         
@@ -400,7 +423,7 @@ class DataService {
     
     
     
-    // MARK: Favorite events
+    // MARK: Favoriting events
     
     func isEventFavoritedByUser(withUID uid: String, eventID: String, completion: @escaping (Bool) -> Void) {
         DataService.instance.REF_USER_FAVORITE_EVENTS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
@@ -428,8 +451,21 @@ class DataService {
     
     
     
+    // Event IDs are not sorted in any way
+    func getFavoriteEventIDsForUser(withUID uid: String, completion: @escaping ([String]?) -> Void) {
+        DataService.instance.REF_USER_FAVORITE_EVENTS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
+            if let favorites = snapshot.value as? [String : Bool], favorites.count > 0 {
+                let favoriteIDs = Array(favorites.keys)
+                completion(favoriteIDs)
+            } else {
+                completion(nil)
+            }
+        }
+    }
     
-    // MARK: Retreiving transactions
+    
+    
+    // MARK: Transactions
     
     func getTransaction(withID transactionID: String, completion: @escaping (Transaction?) -> Void) {
         DataService.instance.REF_TRANSACTIONS.child(transactionID).observeSingleEvent(of: .value) { (snapshot) in
@@ -458,7 +494,14 @@ class DataService {
     
     func getTransactions(withIDs transactionIDs: [String], completion: @escaping ([Transaction]) -> Void) {
         var transactions = [Transaction]()
+        
         var transactionsToRetrieve = transactionIDs.count
+        
+        guard transactionsToRetrieve > 0 else {
+            completion(transactions)
+            return
+        }
+        
         for transactionID in transactionIDs {
             DataService.instance.getTransaction(withID: transactionID) { (transaction) in
                 transactionsToRetrieve -= 1
@@ -468,6 +511,19 @@ class DataService {
                 if transactionsToRetrieve <= 0 {
                     completion(transactions)
                 }
+            }
+        }
+    }
+    
+    func getTransactionsForUser(withUID uid: String, completion: @escaping ([Transaction]) -> Void) {
+        DataService.instance.REF_USER_TRANSACTIONS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
+            guard let transactionIDs = (snapshot.value as? [String : Any])?.keys, transactionIDs.count > 0 else {
+                completion([Transaction]())
+                return
+            }
+            
+            DataService.instance.getTransactions(withIDs: Array(transactionIDs)) { (transactions) in
+                completion(transactions)
             }
         }
     }
