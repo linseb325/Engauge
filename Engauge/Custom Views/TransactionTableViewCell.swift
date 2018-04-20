@@ -2,7 +2,7 @@
 //  TransactionTableViewCell.swift
 //  Engauge
 //
-//  Created by Brennan Linse on 3/22/18.
+//  Created by Brennan Linse on 4/19/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
@@ -55,12 +55,4 @@ class TransactionTableViewCell: UITableViewCell {
         
         
     }
-    
-    
-    
-    
-    
-    
-    
-    
 }

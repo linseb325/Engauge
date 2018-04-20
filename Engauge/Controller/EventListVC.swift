@@ -204,7 +204,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "EventTableViewCell") as? EventTableViewCell
+        let cell = Bundle.main.loadNibNamed("EventTableViewCell", owner: self, options: nil)?.first as? EventTableViewCell
         let currEvent = (filteredEvents != nil) ? self.filteredEvents![sectionKeys[indexPath.section]]![indexPath.row] : self.events[sectionKeys[indexPath.section]]![indexPath.row]
         if let thumbImageURL = currEvent.thumbnailURL {
             // The event has a thumbnail image.

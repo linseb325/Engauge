@@ -142,7 +142,7 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     // MARK: Table View methods
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = self.transactionsTableView.dequeueReusableCell(withIdentifier: "TransactionTableViewCell") as? TransactionTableViewCell
+        let cell = Bundle.main.loadNibNamed("TransactionTableViewCell", owner: self, options: nil)?.first as? TransactionTableViewCell
         cell?.configureCell(transaction: transactions[indexPath.row])
         return cell ?? UITableViewCell()
     }
