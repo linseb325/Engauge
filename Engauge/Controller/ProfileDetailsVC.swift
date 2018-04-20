@@ -36,13 +36,20 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // MARK: Properties
     
-    var authListenerHandle: AuthStateDidChangeListenerHandle?
+    private var authListenerHandle: AuthStateDidChangeListenerHandle?
     var userID: String?
-    var thisProfileUser: EngaugeUser?
+    private var thisProfileUser: EngaugeUser?
     
-    var usersScheduledEvents: [Event]?
-    var usersRecentTransactions: [Transaction]?
-    
+    private var usersScheduledEvents: [Event]?
+    private var usersRecentTransactions: [Transaction]?
+    private var tableViewMode: TableViewMode {
+        if usersScheduledEvents != nil, usersRecentTransactions == nil {
+            return .events
+        } else if usersScheduledEvents == nil, usersRecentTransactions != nil {
+            return .transactions
+        }
+        return .none
+    }
     
     
     
@@ -108,10 +115,11 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                     case UserRole.student.toInt:
                         // I'm looking at a student
                         self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
-                        // TODO: Download recent transactions and populate the table view.
+                        // Download recent transactions and populate the table view.
                         DataService.instance.getTransactionsForUser(withUID: thisProfileUser.userID) { (studentsTransactions) in
                             self.usersRecentTransactions = studentsTransactions
                             self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
+                            print(self.usersRecentTransactions!)
                             self.recentTransactionsEventsTableView.reloadData()
                         }
                         // If I'm an admin looking at a student, I can initiate a manual transaction from here.
@@ -130,6 +138,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         DataService.instance.getEventsScheduledByUser(withUID: thisProfileUser.userID) { (schedulersEvents) in
                             self.usersScheduledEvents = schedulersEvents
                             self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
+                            print(self.usersScheduledEvents!)
                             self.recentTransactionsEventsTableView.reloadData()
                         }
                     default:
@@ -154,20 +163,50 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     // MARK: Table View methods
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        switch self.tableViewMode {
+        case .events:
+            return self.usersScheduledEvents?.count ?? 0
+        case .transactions:
+            return self.usersRecentTransactions?.count ?? 0
+        case .none:
+            return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        return UITableViewCell()
+        switch self.tableViewMode {
+        case .events:
+            let cell = Bundle.main.loadNibNamed("EventTableViewCell", owner: self, options: nil)?.first as? EventTableViewCell
+            cell?.configureCell(event: self.usersScheduledEvents![indexPath.row], thumbnailImageFromCache: EventListVC.imageCache.object(forKey: (self.usersScheduledEvents![indexPath.row].thumbnailURL ?? "") as NSString), forVCWithTypeName: "ProfileDetailsVC")
+            return cell ?? UITableViewCell()
+        case .transactions:
+            let cell = Bundle.main.loadNibNamed("TransactionTableViewCell", owner: self, options: nil)?.first as? TransactionTableViewCell
+            cell?.configureCell(transaction: self.usersRecentTransactions![indexPath.row], forVCWithTypeName: "ProfileDetailsVC")
+            return cell ?? UITableViewCell()
+        case .none:
+            return UITableViewCell()
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch self.tableViewMode {
+        case .events:
+            return 80
+        case .transactions:
+            return 44
+        case .none:
+            return 44
+        }
+    }
+    
+    
+    
+    // MARK: Table View Mode
+    
+    private enum TableViewMode {
+        case transactions
+        case events
+        case none
     }
     
     

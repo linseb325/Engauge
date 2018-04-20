@@ -348,7 +348,6 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     
     
     
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }

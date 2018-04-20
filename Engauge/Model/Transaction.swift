@@ -17,4 +17,42 @@ struct Transaction {
     var eventID: String?
     var prizeID: String?
     var manualInitiatorUID: String?
+    
+    var source: Source {
+        switch (eventID != nil, prizeID != nil, manualInitiatorUID != nil) {
+        case (true, false, false):
+            return .qrScan
+        case (false, true, false):
+            return .prizeRedemption
+        case (false, false, true):
+            return .manualInitiation
+        default:
+            return .undetermined
+        }
+    }
+    
+    enum Source {
+        case qrScan
+        case prizeRedemption
+        case manualInitiation
+        case undetermined
+        
+        var asString: String {
+            switch self {
+            case .qrScan:
+                return "QR Scan"
+            case .prizeRedemption:
+                return "Prize Redemption"
+            case .manualInitiation:
+                return "Manual Transaction"
+            case .undetermined:
+                return ""
+            }
+        }
+    }
+    
+    
+    
+    
+    
 }

@@ -263,6 +263,8 @@ class DataService {
                 return
             }
             
+            print("****** eventIDs = \(eventIDs)")
+            
             DataService.instance.getEvents(withIDs: Array(eventIDs)) { (events) in
                 completion(events)
             }

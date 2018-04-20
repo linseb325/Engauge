@@ -20,13 +20,33 @@ class EventTableViewCell: UITableViewCell {
     // MARK: Properties
     var event: Event!
     
+    static let formatter: DateFormatter = {
+        let form = DateFormatter()
+        form.dateStyle = .none
+        form.timeStyle = .short
+        return form
+    }()
+    
+    private static let formats: [String : (dateStyle: DateFormatter.Style, timeStyle: DateFormatter.Style)] = [
+        "EventListVC" : (.none, .short),
+        "ProfileDetailsVC" : (.medium, .none)
+    ]
+    
     // MARK: Configuring the cell's UI
-    func configureCell(event: Event, thumbnailImageFromCache: UIImage? = nil) {
+    func configureCell(event: Event, thumbnailImageFromCache: UIImage? = nil, forVCWithTypeName nameOfVC: String = "EventListVC") {
         self.event = event
-        let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .short
-        self.startTimeLabel.text = "\(formatter.string(from: event.startTime)) - \(formatter.string(from: event.endTime))"
+        
+        self.configureDateAndTimeFormats(forVCWithName: nameOfVC)
+        
+        switch nameOfVC {
+        case "EventListVC":
+            self.startTimeLabel.text = "\(EventTableViewCell.formatter.string(from: event.startTime)) - \(EventTableViewCell.formatter.string(from: event.endTime))"
+        case "ProfileDetailsVC":
+            self.startTimeLabel.text = EventTableViewCell.formatter.string(from: event.startTime)
+        default:
+            self.startTimeLabel.text = EventTableViewCell.formatter.string(from: event.startTime)
+        }
+        
         self.nameLabel.text = event.name
         self.locationLabel.text = event.location
         
@@ -50,5 +70,13 @@ class EventTableViewCell: UITableViewCell {
             // This event doesn't have an associated image, so use the default image.
             self.thumbnailImageView.image = UIImage(named: "gauge")
         }
+    }
+    
+    
+    
+    
+    private func configureDateAndTimeFormats(forVCWithName nameOfVC: String) {
+        EventTableViewCell.formatter.dateStyle = EventTableViewCell.formats[nameOfVC]?.dateStyle ?? .none
+        EventTableViewCell.formatter.timeStyle = EventTableViewCell.formats[nameOfVC]?.timeStyle ?? .none
     }
 }

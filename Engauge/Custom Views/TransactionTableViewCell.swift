@@ -11,8 +11,8 @@ import UIKit
 class TransactionTableViewCell: UITableViewCell {
     
     // MARK: Outlets
-    @IBOutlet weak var userNameLabel: UILabel!
-    @IBOutlet weak var timestampLabel: UILabel!
+    @IBOutlet weak var mainLabel: UILabel!
+    @IBOutlet weak var detailLabel: UILabel!
     @IBOutlet weak var pointValueLabel: UILabel!
     
     
@@ -28,17 +28,28 @@ class TransactionTableViewCell: UITableViewCell {
     
     
     
-    
     // MARK: Configuring the cell's UI
     
-    func configureCell(transaction: Transaction) {
+    func configureCell(transaction: Transaction, forVCWithTypeName nameOfVC: String = "EventDetailsVC") {
         self.transaction = transaction
         
-        DataService.instance.getNameForUser(withUID: transaction.userID) { (fullName) in
-            self.userNameLabel.text = fullName
+        // Customize the UI based on which screen is displaying this cell
+        switch nameOfVC {
+        case "EventDetailsVC":
+            DataService.instance.getNameForUser(withUID: transaction.userID) { (fullName) in
+                self.mainLabel.text = fullName
+            }
+        case "ProfileDetailsVC":
+            self.mainLabel.text = transaction.source.asString
+        default:
+            self.mainLabel.text = "Transaction"
         }
         
-        self.timestampLabel.text = TransactionTableViewCell.formatter.string(from: transaction.timestamp)
+        DataService.instance.getNameForUser(withUID: transaction.userID) { (fullName) in
+            self.mainLabel.text = fullName
+        }
+        
+        self.detailLabel.text = TransactionTableViewCell.formatter.string(from: transaction.timestamp)
         
         if transaction.pointValue >= 0 {
             // Positive transaction
@@ -49,10 +60,5 @@ class TransactionTableViewCell: UITableViewCell {
             self.pointValueLabel.text = "-\(abs(transaction.pointValue))"
             self.pointValueLabel.textColor = UIColor.red
         }
-        
-        
-        
-        
-        
     }
 }
