@@ -17,9 +17,8 @@ class TransactionTableViewCell: UITableViewCell {
     
     
     
-    
     // MARK: Properties
-    var transaction: Transaction!
+    
     static let formatter: DateFormatter = {
         let f = DateFormatter()
         f.setLocalizedDateFormatFromTemplate("E M/d/yyyy at h:m a")
@@ -31,7 +30,6 @@ class TransactionTableViewCell: UITableViewCell {
     // MARK: Configuring the cell's UI
     
     func configureCell(transaction: Transaction, forVCWithTypeName nameOfVC: String = "EventDetailsVC") {
-        self.transaction = transaction
         
         // Customize the UI based on which screen is displaying this cell
         switch nameOfVC {
@@ -43,10 +41,6 @@ class TransactionTableViewCell: UITableViewCell {
             self.mainLabel.text = transaction.source.asString
         default:
             self.mainLabel.text = "Transaction"
-        }
-        
-        DataService.instance.getNameForUser(withUID: transaction.userID) { (fullName) in
-            self.mainLabel.text = fullName
         }
         
         self.detailLabel.text = TransactionTableViewCell.formatter.string(from: transaction.timestamp)

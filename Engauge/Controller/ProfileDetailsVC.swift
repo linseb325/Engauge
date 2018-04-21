@@ -77,7 +77,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
                             if let currUserRoleNum = roleNum, (currUserRoleNum == UserRole.admin.toInt || currUserRoleNum == UserRole.scheduler.toInt) {
                                 // User can navigate to the profile list from here.
-                                let allProfilesButton = UIBarButtonItem(title: "All Profiles", style: .plain, target: self, action: #selector(self.handleAllProfilesTapped))
+                                let allProfilesButton = UIBarButtonItem(title: "All Users", style: .plain, target: self, action: #selector(self.handleAllUsersTapped))
                                 self.navigationItem.setLeftBarButton(allProfilesButton, animated: true)
                             }
                         }
@@ -224,9 +224,9 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         // TODO: Navigate to the edit profile screen.
     }
     
-    @objc private func handleAllProfilesTapped() {
-        print("Brennan - all profiles tapped")
-        // TODO: Navigate to the all profiles screen.
+    @objc private func handleAllUsersTapped() {
+        print("Brennan - all users tapped")
+        // TODO: Navigate to the all users screen.
     }
     
     @objc private func handleManualTransactionButtonTapped() {

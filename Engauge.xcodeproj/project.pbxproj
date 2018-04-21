@@ -28,6 +28,9 @@
 		C8B98B1D205C086000A24B95 /* MyTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B1C205C086000A24B95 /* MyTabBarController.swift */; };
 		C8B9D80F2065FC7A0011EC7B /* FavoriteBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B9D80E2065FC7A0011EC7B /* FavoriteBarButtonItem.swift */; };
 		C8CB84BD2064374600913E20 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8CB84BC2064374600913E20 /* Transaction.swift */; };
+		C8D3CBE7208B8B3700AC4769 /* ProfileListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D3CBE6208B8B3700AC4769 /* ProfileListVC.swift */; };
+		C8D3CBEA208B8C0900AC4769 /* ProfileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D3CBE8208B8C0900AC4769 /* ProfileTableViewCell.swift */; };
+		C8D3CBEB208B8C0900AC4769 /* ProfileTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8D3CBE9208B8C0900AC4769 /* ProfileTableViewCell.xib */; };
 		C8D51082204F742F00835AD3 /* School.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51081204F742F00835AD3 /* School.swift */; };
 		C8D51084204F79D800835AD3 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51083204F79D800835AD3 /* DataService.swift */; };
 		C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E9153C20792D7700E4E973 /* EditEventTVC.swift */; };
@@ -63,6 +66,9 @@
 		C8B98B1C205C086000A24B95 /* MyTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabBarController.swift; sourceTree = "<group>"; };
 		C8B9D80E2065FC7A0011EC7B /* FavoriteBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteBarButtonItem.swift; sourceTree = "<group>"; };
 		C8CB84BC2064374600913E20 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		C8D3CBE6208B8B3700AC4769 /* ProfileListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileListVC.swift; sourceTree = "<group>"; };
+		C8D3CBE8208B8C0900AC4769 /* ProfileTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTableViewCell.swift; sourceTree = "<group>"; };
+		C8D3CBE9208B8C0900AC4769 /* ProfileTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileTableViewCell.xib; sourceTree = "<group>"; };
 		C8D51081204F742F00835AD3 /* School.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = School.swift; sourceTree = "<group>"; };
 		C8D51083204F79D800835AD3 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		C8E9153C20792D7700E4E973 /* EditEventTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventTVC.swift; sourceTree = "<group>"; };
@@ -154,6 +160,7 @@
 				C83C4BD32069D8B000456851 /* NewEventTVC.swift */,
 				C8E9153C20792D7700E4E973 /* EditEventTVC.swift */,
 				C837D1B22085062D00D90D61 /* ProfileDetailsVC.swift */,
+				C8D3CBE6208B8B3700AC4769 /* ProfileListVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -174,8 +181,9 @@
 			isa = PBXGroup;
 			children = (
 				C8B9D80E2065FC7A0011EC7B /* FavoriteBarButtonItem.swift */,
-				C8F465672089648E0051F279 /* TransactionTableViewCell.swift */,
 				C8F4656B208965310051F279 /* EventTableViewCell.swift */,
+				C8F465672089648E0051F279 /* TransactionTableViewCell.swift */,
+				C8D3CBE8208B8C0900AC4769 /* ProfileTableViewCell.swift */,
 			);
 			path = "Custom Views";
 			sourceTree = "<group>";
@@ -194,8 +202,9 @@
 			isa = PBXGroup;
 			children = (
 				C80F31FC2049F456002F6FED /* Main.storyboard */,
-				C8F465682089648E0051F279 /* TransactionTableViewCell.xib */,
 				C8F4656C208965310051F279 /* EventTableViewCell.xib */,
+				C8F465682089648E0051F279 /* TransactionTableViewCell.xib */,
+				C8D3CBE9208B8C0900AC4769 /* ProfileTableViewCell.xib */,
 			);
 			path = "User Interface";
 			sourceTree = "<group>";
@@ -265,6 +274,7 @@
 				C8F4656E208965310051F279 /* EventTableViewCell.xib in Resources */,
 				C8F4656A2089648E0051F279 /* TransactionTableViewCell.xib in Resources */,
 				C80F32032049F456002F6FED /* LaunchScreen.storyboard in Resources */,
+				C8D3CBEB208B8C0900AC4769 /* ProfileTableViewCell.xib in Resources */,
 				C80F320B204A00C4002F6FED /* GoogleService-Info.plist in Resources */,
 				C80F32002049F456002F6FED /* Assets.xcassets in Resources */,
 				C80F31FE2049F456002F6FED /* Main.storyboard in Resources */,
@@ -358,8 +368,10 @@
 				C837D1B32085062D00D90D61 /* ProfileDetailsVC.swift in Sources */,
 				C8FA5AF72063054A00EE7F64 /* Extensions.swift in Sources */,
 				C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */,
+				C8D3CBE7208B8B3700AC4769 /* ProfileListVC.swift in Sources */,
 				C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */,
 				C80F3213204B4D6E002F6FED /* Constants.swift in Sources */,
+				C8D3CBEA208B8C0900AC4769 /* ProfileTableViewCell.swift in Sources */,
 				C8B98B1D205C086000A24B95 /* MyTabBarController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -44,6 +44,42 @@ class DataService {
     
     
     
+    
+    func getUsersForSchool(withID schoolID: String, completion: @escaping ([EngaugeUser]) -> Void) {
+        DataService.instance.REF_SCHOOL_USERS.child(schoolID).observeSingleEvent(of: .value) { (snapshot) in
+            guard let schoolUIDs = (snapshot.value as? [String : Any])?.keys, schoolUIDs.count > 0 else {
+                completion([EngaugeUser]())
+                return
+            }
+            
+            DataService.instance.getUsers(withUIDs: Array(schoolUIDs)) { (users) in
+                completion(users)
+            }
+        }
+    }
+    
+    func getUsers(withUIDs uids: [String], completion: @escaping ([EngaugeUser]) -> Void) {
+        var users = [EngaugeUser]()
+        var usersToRetrieve = uids.count
+        
+        guard usersToRetrieve > 0 else {
+            completion(users)
+            return
+        }
+        
+        for uid in uids {
+            DataService.instance.getUser(withUID: uid) { (user) in
+                if user != nil {
+                    users.append(user!)
+                }
+                usersToRetrieve -= 1
+                if usersToRetrieve <= 0 {
+                    completion(users)
+                }
+            }
+        }
+    }
+    
     func getUser(withUID uid: String, completion: @escaping (EngaugeUser?) -> Void) {
         DataService.instance.REF_USERS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
             if let userData = snapshot.value as? [String : Any], let userFirstName = userData[DBKeys.USER.firstName] as? String, let userLastName = userData[DBKeys.USER.lastName] as? String, let userEmailAddress = userData[DBKeys.USER.emailAddress] as? String, let userRole = userData[DBKeys.USER.role] as? Int, let userSchoolID = userData[DBKeys.USER.schoolID] as? String, let userImageURL = userData[DBKeys.USER.imageURL] as? String, let userThumbnailURL = userData[DBKeys.USER.thumbnailURL] as? String {
@@ -263,8 +299,6 @@ class DataService {
                 return
             }
             
-            print("****** eventIDs = \(eventIDs)")
-            
             DataService.instance.getEvents(withIDs: Array(eventIDs)) { (events) in
                 completion(events)
             }
@@ -282,10 +316,10 @@ class DataService {
         
         for eventID in eventIDs {
             DataService.instance.getEvent(withID: eventID) { (retrievedEvent) in
-                eventsToRetrieve -= 1
                 if retrievedEvent != nil {
                     events.append(retrievedEvent!)
                 }
+                eventsToRetrieve -= 1
                 if eventsToRetrieve <= 0 {
                     completion(events)
                 }
@@ -301,10 +335,10 @@ class DataService {
                 var eventsToRetrieve = eventIDs.count
                 for eventID in eventIDs {
                     DataService.instance.getEvent(withID: eventID) { (event) in
-                        eventsToRetrieve -= 1
                         if event != nil {
                             events.append(event!)
                         }
+                        eventsToRetrieve -= 1
                         if eventsToRetrieve <= 0 {
                             completion(events)
                         }
@@ -323,10 +357,10 @@ class DataService {
                 var eventsToRetrieve = eventIDs.count
                 for eventID in eventIDs {
                     DataService.instance.getEvent(withID: eventID) { (event) in
-                        eventsToRetrieve -= 1
                         if event != nil {
                             allEvents.append(event!)
                         }
+                        eventsToRetrieve -= 1
                         if eventsToRetrieve <= 0 {
                             // Done getting events
                             var groupedEvents = allEvents.groupedByDate
@@ -348,7 +382,7 @@ class DataService {
     
     
     
-    // Deletes the event's data from the database and
+    // Deletes the event's data from the database and its images from storage.
     func deleteEvent(_ eventToDelete: Event, completion: ((String?) -> Void)?) {
         // Must delete event ID from the school's list of events, the EVENTS node, the user who scheduled the event, and from the favorites list of all users who have favorited the event.
         
@@ -506,10 +540,10 @@ class DataService {
         
         for transactionID in transactionIDs {
             DataService.instance.getTransaction(withID: transactionID) { (transaction) in
-                transactionsToRetrieve -= 1
                 if transaction != nil {
                     transactions.append(transaction!)
                 }
+                transactionsToRetrieve -= 1
                 if transactionsToRetrieve <= 0 {
                     completion(transactions)
                 }

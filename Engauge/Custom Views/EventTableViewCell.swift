@@ -17,7 +17,10 @@ class EventTableViewCell: UITableViewCell {
     @IBOutlet weak var startTimeLabel: UILabel!
     @IBOutlet weak var thumbnailImageView: UIImageView!
     
+    
+    
     // MARK: Properties
+    
     var event: Event!
     
     static let formatter: DateFormatter = {
@@ -32,8 +35,12 @@ class EventTableViewCell: UITableViewCell {
         "ProfileDetailsVC" : (.medium, .none)
     ]
     
+    
+    
     // MARK: Configuring the cell's UI
+    
     func configureCell(event: Event, thumbnailImageFromCache: UIImage? = nil, forVCWithTypeName nameOfVC: String = "EventListVC") {
+        
         self.event = event
         
         self.configureDateAndTimeFormats(forVCWithName: nameOfVC)
@@ -60,9 +67,7 @@ class EventTableViewCell: UITableViewCell {
                     // There was an error.
                     print("Brennan - there was an error downloading an event's thumbnail image from storage: \(error!.localizedDescription)")
                 } else if let imageData = data, let retrievedImage = UIImage(data: imageData) {
-                    DispatchQueue.global().sync {
-                        self.thumbnailImageView.image = retrievedImage
-                    }
+                    self.thumbnailImageView.image = retrievedImage
                     EventListVC.imageCache.setObject(retrievedImage, forKey: thumbImageURL as NSString)
                 }
             })
@@ -71,9 +76,6 @@ class EventTableViewCell: UITableViewCell {
             self.thumbnailImageView.image = UIImage(named: "gauge")
         }
     }
-    
-    
-    
     
     private func configureDateAndTimeFormats(forVCWithName nameOfVC: String) {
         EventTableViewCell.formatter.dateStyle = EventTableViewCell.formats[nameOfVC]?.dateStyle ?? .none
