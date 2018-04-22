@@ -21,4 +21,7 @@ struct EngaugeUser {
     var pointBalance: Int?
     var approvedForScheduler: Bool?
     
+    var fullName: String {
+        return "\(firstName) \(lastName)"
+    }
 }

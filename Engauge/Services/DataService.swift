@@ -114,21 +114,13 @@ class DataService {
     
     func getRoleForUser(withUID uid: String, completion: @escaping (Int?) -> Void) {
         DataService.instance.REF_USERS.child("/\(uid)/\(DBKeys.USER.role)").observeSingleEvent(of: .value) { (snapshot) in
-            if let role = snapshot.value as? Int {
-                completion(role)
-            } else {
-                completion(nil)
-            }
+            completion(snapshot.value as? Int)
         }
     }
     
     func getSchoolIDForUser(withUID uid: String, completion: @escaping (String?) -> Void) {
         DataService.instance.REF_USERS.child("/\(uid)/\(DBKeys.USER.schoolID)").observeSingleEvent(of: .value) { (snapshot) in
-            if let schoolID = snapshot.value as? String {
-                completion(schoolID)
-            } else {
-                completion(nil)
-            }
+            completion(snapshot.value as? String)
         }
     }
     
