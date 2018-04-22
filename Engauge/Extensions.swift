@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import FirebaseAuth
 
+// MARK: Date
 extension Date {
     var monthAsString: String {
         let formatter = DateFormatter()
@@ -38,6 +39,7 @@ extension Date {
 
 
 
+// MARK: Array<Event>
 extension Array where Element == Event {
     
     var groupedByDate: [Date : [Event]] {
@@ -67,9 +69,32 @@ extension Array where Element == Event {
     
 }
 
+// MARK: Array<EngaugeUser>
+extension Array where Element == EngaugeUser {
+    
+    mutating func removeUser(withUID uid: String) {
+        if let removeHere = indexOfUser(withUID: uid) {
+            self.remove(at: removeHere)
+        }
+    }
+    
+    func indexOfUser(withUID uid: String) -> Int? {
+        for i in 0..<self.count {
+            if self[i].userID == uid {
+                return i
+            }
+        }
+        return nil
+    }
+    
+    
+    
+    
+}
 
 
 
+// MARK: Dictionary<Date, [Event]>
 extension Dictionary where Key == Date, Value == [Event] {
     
     mutating func insertEvent(_ event: Event) {
@@ -119,6 +144,7 @@ extension Dictionary where Key == Date, Value == [Event] {
 
 
 
+// MARK: UIViewController
 extension UIViewController {
     
     // If I'm a Navigation Controller, returns my visible View Controller.
@@ -181,6 +207,7 @@ extension UIViewController {
 
 
 
+// MARK: CGPoint
 extension CGPoint {
     
     static func distanceBetween(point p1: CGPoint, andPoint p2: CGPoint) -> CGFloat {
@@ -196,6 +223,7 @@ extension CGPoint {
 
 
 
+// MARK: String
 extension String {
     var isWhitespaceOrEmpty: Bool {
         return self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

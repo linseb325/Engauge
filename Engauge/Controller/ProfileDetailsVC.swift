@@ -40,6 +40,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     var userID: String?
     private var thisProfileUser: EngaugeUser?
     
+    var adminIsChoosingForManualTransaction = false
+    
     private var usersScheduledEvents: [Event]?
     private var usersRecentTransactions: [Transaction]?
     private var tableViewMode: TableViewMode {
@@ -119,14 +121,20 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         DataService.instance.getTransactionsForUser(withUID: thisProfileUser.userID) { (studentsTransactions) in
                             self.usersRecentTransactions = studentsTransactions
                             self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
-                            print(self.usersRecentTransactions!)
                             self.recentTransactionsEventsTableView.reloadData()
                         }
                         // If I'm an admin looking at a student, I can initiate a manual transaction from here.
-                        DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
-                            if roleNum == UserRole.admin.toInt {
-                                let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "add-transaction"), style: .plain, target: self, action: #selector(self.handleManualTransactionButtonTapped))
-                                self.navigationItem.setRightBarButton(manualTransactionButton, animated: true)
+                        DataService.instance.getRoleForUser(withUID: currUser.uid) { (currUserRoleNum) in
+                            if currUserRoleNum == UserRole.admin.toInt {
+                                if self.adminIsChoosingForManualTransaction {
+                                    // Admin can choose this user for a pending manual transaction.
+                                    let chooseForManualTransactionButton = UIBarButtonItem(title: "Choose", style: .done, target: self, action: #selector(self.handleChooseForManualTransactionButtonTapped))
+                                    self.navigationItem.setRightBarButton(chooseForManualTransactionButton, animated: true)
+                                } else {
+                                    // Admin can initiate a manual transaction with this user.
+                                    let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "add-transaction"), style: .plain, target: self, action: #selector(self.handleManualTransactionButtonTapped))
+                                    self.navigationItem.setRightBarButton(manualTransactionButton, animated: true)
+                                }
                             }
                         }
                     case UserRole.scheduler.toInt, UserRole.admin.toInt:
@@ -138,7 +146,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         DataService.instance.getEventsScheduledByUser(withUID: thisProfileUser.userID) { (schedulersEvents) in
                             self.usersScheduledEvents = schedulersEvents
                             self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
-                            print(self.usersScheduledEvents!)
                             self.recentTransactionsEventsTableView.reloadData()
                         }
                     default:
@@ -153,8 +160,33 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             }
         }
         
-        
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if let selectedIndexPath = recentTransactionsEventsTableView.indexPathForSelectedRow {
+            recentTransactionsEventsTableView.deselectRow(at: selectedIndexPath, animated: true)
+        }
+    }
+    
+    
+    
+    
+    // MARK: Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        switch segue.identifier {
+        case "toProfileListVC":
+            break
+        case "toEventDetailsVC":
+            if let eventScreen = segue.destination as? EventDetailsVC, let pickedEvent = sender as? Event {
+                eventScreen.event = pickedEvent
+            }
+        case "toTransactionDetailsVC":
+        // TODO: Set the next screen's transaction to pickedTransaction.
+            break
+        default:
+            break
+        }
     }
     
     
@@ -199,6 +231,18 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         }
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch self.tableViewMode {
+        case .events:
+            performSegue(withIdentifier: "toEventDetailsVC", sender: self.usersScheduledEvents![indexPath.row])
+        case .transactions:
+            // TODO: Navigate to the Transaction Details screen. Pass the picked transaction to performSegue as the sender.
+            break
+        case .none:
+            break
+        }
+    }
+    
     
     
     // MARK: Table View Mode
@@ -225,13 +269,16 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     }
     
     @objc private func handleAllUsersTapped() {
-        print("Brennan - all users tapped")
-        // TODO: Navigate to the all users screen.
+        performSegue(withIdentifier: "toProfileListVC", sender: nil)
     }
     
     @objc private func handleManualTransactionButtonTapped() {
         print("Brennan - manual transaction tapped")
         // TODO: Navigate to the manual transaction screen, pre-populate the UI with this user's data, and make sure the user can only go back here from the next screen.
+    }
+    
+    @objc private func handleChooseForManualTransactionButtonTapped() {
+        // TODO: Unwind to the manual transaction details screen, passing the selected user back to that screen.
     }
     
     

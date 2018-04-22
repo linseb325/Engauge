@@ -13,7 +13,7 @@ class MyTabBarController: UITabBarController {
     deinit {
         print("Brennan - deallocating MyTabBarController")
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         

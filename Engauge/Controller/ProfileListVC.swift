@@ -9,6 +9,8 @@
 import UIKit
 import FirebaseAuth
 
+// TODO: Admin choosing for manual transaction logic/navigation
+
 class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
     // MARK: Outlets
@@ -24,21 +26,22 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     
     
     
-    
     // MARK: Properties
     
     private var users = [EngaugeUser]()
     private var filteredUsers: [EngaugeUser]?
     
+    var adminIsChoosingForManualTransaction = false
+    
     private var searchOn: Bool { return searchText != nil }
     private var searchText: String? {
         didSet {
-            if searchText == nil {
-                // Just set searchText to nil.
-                filteredUsers = nil
-            } else {
+            if searchOn {
                 // Just set searchText to something.
                 applySearch()
+            } else {
+                // Just set searchText to nil.
+                filteredUsers = nil
             }
             tableView.reloadData()
         }
@@ -54,6 +57,8 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.navigationItem.title = adminIsChoosingForManualTransaction ? "Choose a Student" : "All Users"
+        
         DataService.instance.getSchoolIDForUser(withUID: Auth.auth().currentUser?.uid ?? "no-curr-user") { (currUserSchoolID) in
             guard currUserSchoolID != nil else {
                 self.showErrorAlert(title: "Error", message: "Couldn't verify your school's ID.") { (okAction) in
@@ -65,14 +70,39 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
             DataService.instance.getUsersForSchool(withID: currUserSchoolID!) { (retrievedUsers) in
                 self.users = retrievedUsers
                 self.users.sort { $0.lastName < $1.lastName }
+                self.users.removeUser(withUID: Auth.auth().currentUser?.uid ?? "no-curr-user")
                 self.tableView.reloadData()
             }
             
         }
-        
-        
-        
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if let selectedIndexPath = tableView.indexPathForSelectedRow {
+            tableView.deselectRow(at: selectedIndexPath, animated: true)
+        }
+    }
+    
+    
+    
+    
+    // MARK: Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        switch segue.identifier {
+        case "toProfileDetailsVC":
+            if let profileScreen = segue.destination.contentsViewController as? ProfileDetailsVC, let pickedUser = sender as? EngaugeUser {
+                profileScreen.userID = pickedUser.userID
+                profileScreen.adminIsChoosingForManualTransaction = self.adminIsChoosingForManualTransaction
+            }
+        default:
+            break
+        }
+    }
+    
+    @IBAction func cancelTapped(_ sender: UIBarButtonItem) {
+        dismissKeyboard()
+        dismiss(animated: true)
     }
     
     
@@ -86,9 +116,20 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = Bundle.main.loadNibNamed("ProfileTableViewCell", owner: self, options: nil)?.first as? ProfileTableViewCell
-        let cacheImage = ProfileListVC.imageCache.object(forKey: (searchOn ? filteredUsers! : users)[indexPath.row].thumbnailURL as NSString)
-        cell?.configureCell(user: users[indexPath.row], thumbnailImageFromCache: cacheImage, forVCWithTypeName: "ProfileListVC")
+        let currUser = (searchOn ? filteredUsers! : users)[indexPath.row]
+        let cacheImage = ProfileListVC.imageCache.object(forKey: currUser.thumbnailURL as NSString)
+        cell?.configureCell(user: currUser, thumbnailImageFromCache: cacheImage, forVCWithTypeName: "ProfileListVC")
         return cell ?? UITableViewCell()
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        dismissKeyboard()
+        let chosenUser = (searchOn ? filteredUsers! : users)[indexPath.row]
+        performSegue(withIdentifier: "toProfileDetailsVC", sender: chosenUser)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
     }
     
     
@@ -135,13 +176,4 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
             self.filteredUsers = self.users.filter { $0.fullName.lowercased().contains(searchText!.lowercased()) }
         }
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
 }
