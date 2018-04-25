@@ -430,11 +430,4 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
         present(alert, animated: true)
     }
     
-    
-    
-    
-    
-    
-    
-    
 }

@@ -124,6 +124,13 @@ class DataService {
         }
     }
     
+    func updateUserData(_ userDataUpdates: [String : Any], forUserWithUID uid: String, completion: ((String?) -> Void)?) {
+        DataService.instance.REF_USERS.child(uid).updateChildValues(userDataUpdates) { (error, ref) in
+            completion?(error != nil ? "Database error: There was a problem updating the user data." : nil)
+        }
+
+    }
+    
     
     
     // Schools are not sorted in any way

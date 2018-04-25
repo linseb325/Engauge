@@ -173,7 +173,7 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     
     private func applySearch() {
         if searchOn {
-            self.filteredUsers = self.users.filter { $0.fullName.lowercased().contains(searchText!.lowercased()) }
+            self.filteredUsers = self.users.filter { $0.fullName.lowercased().contains(searchText!.lowercased()) || $0.emailAddress.contains(searchText!.lowercased()) }
         }
     }
 }

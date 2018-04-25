@@ -61,102 +61,24 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         super.viewDidLoad()
         
         self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            if let currUser = user {
-                // There is a user signed in.
-                
-                let userIDForLookup = self.userID ?? currUser.uid
-                
-                DataService.instance.getUser(withUID: userIDForLookup) { (user) in
-                    guard let thisProfileUser = user else {
-                        // TODO: Couldn't retrieve the user info for this screen.
-                        return
-                    }
-                    
-                    self.thisProfileUser = thisProfileUser
-                    
-                    // Is the current user authorized to view all profiles from this screen?
-                    if self.isFirstVisibleVCofATab, userIDForLookup == currUser.uid {
-                        DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
-                            if let currUserRoleNum = roleNum, (currUserRoleNum == UserRole.admin.toInt || currUserRoleNum == UserRole.scheduler.toInt) {
-                                // User can navigate to the profile list from here.
-                                let allProfilesButton = UIBarButtonItem(title: "All Users", style: .plain, target: self, action: #selector(self.handleAllUsersTapped))
-                                self.navigationItem.setLeftBarButton(allProfilesButton, animated: true)
-                            }
-                        }
-                    }
-                    
-                    // Display the user's info.
-                    self.nameLabel.text = "\(thisProfileUser.firstName) \(thisProfileUser.lastName)"
-                    self.roleLabel.text = UserRole.stringFromInt(thisProfileUser.role)?.capitalized ?? "-"
-                    self.emailLabel.text = thisProfileUser.emailAddress
-                    self.balanceLabel.text = thisProfileUser.role == UserRole.student.toInt ? "Balance: \(thisProfileUser.pointBalance ?? 0) points" : "-"
-                    
-                    // Download and display the user's profile image.
-                    Storage.storage().reference(forURL: thisProfileUser.thumbnailURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
-                        if error == nil, data != nil {
-                            self.imageView.image = UIImage(data: data!)
-                        }
-                    }
-                    
-                    
-                    // Am I viewing my own profile or not?
-                    if thisProfileUser.userID == currUser.uid {
-                        // This is me! Add an edit button.
-                        let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.handleEditTapped))
-                        self.navigationItem.setRightBarButton(editButton, animated: true)
-                    } else {
-                        // This is someone else. Remove the sign out button.
-                        self.signOutButton.isHidden = true
-                        self.signOutButton.removeFromSuperview()
-                        self.view.layoutIfNeeded()
-                    }
-                    
-                    
-                    // What kind of user am I looking at? (role)
-                    switch thisProfileUser.role {
-                    case UserRole.student.toInt:
-                        // I'm looking at a student
-                        self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
-                        // Download recent transactions and populate the table view.
-                        DataService.instance.getTransactionsForUser(withUID: thisProfileUser.userID) { (studentsTransactions) in
-                            self.usersRecentTransactions = studentsTransactions
-                            self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
-                            self.recentTransactionsEventsTableView.reloadData()
-                        }
-                        // If I'm an admin looking at a student, I can initiate a manual transaction from here.
-                        DataService.instance.getRoleForUser(withUID: currUser.uid) { (currUserRoleNum) in
-                            if currUserRoleNum == UserRole.admin.toInt {
-                                if self.adminIsChoosingForManualTransaction {
-                                    // Admin can choose this user for a pending manual transaction.
-                                    let chooseForManualTransactionButton = UIBarButtonItem(title: "Choose", style: .done, target: self, action: #selector(self.handleChooseForManualTransactionButtonTapped))
-                                    self.navigationItem.setRightBarButton(chooseForManualTransactionButton, animated: true)
-                                } else {
-                                    // Admin can initiate a manual transaction with this user.
-                                    let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "add-transaction"), style: .plain, target: self, action: #selector(self.handleManualTransactionButtonTapped))
-                                    self.navigationItem.setRightBarButton(manualTransactionButton, animated: true)
-                                }
-                            }
-                        }
-                    case UserRole.scheduler.toInt, UserRole.admin.toInt:
-                        // I'm looking at a scheduler or admin
-                        self.balanceLabel.removeFromSuperview()
-                        self.view.layoutIfNeeded()
-                        // Download recent events and populate the table view.
-                        self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
-                        DataService.instance.getEventsScheduledByUser(withUID: thisProfileUser.userID) { (schedulersEvents) in
-                            self.usersScheduledEvents = schedulersEvents
-                            self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
-                            self.recentTransactionsEventsTableView.reloadData()
-                        }
-                    default:
-                        // TODO: User role number is invalid.
-                        break
-                    }
-                    
-                }
-            } else {
+            guard let currUser = user else {
                 // TODO: There is no user signed in!
-                print("Nobody is signed in")
+                return
+            }
+            // There is a user signed in.
+            
+            let userIDForLookup = self.userID ?? currUser.uid
+            
+            DataService.instance.getUser(withUID: userIDForLookup) { (user) in
+                guard let thisProfileUser = user else {
+                    // TODO: Couldn't retrieve the user info for this screen.
+                    return
+                }
+                
+                self.thisProfileUser = thisProfileUser
+                
+                self.updateUIForCurrentUser()
+                self.configureAdaptableUI(currUser: currUser, thisProfileUser: thisProfileUser)
             }
         }
         
@@ -171,23 +93,134 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     
     
+    // MARK: Updating the UI
+    
+    private func updateUIForCurrentUser() {
+        
+        // Check to make sure thisProfileUser is assigned to something.
+        guard let thisProfileUser = self.thisProfileUser else {
+            return
+        }
+        
+        // Download and display the user's profile image.
+        Storage.storage().reference(forURL: thisProfileUser.thumbnailURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
+            if error == nil, data != nil {
+                self.imageView.image = UIImage(data: data!)
+            }
+        }
+        
+        // Display the user's info.
+        self.nameLabel.text = "\(thisProfileUser.firstName) \(thisProfileUser.lastName)"
+        self.roleLabel.text = UserRole.stringFromInt(thisProfileUser.role)?.capitalized ?? "-"
+        self.emailLabel.text = thisProfileUser.emailAddress
+        if self.balanceLabel != nil {
+            self.balanceLabel.text = thisProfileUser.role == UserRole.student.toInt ? "Balance: \(thisProfileUser.pointBalance ?? 0) points" : "-"
+        }
+        
+    }
+    
+    // Configures UI based on the roles of the current user and the user he/she is viewing.
+    private func configureAdaptableUI(currUser: User, thisProfileUser: EngaugeUser) {
+        
+        // Am I looking at my own profile?
+        if thisProfileUser.userID == currUser.uid {
+            // This is me!
+            if self.isFirstVisibleVCofATab {
+                // I can edit my profile from this screen.
+                let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.handleEditTapped))
+                self.navigationItem.setRightBarButton(editButton, animated: true)
+                
+                // If I'm an Admin or Scheduler, I can get to the list of profiles from here.
+                DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
+                    if let currUserRoleNum = roleNum, (currUserRoleNum == UserRole.admin.toInt || currUserRoleNum == UserRole.scheduler.toInt) {
+                        // User can navigate to the profile list from here.
+                        let allProfilesButton = UIBarButtonItem(title: "All Users", style: .plain, target: self, action: #selector(self.handleAllUsersTapped))
+                        self.navigationItem.setLeftBarButton(allProfilesButton, animated: true)
+                    }
+                }
+            }
+        } else {
+            // This is someone else. Remove the sign out button.
+            self.signOutButton.isHidden = true
+            self.signOutButton.removeFromSuperview()
+            self.view.layoutIfNeeded()
+        }
+        
+        // What kind of user am I looking at?
+        switch thisProfileUser.role {
+        case UserRole.student.toInt:
+            // I'm looking at a student
+            self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
+            // Download recent transactions and populate the table view.
+            DataService.instance.getTransactionsForUser(withUID: thisProfileUser.userID) { (studentsTransactions) in
+                self.usersRecentTransactions = studentsTransactions
+                self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
+                self.recentTransactionsEventsTableView.reloadData()
+            }
+            // If I'm an admin looking at a student, I can initiate a manual transaction from here.
+            DataService.instance.getRoleForUser(withUID: currUser.uid) { (currUserRoleNum) in
+                if currUserRoleNum == UserRole.admin.toInt {
+                    if self.adminIsChoosingForManualTransaction {
+                        // Admin can choose this user for a pending manual transaction.
+                        let chooseForManualTransactionButton = UIBarButtonItem(title: "Choose", style: .done, target: self, action: #selector(self.handleChooseForManualTransactionButtonTapped))
+                        self.navigationItem.setRightBarButton(chooseForManualTransactionButton, animated: true)
+                    } else {
+                        // Admin can initiate a manual transaction with this user.
+                        let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "add-transaction"), style: .plain, target: self, action: #selector(self.handleManualTransactionButtonTapped))
+                        self.navigationItem.setRightBarButton(manualTransactionButton, animated: true)
+                    }
+                }
+            }
+        case UserRole.scheduler.toInt, UserRole.admin.toInt:
+            // I'm looking at a scheduler or admin
+            self.balanceLabel.removeFromSuperview()
+            self.view.layoutIfNeeded()
+            // Download recent events and populate the table view.
+            self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
+            DataService.instance.getEventsScheduledByUser(withUID: thisProfileUser.userID) { (schedulersEvents) in
+                self.usersScheduledEvents = schedulersEvents
+                self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
+                self.recentTransactionsEventsTableView.reloadData()
+            }
+        default:
+            // TODO: User role number is invalid.
+            break
+        }
+
+    }
+    
+    
+    
+    
     // MARK: Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.identifier {
         case "toProfileListVC":
             break
+        case "toEditProfileVC":
+            if let editScreen = segue.destination.contentsViewController as? EditProfileVC, let currUser = sender as? EngaugeUser {
+                editScreen.user = currUser
+            }
         case "toEventDetailsVC":
-            if let eventScreen = segue.destination as? EventDetailsVC, let pickedEvent = sender as? Event {
+            if let eventScreen = segue.destination.contentsViewController as? EventDetailsVC, let pickedEvent = sender as? Event {
                 eventScreen.event = pickedEvent
             }
         case "toTransactionDetailsVC":
-        // TODO: Set the next screen's transaction to pickedTransaction.
+            // TODO: Set the next screen's transaction to pickedTransaction.
             break
         default:
             break
         }
     }
+    
+    @IBAction func unwindFromEditProfileVC(sender: UIStoryboardSegue) {
+        if let sourceVC = sender.source as? EditProfileVC, let editedUser = sourceVC.editedUser {
+            self.thisProfileUser = editedUser
+            updateUIForCurrentUser()
+        }
+    }
+
     
     
     
@@ -264,8 +297,10 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     }
     
     @objc private func handleEditTapped() {
-        print("Brennan - edit tapped")
-        // TODO: Navigate to the edit profile screen.
+        guard let thisProfileUser = self.thisProfileUser else {
+            return
+        }
+        performSegue(withIdentifier: "toEditProfileVC", sender: thisProfileUser)
     }
     
     @objc private func handleAllUsersTapped() {
