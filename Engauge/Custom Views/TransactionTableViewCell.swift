@@ -6,6 +6,8 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
+// TODO: When transaction data changes, the cell should update.
+
 import UIKit
 
 class TransactionTableViewCell: UITableViewCell {

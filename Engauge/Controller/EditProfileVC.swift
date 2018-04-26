@@ -43,10 +43,6 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
     
     
     
-    
-    
-    
-    
     // MARK: View Controller Lifecycle
     
     override func viewDidLoad() {

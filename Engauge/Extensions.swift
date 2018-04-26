@@ -57,6 +57,7 @@ extension Array where Element == Event {
         return nil
     }
     
+    // Assumes the array is sorted from earliest start time to latest start time.
     mutating func insertEvent(_ event: Event) {
         for i in 0..<self.count {
             if event.startTime < self[i].startTime {
@@ -65,6 +66,12 @@ extension Array where Element == Event {
             }
         }
         self.append(event)
+    }
+    
+    mutating func removeEvent(withID eventID: String) {
+        if let removeHere = indexOfEvent(withID: eventID) {
+            self.remove(at: removeHere)
+        }
     }
     
 }
@@ -91,6 +98,31 @@ extension Array where Element == EngaugeUser {
     
     
 }
+
+
+
+
+// MARK: Array<Transaction>
+
+extension Array where Element == Transaction {
+    
+    func indexOfTransaction(withID tid: String) -> Int? {
+        for i in 0..<self.count {
+            if self[i].transactionID == tid {
+                return i
+            }
+        }
+        return nil
+    }
+    
+    mutating func removeTransaction(withID tid: String) {
+        if let removeHere = indexOfTransaction(withID: tid) {
+            self.remove(at: removeHere)
+        }
+    }
+    
+}
+
 
 
 

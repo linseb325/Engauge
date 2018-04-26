@@ -6,6 +6,8 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
+// TODO: When event data changes, the cell should update.
+
 import UIKit
 import FirebaseStorage
 

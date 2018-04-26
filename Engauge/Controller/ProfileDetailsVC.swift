@@ -9,6 +9,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseStorage
+import FirebaseDatabase
 
 class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -37,21 +38,21 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     // MARK: Properties
     
     private var authListenerHandle: AuthStateDidChangeListenerHandle?
+    
+    // userID is only for fetching initial data when this screen loads.
     var userID: String?
     private var thisProfileUser: EngaugeUser?
+    
+    // Database references to attach event observers
+    private var userEventsRef: DatabaseReference?
+    private var userTransactionsRef: DatabaseReference?
     
     var adminIsChoosingForManualTransaction = false
     
     private var usersScheduledEvents: [Event]?
     private var usersRecentTransactions: [Transaction]?
-    private var tableViewMode: TableViewMode {
-        if usersScheduledEvents != nil, usersRecentTransactions == nil {
-            return .events
-        } else if usersScheduledEvents == nil, usersRecentTransactions != nil {
-            return .transactions
-        }
-        return .none
-    }
+    
+    private var tableViewMode = TableViewMode.none
     
     
     
@@ -65,8 +66,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 // TODO: There is no user signed in!
                 return
             }
-            // There is a user signed in.
             
+            // There is a user signed in.
             let userIDForLookup = self.userID ?? currUser.uid
             
             DataService.instance.getUser(withUID: userIDForLookup) { (user) in
@@ -81,6 +82,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 self.configureAdaptableUI(currUser: currUser, thisProfileUser: thisProfileUser)
             }
         }
+        
+        
         
     }
     
@@ -113,13 +116,12 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         self.nameLabel.text = "\(thisProfileUser.firstName) \(thisProfileUser.lastName)"
         self.roleLabel.text = UserRole.stringFromInt(thisProfileUser.role)?.capitalized ?? "-"
         self.emailLabel.text = thisProfileUser.emailAddress
-        if self.balanceLabel != nil {
-            self.balanceLabel.text = thisProfileUser.role == UserRole.student.toInt ? "Balance: \(thisProfileUser.pointBalance ?? 0) points" : "-"
-        }
+        self.balanceLabel.text = (thisProfileUser.role == UserRole.student.toInt) ? "Balance: \(thisProfileUser.pointBalance ?? 0) points" : "-"
         
     }
     
     // Configures UI based on the roles of the current user and the user he/she is viewing.
+    // This affects: Edit button, All Users button, Sign Out button, Table View Header + Content, self.tableViewMode, Balance label
     private func configureAdaptableUI(currUser: User, thisProfileUser: EngaugeUser) {
         
         // Am I looking at my own profile?
@@ -140,9 +142,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 }
             }
         } else {
-            // This is someone else. Remove the sign out button.
+            // This is someone else. Hide the sign out button.
             self.signOutButton.isHidden = true
-            self.signOutButton.removeFromSuperview()
             self.view.layoutIfNeeded()
         }
         
@@ -150,13 +151,13 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         switch thisProfileUser.role {
         case UserRole.student.toInt:
             // I'm looking at a student
-            self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
             // Download recent transactions and populate the table view.
-            DataService.instance.getTransactionsForUser(withUID: thisProfileUser.userID) { (studentsTransactions) in
-                self.usersRecentTransactions = studentsTransactions
-                self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
-                self.recentTransactionsEventsTableView.reloadData()
-            }
+            self.tableViewMode = .transactions
+            self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
+            self.userTransactionsRef = DataService.instance.REF_USER_TRANSACTIONS.child(thisProfileUser.userID)
+            self.usersRecentTransactions = []
+            self.usersScheduledEvents = nil
+            self.attachDatabaseObservers(forTableViewMode: .transactions)
             // If I'm an admin looking at a student, I can initiate a manual transaction from here.
             DataService.instance.getRoleForUser(withUID: currUser.uid) { (currUserRoleNum) in
                 if currUserRoleNum == UserRole.admin.toInt {
@@ -173,15 +174,15 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             }
         case UserRole.scheduler.toInt, UserRole.admin.toInt:
             // I'm looking at a scheduler or admin
-            self.balanceLabel.removeFromSuperview()
+            self.balanceLabel.isHidden = true
             self.view.layoutIfNeeded()
             // Download recent events and populate the table view.
+            self.tableViewMode = .events
             self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
-            DataService.instance.getEventsScheduledByUser(withUID: thisProfileUser.userID) { (schedulersEvents) in
-                self.usersScheduledEvents = schedulersEvents
-                self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
-                self.recentTransactionsEventsTableView.reloadData()
-            }
+            self.userEventsRef = DataService.instance.REF_USER_EVENTS.child(thisProfileUser.userID)
+            self.usersScheduledEvents = []
+            self.usersRecentTransactions = nil
+            self.attachDatabaseObservers(forTableViewMode: .events)
         default:
             // TODO: User role number is invalid.
             break
@@ -319,6 +320,62 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     
     
+    private func attachDatabaseObservers(forTableViewMode mode: TableViewMode) {
+        guard (userEventsRef != nil || userTransactionsRef != nil) else {
+            print("Brennan - Database refs weren't set before trying to attach observers")
+            return
+        }
+        
+        
+        switch mode {
+            
+        case .events:
+            // This user scheduled an event
+            self.userEventsRef?.observe(.childAdded, with: { (snapshot) in
+                print("Event added")
+                DataService.instance.getEvent(withID: snapshot.key, completion: { (addedEvent) in
+                    if addedEvent != nil {
+                        self.usersScheduledEvents?.append(addedEvent!)
+                        self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
+                        self.recentTransactionsEventsTableView.reloadData()
+                    }
+                })
+            })
+            // This user removed an event
+            self.userEventsRef?.observe(.childRemoved, with: { (snapshot) in
+                print("Event removed")
+                self.usersScheduledEvents?.removeEvent(withID: snapshot.key)
+                self.recentTransactionsEventsTableView.reloadData()
+            })
+            
+        case .transactions:
+            // This user was involved in a transaction
+            self.userTransactionsRef?.observe(.childAdded, with: { (snapshot) in
+                print("Transaction added")
+                DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
+                    if addedTransaction != nil {
+                        self.usersRecentTransactions?.append(addedTransaction!)
+                        self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
+                        self.recentTransactionsEventsTableView.reloadData()
+                    }
+                }
+            })
+            // A transaction was removed for this user
+            self.userTransactionsRef?.observe(.childRemoved, with: { (snapshot) in
+                print("Transaction removed")
+                self.usersRecentTransactions?.removeTransaction(withID: snapshot.key)
+                self.recentTransactionsEventsTableView.reloadData()
+            })
+            
+        default:
+            print("Brennan - Table view mode is neither .events nor .transactions. Couldn't attach observers.")
+        }
+    }
+    
+    
+    
+    
+    
     
     
     
@@ -329,6 +386,9 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     deinit {
         if self.authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(self.authListenerHandle!) }
+        
+        self.userEventsRef?.removeAllObservers()
+        self.userTransactionsRef?.removeAllObservers()
     }
     
     
