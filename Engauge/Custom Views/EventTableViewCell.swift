@@ -6,10 +6,9 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
-// TODO: When event data changes, the cell should update.
-
 import UIKit
 import FirebaseStorage
+import FirebaseDatabase
 
 class EventTableViewCell: UITableViewCell {
     
@@ -24,6 +23,8 @@ class EventTableViewCell: UITableViewCell {
     // MARK: Properties
     
     var event: Event!
+    private var nameOfVC: String!
+    private var eventRef: DatabaseReference?
     
     static let formatter: DateFormatter = {
         let form = DateFormatter()
@@ -32,6 +33,7 @@ class EventTableViewCell: UITableViewCell {
         return form
     }()
     
+    // Date and time formats will be different depending on which screen is displaying these cells.
     private static let formats: [String : (dateStyle: DateFormatter.Style, timeStyle: DateFormatter.Style)] = [
         "EventListVC" : (.none, .short),
         "ProfileDetailsVC" : (.medium, .none)
@@ -41,12 +43,19 @@ class EventTableViewCell: UITableViewCell {
     
     // MARK: Configuring the cell's UI
     
-    func configureCell(event: Event, thumbnailImageFromCache: UIImage? = nil, forVCWithTypeName nameOfVC: String = "EventListVC") {
+    func configureCell(event: Event, forVCWithTypeName nameOfVC: String = "EventListVC") {
         
         self.event = event
+        self.nameOfVC = nameOfVC
+        self.eventRef = DataService.instance.REF_EVENTS.child(event.eventID)
         
+        attachDatabaseObserver()
+    }
+    
+    private func updateUI(cacheImage: UIImage?) {
         self.configureDateAndTimeFormats(forVCWithName: nameOfVC)
         
+        // Configure start time label text based on which screen is displaying this cell
         switch nameOfVC {
         case "EventListVC":
             self.startTimeLabel.text = "\(EventTableViewCell.formatter.string(from: event.startTime)) - \(EventTableViewCell.formatter.string(from: event.endTime))"
@@ -56,10 +65,12 @@ class EventTableViewCell: UITableViewCell {
             self.startTimeLabel.text = EventTableViewCell.formatter.string(from: event.startTime)
         }
         
+        // Set labels' text
         self.nameLabel.text = event.name
         self.locationLabel.text = event.location
         
-        if let imageFromCache = thumbnailImageFromCache {
+        // Set the image passed in from the cache or download it from storage + add it to the cache.
+        if let imageFromCache = cacheImage {
             // Passed in an image from the cache. No need to re-download it from Storage.
             self.thumbnailImageView.image = imageFromCache
         } else if let thumbImageURL = event.thumbnailURL {
@@ -79,8 +90,28 @@ class EventTableViewCell: UITableViewCell {
         }
     }
     
+    // Only works if eventRef is set
+    private func attachDatabaseObserver() {
+        self.eventRef?.observe(.value) { (snapshot) in
+            if let eventData = snapshot.value as? [String : Any], let event = DataService.instance.eventFromSnapshotValues(eventData, withID: snapshot.key) {
+                // Update the cell's UI whenever this event's data changes.
+                self.event = event
+                self.updateUI(cacheImage: EventListVC.imageCache.object(forKey: (event.thumbnailURL ?? "no-image-URL") as NSString))
+            }
+        }
+    }
+    
     private func configureDateAndTimeFormats(forVCWithName nameOfVC: String) {
         EventTableViewCell.formatter.dateStyle = EventTableViewCell.formats[nameOfVC]?.dateStyle ?? .none
         EventTableViewCell.formatter.timeStyle = EventTableViewCell.formats[nameOfVC]?.timeStyle ?? .none
+    }
+    
+    
+    
+    
+    
+    
+    deinit {
+        self.eventRef?.removeAllObservers()
     }
 }

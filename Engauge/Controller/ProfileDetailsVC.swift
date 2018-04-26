@@ -243,7 +243,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         switch self.tableViewMode {
         case .events:
             let cell = Bundle.main.loadNibNamed("EventTableViewCell", owner: self, options: nil)?.first as? EventTableViewCell
-            cell?.configureCell(event: self.usersScheduledEvents![indexPath.row], thumbnailImageFromCache: EventListVC.imageCache.object(forKey: (self.usersScheduledEvents![indexPath.row].thumbnailURL ?? "") as NSString), forVCWithTypeName: "ProfileDetailsVC")
+            cell?.configureCell(event: self.usersScheduledEvents![indexPath.row], forVCWithTypeName: "ProfileDetailsVC")
             return cell ?? UITableViewCell()
         case .transactions:
             let cell = Bundle.main.loadNibNamed("TransactionTableViewCell", owner: self, options: nil)?.first as? TransactionTableViewCell

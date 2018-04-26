@@ -135,9 +135,9 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                         self.refSchoolEventIDs = DataService.instance.REF_SCHOOL_EVENTS.child(userSchoolID)
                         
                         // Some data for an event changed
+                        // TODO: This will become expensive because it fires every time ANY event's data changes, not just events at my school
                         self.eventDataChangedHandle = DataService.instance.REF_EVENTS.observe(.childChanged) { (snapshot) in
                             let eventID = snapshot.key
-                            print("Brennan - event \(eventID) was changed")
                             if self.events.containsEvent(withID: eventID), let eventData = snapshot.value as? [String : Any], let updatedEvent = DataService.instance.eventFromSnapshotValues(eventData, withID: eventID) {
                                 self.events.removeEvent(withID: eventID)
                                 self.events.insertEvent(updatedEvent)
@@ -208,10 +208,10 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         let currEvent = (filteredEvents != nil) ? self.filteredEvents![sectionKeys[indexPath.section]]![indexPath.row] : self.events[sectionKeys[indexPath.section]]![indexPath.row]
         if let thumbImageURL = currEvent.thumbnailURL {
             // The event has a thumbnail image.
-            cell?.configureCell(event: currEvent, thumbnailImageFromCache: EventListVC.imageCache.object(forKey: thumbImageURL as NSString))
+            cell?.configureCell(event: currEvent, forVCWithTypeName: "EventListVC")
         } else {
             // The event doesn't have a thumbnail image.
-            cell?.configureCell(event: currEvent)
+            cell?.configureCell(event: currEvent, forVCWithTypeName: "EventListVC")
         }
         return cell ?? UITableViewCell()
     }

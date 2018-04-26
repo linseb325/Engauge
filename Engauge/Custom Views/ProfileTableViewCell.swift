@@ -6,8 +6,6 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
-// TODO: When user data changes, the cell should update.
-
 import UIKit
 import FirebaseStorage
 import FirebaseDatabase
@@ -25,7 +23,6 @@ class ProfileTableViewCell: UITableViewCell {
     // MARK: Properties
     
     private var nameOfVC: String!
-    
     private var userRef: DatabaseReference?
     
     
@@ -41,7 +38,6 @@ class ProfileTableViewCell: UITableViewCell {
     }
     
     private func updateUI(user: EngaugeUser, cacheImage: UIImage?) {
-        print("updateUI called")
         // Customize the UI based on which screen is displaying this cell
         switch nameOfVC {
         case "ProfileListVC":
@@ -67,11 +63,11 @@ class ProfileTableViewCell: UITableViewCell {
         self.detailLabel.text = UserRole.stringFromInt(user.role)?.capitalized
     }
     
-    // Assumes userRef is set
+    // Only works if userRef is set
     private func attachDatabaseObserver() {
         self.userRef?.observe(.value) { (snapshot) in
-            print("value event fired")
             if let userData = snapshot.value as? [String : Any], let user = DataService.instance.userFromSnapshotValues(userData, withUID: snapshot.key) {
+                // Update the cell's UI whenever this user's data changes.
                 self.updateUI(user: user, cacheImage: ProfileListVC.imageCache.object(forKey: user.thumbnailURL as NSString))
             }
         }
