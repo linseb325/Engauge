@@ -82,17 +82,32 @@ class DataService {
     
     func getUser(withUID uid: String, completion: @escaping (EngaugeUser?) -> Void) {
         DataService.instance.REF_USERS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
-            if let userData = snapshot.value as? [String : Any], let userFirstName = userData[DBKeys.USER.firstName] as? String, let userLastName = userData[DBKeys.USER.lastName] as? String, let userEmailAddress = userData[DBKeys.USER.emailAddress] as? String, let userRole = userData[DBKeys.USER.role] as? Int, let userSchoolID = userData[DBKeys.USER.schoolID] as? String, let userImageURL = userData[DBKeys.USER.imageURL] as? String, let userThumbnailURL = userData[DBKeys.USER.thumbnailURL] as? String {
-                // Optional values for a user
-                let userPointBalance = userData[DBKeys.USER.pointBalance] as? Int
-                let userApprovedForScheduler = userData[DBKeys.USER.approvedForScheduler] as? Bool
-                
-                let retrievedUser = EngaugeUser(userID: uid, firstName: userFirstName, lastName: userLastName, emailAddress: userEmailAddress, role: userRole, schoolID: userSchoolID, imageURL: userImageURL, thumbnailURL: userThumbnailURL, pointBalance: userPointBalance, approvedForScheduler: userApprovedForScheduler)
-                
+            if let userData = snapshot.value as? [String : Any], let retrievedUser = DataService.instance.userFromSnapshotValues(userData, withUID: snapshot.key) {
                 completion(retrievedUser)
             } else {
                 completion(nil)
             }
+        }
+    }
+    
+    func userFromSnapshotValues(_ userData: [String : Any], withUID uid: String) -> EngaugeUser? {
+        
+        if let userFirstName = userData[DBKeys.USER.firstName] as? String,
+            let userLastName = userData[DBKeys.USER.lastName] as? String,
+            let userEmailAddress = userData[DBKeys.USER.emailAddress] as? String,
+            let userRole = userData[DBKeys.USER.role] as? Int,
+            let userSchoolID = userData[DBKeys.USER.schoolID] as? String,
+            let userImageURL = userData[DBKeys.USER.imageURL] as? String,
+            let userThumbnailURL = userData[DBKeys.USER.thumbnailURL] as? String {
+            // Optional values for a user
+            let userPointBalance = userData[DBKeys.USER.pointBalance] as? Int
+            let userApprovedForScheduler = userData[DBKeys.USER.approvedForScheduler] as? Bool
+            
+            let retrievedUser = EngaugeUser(userID: uid, firstName: userFirstName, lastName: userLastName, emailAddress: userEmailAddress, role: userRole, schoolID: userSchoolID, imageURL: userImageURL, thumbnailURL: userThumbnailURL, pointBalance: userPointBalance, approvedForScheduler: userApprovedForScheduler)
+            
+            return retrievedUser
+        } else {
+            return nil
         }
     }
     

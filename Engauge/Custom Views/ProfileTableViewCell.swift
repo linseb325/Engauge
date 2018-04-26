@@ -10,6 +10,7 @@
 
 import UIKit
 import FirebaseStorage
+import FirebaseDatabase
 
 class ProfileTableViewCell: UITableViewCell {
     
@@ -21,10 +22,26 @@ class ProfileTableViewCell: UITableViewCell {
     
     
     
+    // MARK: Properties
+    
+    private var nameOfVC: String!
+    
+    private var userRef: DatabaseReference?
+    
+    
+    
     // MARK: Configuring the cell's UI
     
-    func configureCell(user: EngaugeUser, thumbnailImageFromCache cacheImage: UIImage? = nil, forVCWithTypeName nameOfVC: String = "ProfileListVC") {
+    func configureCell(user: EngaugeUser, forVCWithTypeName nameOfVC: String = "ProfileListVC") {
         
+        self.nameOfVC = nameOfVC
+        self.userRef = DataService.instance.REF_USERS.child(user.userID)
+        
+        attachDatabaseObserver()
+    }
+    
+    private func updateUI(user: EngaugeUser, cacheImage: UIImage?) {
+        print("updateUI called")
         // Customize the UI based on which screen is displaying this cell
         switch nameOfVC {
         case "ProfileListVC":
@@ -33,6 +50,7 @@ class ProfileTableViewCell: UITableViewCell {
             break
         }
         
+        // Show the image passed in from the cache or download it from storage + add it to the cache.
         if cacheImage != nil {
             self.profileImageView.image = cacheImage!
         } else {
@@ -44,12 +62,25 @@ class ProfileTableViewCell: UITableViewCell {
             }
         }
         
+        // Update labels' text
         self.mainLabel.text = "\(user.firstName) \(user.lastName)"
         self.detailLabel.text = UserRole.stringFromInt(user.role)?.capitalized
     }
-
+    
+    // Assumes userRef is set
+    private func attachDatabaseObserver() {
+        self.userRef?.observe(.value) { (snapshot) in
+            print("value event fired")
+            if let userData = snapshot.value as? [String : Any], let user = DataService.instance.userFromSnapshotValues(userData, withUID: snapshot.key) {
+                self.updateUI(user: user, cacheImage: ProfileListVC.imageCache.object(forKey: user.thumbnailURL as NSString))
+            }
+        }
+    }
     
     
     
     
+    deinit {
+        self.userRef?.removeAllObservers()
+    }
 }

@@ -117,8 +117,7 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = Bundle.main.loadNibNamed("ProfileTableViewCell", owner: self, options: nil)?.first as? ProfileTableViewCell
         let currUser = (searchOn ? filteredUsers! : users)[indexPath.row]
-        let cacheImage = ProfileListVC.imageCache.object(forKey: currUser.thumbnailURL as NSString)
-        cell?.configureCell(user: currUser, thumbnailImageFromCache: cacheImage, forVCWithTypeName: "ProfileListVC")
+        cell?.configureCell(user: currUser, forVCWithTypeName: "ProfileListVC")
         return cell ?? UITableViewCell()
     }
     
