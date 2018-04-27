@@ -6,8 +6,6 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
-// TODO: How to handle event updates? Manual refreshing, or updates observed in the database?
-
 import UIKit
 import FirebaseAuth
 import FirebaseDatabase
@@ -150,7 +148,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                         // Event added for this school
                         self.refSchoolEventIDs?.observe(.childAdded) { (snapshot) in
                             let eventAddedID = snapshot.key
-                            print("Brennan - added event \(eventAddedID)")
                             DataService.instance.getEvent(withID: eventAddedID) { (event) in
                                 if event != nil {
                                     self.events.insertEvent(event!)
@@ -164,7 +161,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                         // Event removed for this school
                         self.refSchoolEventIDs?.observe(.childRemoved) { (snapshot) in
                             let eventRemovedID = snapshot.key
-                            print("Brennan - removed event \(eventRemovedID)")
                             self.events.removeEvent(withID: eventRemovedID)
                             self.applyFilters()
                             self.applySearch()
@@ -390,14 +386,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     }
     */
     
-    
-    
-    
-    // MARK: Responding to event updates
-    
-    private func updateUIForEventChanges(oldEvent: Event, newEvent: Event) {
-        
-    }
     
     
     

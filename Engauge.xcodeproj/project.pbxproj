@@ -40,6 +40,7 @@
 		C8F4656A2089648E0051F279 /* TransactionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8F465682089648E0051F279 /* TransactionTableViewCell.xib */; };
 		C8F4656D208965310051F279 /* EventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F4656B208965310051F279 /* EventTableViewCell.swift */; };
 		C8F4656E208965310051F279 /* EventTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8F4656C208965310051F279 /* EventTableViewCell.xib */; };
+		C8F689122092907D00DB3406 /* TransactionListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F689112092907D00DB3406 /* TransactionListVC.swift */; };
 		C8FA5AF72063054A00EE7F64 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FA5AF62063054A00EE7F64 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -79,6 +80,7 @@
 		C8F465682089648E0051F279 /* TransactionTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TransactionTableViewCell.xib; sourceTree = "<group>"; };
 		C8F4656B208965310051F279 /* EventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTableViewCell.swift; sourceTree = "<group>"; };
 		C8F4656C208965310051F279 /* EventTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventTableViewCell.xib; sourceTree = "<group>"; };
+		C8F689112092907D00DB3406 /* TransactionListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionListVC.swift; sourceTree = "<group>"; };
 		C8FA5AF62063054A00EE7F64 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		D59D261DD2848CECED032518 /* Pods-Engauge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Engauge.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Engauge/Pods-Engauge.debug.xcconfig"; sourceTree = "<group>"; };
 		E020E6CE04F8C5421691A37C /* Pods_Engauge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Engauge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -164,6 +166,7 @@
 				C837D1B22085062D00D90D61 /* ProfileDetailsVC.swift */,
 				C8D3CBE6208B8B3700AC4769 /* ProfileListVC.swift */,
 				C8C0BA01208E9FEC003DBE8A /* EditProfileVC.swift */,
+				C8F689112092907D00DB3406 /* TransactionListVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -364,6 +367,7 @@
 				C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,
 				C8C0BA02208E9FEC003DBE8A /* EditProfileVC.swift in Sources */,
+				C8F689122092907D00DB3406 /* TransactionListVC.swift in Sources */,
 				C80569A4208679910010F9A9 /* EngaugeUser.swift in Sources */,
 				C8137F342056D0970074D2AF /* Event.swift in Sources */,
 				C8137F322056D0130074D2AF /* EventListVC.swift in Sources */,

@@ -443,6 +443,14 @@ class DataService {
         DataService.instance.REF_USERS.removeObserver(withHandle: queryForFavoriters)
     }
     
+    func getNameOfEvent(withID eventID: String, completion: @escaping (String?) -> Void) {
+        DataService.instance.REF_EVENTS.child(eventID).child(DBKeys.EVENT.name).observeSingleEvent(of: .value) { (snapshot) in
+            completion(snapshot.value as? String)
+        }
+    }
+    
+    
+    
     
     
     func getNameForUser(withUID uid: String, completion: @escaping (String?) -> Void) {

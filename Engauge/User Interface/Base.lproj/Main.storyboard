@@ -314,7 +314,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="BrE-67-KHi">
-                                                    <rect key="frame" x="503" y="6.5" width="51" height="31"/>
+                                                    <rect key="frame" x="255" y="6.5" width="51" height="31"/>
                                                 </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Only Favorites" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Ew-nf-uGS">
                                                     <rect key="frame" x="16" y="11.5" width="117" height="21"/>
@@ -525,6 +525,80 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qoe-Jy-AEb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-73" y="2810"/>
+        </scene>
+        <!--Transactions-->
+        <scene sceneID="AgB-bi-GOf">
+            <objects>
+                <navigationController id="qJw-kA-J2K" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Transactions" image="swap" id="cl0-qJ-dWi"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="wm0-ob-oNC">
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="01u-BL-myV" kind="relationship" relationship="rootViewController" id="pG2-iL-kHP"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XTN-mL-z1a" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-2526" y="4578"/>
+        </scene>
+        <!--Recent Transactions-->
+        <scene sceneID="XhK-9s-Ugo">
+            <objects>
+                <viewController id="01u-BL-myV" customClass="TransactionListVC" customModule="Engauge" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="3mu-Q1-bUe">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="F8k-KT-KHG">
+                                <rect key="frame" x="0.0" y="120" width="320" height="399"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </tableView>
+                            <searchBar contentMode="redraw" placeholder="Search by TID..." translatesAutoresizingMaskIntoConstraints="NO" id="w95-WS-1A5">
+                                <rect key="frame" x="0.0" y="64" width="320" height="56"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="w95-WS-1A5" firstAttribute="leading" secondItem="3dr-nn-zmp" secondAttribute="leading" id="6pf-ni-sWV"/>
+                            <constraint firstItem="F8k-KT-KHG" firstAttribute="top" secondItem="w95-WS-1A5" secondAttribute="bottom" id="AY4-hD-Ikk"/>
+                            <constraint firstItem="3dr-nn-zmp" firstAttribute="bottom" secondItem="F8k-KT-KHG" secondAttribute="bottom" id="J15-iX-bMT"/>
+                            <constraint firstItem="3dr-nn-zmp" firstAttribute="trailing" secondItem="F8k-KT-KHG" secondAttribute="trailing" id="NtD-YR-f0a"/>
+                            <constraint firstItem="F8k-KT-KHG" firstAttribute="leading" secondItem="3dr-nn-zmp" secondAttribute="leading" id="ry9-7O-H0N"/>
+                            <constraint firstItem="w95-WS-1A5" firstAttribute="top" secondItem="3dr-nn-zmp" secondAttribute="top" id="tEk-8L-uip"/>
+                            <constraint firstItem="3dr-nn-zmp" firstAttribute="trailing" secondItem="w95-WS-1A5" secondAttribute="trailing" id="xjU-4f-J7y"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="3dr-nn-zmp"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Recent Transactions" id="qed-dC-AF8">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="pct-o9-Yjv"/>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="searchBar" destination="w95-WS-1A5" id="WVk-Wl-GDD"/>
+                        <outlet property="tableView" destination="F8k-KT-KHG" id="R8s-Tn-B2F"/>
+                        <segue destination="LCZ-9L-slm" kind="show" identifier="toTransactionDetailsVC" id="F1o-Vd-g7L"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="huR-0Q-K10" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1847" y="4577"/>
+        </scene>
+        <!--Transaction Details-->
+        <scene sceneID="BRr-CF-jWK">
+            <objects>
+                <viewController title="Transaction Details" id="LCZ-9L-slm" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="0y6-EG-lzw">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="U5x-1b-TAB"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bxe-VZ-9I9" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1035" y="4577"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="U7a-Yq-lQi">
@@ -1068,7 +1142,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="45s-XC-qoZ">
-                                                    <rect key="frame" x="544" y="11" width="8" height="21"/>
+                                                    <rect key="frame" x="296" y="11" width="8" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1090,7 +1164,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="jER-nn-XaB">
-                                                    <rect key="frame" x="16" y="0.0" width="536" height="200"/>
+                                                    <rect key="frame" x="16" y="0.0" width="288" height="200"/>
                                                     <date key="date" timeIntervalSinceReferenceDate="543857228.23644304">
                                                         <!--2018-03-27 15:27:08 +0000-->
                                                     </date>
@@ -1121,7 +1195,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="riB-nB-gIH">
-                                                    <rect key="frame" x="544" y="11" width="8" height="21"/>
+                                                    <rect key="frame" x="296" y="11" width="8" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1143,7 +1217,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="Hgj-bZ-rjO">
-                                                    <rect key="frame" x="16" y="0.0" width="536" height="199.5"/>
+                                                    <rect key="frame" x="16" y="0.0" width="288" height="199.5"/>
                                                     <date key="date" timeIntervalSinceReferenceDate="543857243.95269001">
                                                         <!--2018-03-27 15:27:23 +0000-->
                                                     </date>
@@ -1371,7 +1445,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zo6-Zc-VzW">
-                                                    <rect key="frame" x="544" y="12" width="8" height="20.5"/>
+                                                    <rect key="frame" x="296" y="12" width="8" height="20.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1393,7 +1467,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="LcS-X6-bE8">
-                                                    <rect key="frame" x="16" y="0.0" width="536" height="200"/>
+                                                    <rect key="frame" x="16" y="0.0" width="288" height="200"/>
                                                     <date key="date" timeIntervalSinceReferenceDate="544815121.601614">
                                                         <!--2018-04-07 17:32:01 +0000-->
                                                     </date>
@@ -1424,7 +1498,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ob5-qK-c3Q">
-                                                    <rect key="frame" x="544" y="11.5" width="8" height="20.5"/>
+                                                    <rect key="frame" x="296" y="11.5" width="8" height="20.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1446,7 +1520,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="Nzx-7N-dZO">
-                                                    <rect key="frame" x="16" y="0.0" width="536" height="199.5"/>
+                                                    <rect key="frame" x="16" y="0.0" width="288" height="199.5"/>
                                                     <date key="date" timeIntervalSinceReferenceDate="544815121.601614">
                                                         <!--2018-04-07 17:32:01 +0000-->
                                                     </date>
@@ -1829,6 +1903,7 @@
                     <connections>
                         <segue destination="v9j-iz-ayV" kind="relationship" relationship="viewControllers" id="Wda-bo-Xoj"/>
                         <segue destination="9P5-j4-GQk" kind="relationship" relationship="viewControllers" id="MtN-yi-uU7"/>
+                        <segue destination="qJw-kA-J2K" kind="relationship" relationship="viewControllers" id="0mh-vc-vPv"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lp7-fk-T3G" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1861,6 +1936,7 @@
         <image name="avatar-square-gray" width="720" height="720"/>
         <image name="calendar-icon" width="25" height="25"/>
         <image name="gauge" width="500" height="500"/>
+        <image name="swap" width="25" height="25"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="XHn-fl-3aI"/>

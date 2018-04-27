@@ -33,7 +33,7 @@ class TransactionTableViewCell: UITableViewCell {
     
     func configureCell(transaction: Transaction, forVCWithTypeName nameOfVC: String = "EventDetailsVC") {
         
-        // Customize the UI based on which screen is displaying this cell
+        // Customize the main label based on which screen is displaying this cell
         switch nameOfVC {
         case "EventDetailsVC":
             DataService.instance.getNameForUser(withUID: transaction.userID) { (fullName) in
@@ -41,6 +41,12 @@ class TransactionTableViewCell: UITableViewCell {
             }
         case "ProfileDetailsVC":
             self.mainLabel.text = transaction.source.asString
+        case "TransactionListVC":
+            DataService.instance.getNameForUser(withUID: transaction.userID) { (fullName) in
+                if fullName != nil {
+                    self.mainLabel.text = "\(fullName!) [\(transaction.source.asString)]"
+                }
+            }
         default:
             self.mainLabel.text = "Transaction"
         }
