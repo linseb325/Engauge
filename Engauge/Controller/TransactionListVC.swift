@@ -46,8 +46,10 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     
     // For observing database events
     private var schoolTransactionsRef: DatabaseReference?
+    private var schoolTransactionsChildAddedHandle: DatabaseHandle?
     
     private var authStateListenerHandle: AuthStateDidChangeListenerHandle?
+    
     
     
     
@@ -70,11 +72,6 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
             }
         }
         
-        
-        
-        
-        
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -91,8 +88,8 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.identifier {
         case "toTransactionDetailsVC":
-            if let transactionScreen = segue.destination as? TransactionDetailsVC, if let pickedTransaction = sender as? Transaction {
-                
+            if let transactionScreen = segue.destination as? TransactionDetailsVC, let pickedTransaction = sender as? Transaction {
+                transactionScreen.transaction = pickedTransaction
             }
         default:
             break
@@ -116,9 +113,7 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("Selected a transaction")
-        // TODO
-        performSegue(withIdentifier: "toTransactionDetailsVC", sender: (searchOn ? self.transactions : self.filteredTransactions!)[indexPath.row])
+        performSegue(withIdentifier: "toTransactionDetailsVC", sender: (searchOn ? self.filteredTransactions! : self.transactions)[indexPath.row])
     }
     
     
@@ -162,7 +157,12 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     
     private func applySearch() {
         if searchOn {
-            self.filteredTransactions = self.transactions.filter { $0.transactionID.lowercased().contains(searchText!.lowercased()) || ((tableView.cellForRow(at: IndexPath(row: self.transactions.indexOfTransaction(withID: $0.transactionID)!, section: 0)) as? TransactionTableViewCell)?.mainLabel.text?.lowercased().contains(searchText!.lowercased()) ?? false) }
+            self.filteredTransactions = self.transactions.filter { $0.transactionID.lowercased().contains(searchText!.lowercased())
+                ||
+                ((tableView.cellForRow(at: IndexPath(
+                        row: self.transactions.indexOfTransaction(withID: $0.transactionID)!,
+                        section: 0)) as? TransactionTableViewCell)?
+                    .mainLabel.text?.lowercased().contains(searchText!.lowercased()) ?? false) }
         }
     }
     
@@ -174,7 +174,7 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     // Only works if self.schoolTransactionsRef is already set
     private func attachDatabaseObserver() {
         // A new transaction occurred
-        self.schoolTransactionsRef?.observe(.childAdded) { (snapshot) in
+        self.schoolTransactionsChildAddedHandle = self.schoolTransactionsRef?.observe(.childAdded) { (snapshot) in
             DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
                 if addedTransaction != nil {
                     self.transactions.insert(addedTransaction!, at: 0)
@@ -189,12 +189,24 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     
     
     
+    // MARK: Removing Observers
+    
+    private func removeAuthObserverIfNecessary() {
+        if authStateListenerHandle != nil { Auth.auth().removeStateDidChangeListener(authStateListenerHandle!) }
+    }
+    
+    private func removeDatabaseObserversIfNecessary() {
+        if self.schoolTransactionsChildAddedHandle != nil {
+            schoolTransactionsRef?.removeObserver(withHandle: schoolTransactionsChildAddedHandle!)
+        }
+    }
+    
+    
+    
     // MARK: Deinitializer
     
     deinit {
-        if self.authStateListenerHandle != nil {
-            Auth.auth().removeStateDidChangeListener(authStateListenerHandle!)
-        }
-        self.schoolTransactionsRef?.removeAllObservers()
+        removeAuthObserverIfNecessary()
+        removeDatabaseObserversIfNecessary()
     }
 }

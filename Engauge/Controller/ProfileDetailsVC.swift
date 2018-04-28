@@ -43,9 +43,13 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     var userID: String?
     private var thisProfileUser: EngaugeUser?
     
-    // Database references to attach event observers
+    // Database references and handles for event observers
     private var userEventsRef: DatabaseReference?
     private var userTransactionsRef: DatabaseReference?
+    private var eventAddedHandle: DatabaseHandle?
+    private var eventRemovedHandle: DatabaseHandle?
+    private var transactionAddedHandle: DatabaseHandle?
+    private var transactionRemovedHandle: DatabaseHandle?
     
     var adminIsChoosingForManualTransaction = false
     
@@ -158,6 +162,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             self.usersRecentTransactions = []
             self.usersScheduledEvents = nil
             self.attachDatabaseObservers(forTableViewMode: .transactions)
+            
             // If I'm an admin looking at a student, I can initiate a manual transaction from here.
             DataService.instance.getRoleForUser(withUID: currUser.uid) { (currUserRoleNum) in
                 if currUserRoleNum == UserRole.admin.toInt {
@@ -208,8 +213,9 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 eventScreen.event = pickedEvent
             }
         case "toTransactionDetailsVC":
-            // TODO: Set the next screen's transaction to pickedTransaction.
-            break
+            if let transactionScreen = segue.destination.contentsViewController as? TransactionDetailsVC, let pickedTransaction = sender as? Transaction {
+                transactionScreen.transaction = pickedTransaction
+            }
         default:
             break
         }
@@ -270,8 +276,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         case .events:
             performSegue(withIdentifier: "toEventDetailsVC", sender: self.usersScheduledEvents![indexPath.row])
         case .transactions:
-            // TODO: Navigate to the Transaction Details screen. Pass the picked transaction to performSegue as the sender.
-            break
+            performSegue(withIdentifier: "toTransactionDetailsVC", sender: self.usersRecentTransactions![indexPath.row])
         case .none:
             break
         }
@@ -320,6 +325,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     
     
+    // MARK: Database Observers
+    
     private func attachDatabaseObservers(forTableViewMode mode: TableViewMode) {
         guard (userEventsRef != nil || userTransactionsRef != nil) else {
             print("Brennan - Database refs weren't set before trying to attach observers")
@@ -331,7 +338,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             
         case .events:
             // This user scheduled an event
-            self.userEventsRef?.observe(.childAdded, with: { (snapshot) in
+            self.eventAddedHandle = self.userEventsRef?.observe(.childAdded, with: { (snapshot) in
                 print("Event added")
                 DataService.instance.getEvent(withID: snapshot.key, completion: { (addedEvent) in
                     if addedEvent != nil {
@@ -342,7 +349,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 })
             })
             // This user removed an event
-            self.userEventsRef?.observe(.childRemoved, with: { (snapshot) in
+            self.eventRemovedHandle = self.userEventsRef?.observe(.childRemoved, with: { (snapshot) in
                 print("Event removed")
                 self.usersScheduledEvents?.removeEvent(withID: snapshot.key)
                 self.recentTransactionsEventsTableView.reloadData()
@@ -350,7 +357,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             
         case .transactions:
             // This user was involved in a transaction
-            self.userTransactionsRef?.observe(.childAdded, with: { (snapshot) in
+            self.transactionAddedHandle = self.userTransactionsRef?.observe(.childAdded, with: { (snapshot) in
                 print("Transaction added")
                 DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
                     if addedTransaction != nil {
@@ -361,7 +368,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 }
             })
             // A transaction was removed for this user
-            self.userTransactionsRef?.observe(.childRemoved, with: { (snapshot) in
+            self.transactionRemovedHandle = self.userTransactionsRef?.observe(.childRemoved, with: { (snapshot) in
                 print("Transaction removed")
                 self.usersRecentTransactions?.removeTransaction(withID: snapshot.key)
                 self.recentTransactionsEventsTableView.reloadData()
@@ -375,6 +382,17 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     
     
+    // MARK: Removing Observers
+    
+    private func removeDatabaseObserversIfNecessary() {
+        if eventAddedHandle != nil   { userEventsRef?.removeObserver(withHandle: eventAddedHandle!) }
+        if eventRemovedHandle != nil { userEventsRef?.removeObserver(withHandle: eventRemovedHandle!) }
+        if transactionAddedHandle != nil   { userTransactionsRef?.removeObserver(withHandle: transactionAddedHandle!) }
+        if transactionRemovedHandle != nil { userTransactionsRef?.removeObserver(withHandle: transactionRemovedHandle!) }
+    }
+    private func removeAuthObserverIfNecessary() {
+        if authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(authListenerHandle!) }
+    }
     
     
     
@@ -382,13 +400,11 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     
     
-    
+    // MARK: Deinitializer
     
     deinit {
-        if self.authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(self.authListenerHandle!) }
-        
-        self.userEventsRef?.removeAllObservers()
-        self.userTransactionsRef?.removeAllObservers()
+        removeAuthObserverIfNecessary()
+        removeDatabaseObserversIfNecessary()
     }
     
     

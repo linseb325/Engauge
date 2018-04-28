@@ -27,9 +27,14 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // MARK: Properties
     
-    // Event data
+    // Observing database events
     private var refSchoolEventIDs: DatabaseReference?
-    private var eventDataChangedHandle: UInt?
+    private var refAllEvents: DatabaseReference?
+    private var eventDataChangedHandle: DatabaseHandle?
+    private var eventAddedHandle: DatabaseHandle?
+    private var eventRemovedHandle: DatabaseHandle?
+    
+    // Event data
     private var events = [Date : [Event]]() {
         didSet {
             sectionKeys = (filteredEvents == nil) ? events.keys.sorted() : filteredEvents!.keys.sorted()
@@ -126,50 +131,16 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
                     }
                 }
                 
-                // Get the user's school ID
+                // Get the user's school ID and set up database observers.
                 DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
-                    if let userSchoolID = schoolID {
-                        
-                        self.refSchoolEventIDs = DataService.instance.REF_SCHOOL_EVENTS.child(userSchoolID)
-                        
-                        // Some data for an event changed
-                        // TODO: This will become expensive because it fires every time ANY event's data changes, not just events at my school
-                        self.eventDataChangedHandle = DataService.instance.REF_EVENTS.observe(.childChanged) { (snapshot) in
-                            let eventID = snapshot.key
-                            if self.events.containsEvent(withID: eventID), let eventData = snapshot.value as? [String : Any], let updatedEvent = DataService.instance.eventFromSnapshotValues(eventData, withID: eventID) {
-                                self.events.removeEvent(withID: eventID)
-                                self.events.insertEvent(updatedEvent)
-                                self.applyFilters()
-                                self.applySearch()
-                                self.tableView.reloadData()
-                            }
-                        }
-                        
-                        // Event added for this school
-                        self.refSchoolEventIDs?.observe(.childAdded) { (snapshot) in
-                            let eventAddedID = snapshot.key
-                            DataService.instance.getEvent(withID: eventAddedID) { (event) in
-                                if event != nil {
-                                    self.events.insertEvent(event!)
-                                    self.applyFilters()
-                                    self.applySearch()
-                                    self.tableView.reloadData()
-                                }
-                            }
-                        }
-                        
-                        // Event removed for this school
-                        self.refSchoolEventIDs?.observe(.childRemoved) { (snapshot) in
-                            let eventRemovedID = snapshot.key
-                            self.events.removeEvent(withID: eventRemovedID)
-                            self.applyFilters()
-                            self.applySearch()
-                            self.tableView.reloadData()
-                        }
-                    } else {
-                        // Couldn't get the user's school ID.
+                    guard let userSchoolID = schoolID else {
                         self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
+                        return
                     }
+                    
+                    self.refAllEvents = DataService.instance.REF_EVENTS
+                    self.refSchoolEventIDs = DataService.instance.REF_SCHOOL_EVENTS.child(userSchoolID)
+                    self.attachDatabaseObservers()
                 }
             } else {
                 // User is not logged in, so present SignInVC
@@ -202,13 +173,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = Bundle.main.loadNibNamed("EventTableViewCell", owner: self, options: nil)?.first as? EventTableViewCell
         let currEvent = (filteredEvents != nil) ? self.filteredEvents![sectionKeys[indexPath.section]]![indexPath.row] : self.events[sectionKeys[indexPath.section]]![indexPath.row]
-        if let thumbImageURL = currEvent.thumbnailURL {
-            // The event has a thumbnail image.
-            cell?.configureCell(event: currEvent, forVCWithTypeName: "EventListVC")
-        } else {
-            // The event doesn't have a thumbnail image.
-            cell?.configureCell(event: currEvent, forVCWithTypeName: "EventListVC")
-        }
+        cell?.configureCell(event: currEvent, forVCWithTypeName: "EventListVC")
         return cell ?? UITableViewCell()
     }
     
@@ -389,13 +354,64 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     
     
+    // MARK: Observing Database Events
+    
+    // Only works if both database reference properties are set.
+    private func attachDatabaseObservers() {
+        // Some data for an event changed
+        // TODO: This might become expensive because it fires every time ANY event's data changes, not just events at my school
+        self.eventDataChangedHandle = self.refAllEvents?.observe(.childChanged) { (snapshot) in
+            let eventID = snapshot.key
+            if self.events.containsEvent(withID: eventID), let eventData = snapshot.value as? [String : Any], let updatedEvent = DataService.instance.eventFromSnapshotValues(eventData, withID: eventID) {
+                self.events.removeEvent(withID: eventID)
+                self.events.insertEvent(updatedEvent)
+                self.applyFilters()
+                self.applySearch()
+                self.tableView.reloadData()
+            }
+        }
+        
+        // Event added for this school
+        self.eventAddedHandle = self.refSchoolEventIDs?.observe(.childAdded) { (snapshot) in
+            let eventAddedID = snapshot.key
+            DataService.instance.getEvent(withID: eventAddedID) { (event) in
+                if event != nil {
+                    self.events.insertEvent(event!)
+                    self.applyFilters()
+                    self.applySearch()
+                    self.tableView.reloadData()
+                }
+            }
+        }
+        
+        // Event removed for this school
+        self.eventRemovedHandle = self.refSchoolEventIDs?.observe(.childRemoved) { (snapshot) in
+            let eventRemovedID = snapshot.key
+            self.events.removeEvent(withID: eventRemovedID)
+            self.applyFilters()
+            self.applySearch()
+            self.tableView.reloadData()
+        }
+    }
+    
+    private func removeDatabaseObserversIfNecessary() {
+        if eventDataChangedHandle != nil  { refAllEvents?.removeObserver(withHandle: eventDataChangedHandle!) }
+        if eventAddedHandle != nil   { refSchoolEventIDs?.removeObserver(withHandle: eventAddedHandle!) }
+        if eventRemovedHandle != nil { refSchoolEventIDs?.removeObserver(withHandle: eventRemovedHandle!) }
+    }
+    
+    private func removeAuthObserverIfNecessary() {
+        if authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(authListenerHandle!) }
+    }
+    
+    
+    
     // MARK: Deinitializer
     
     // Remove Database and Auth event listeners when this VC is deallocated.
     deinit {
-        self.refSchoolEventIDs?.removeAllObservers()
-        if eventDataChangedHandle != nil { DataService.instance.REF_EVENTS.removeObserver(withHandle: eventDataChangedHandle!) }
-        if self.authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(self.authListenerHandle!) }
+        removeAuthObserverIfNecessary()
+        removeDatabaseObserversIfNecessary()
     }
     
 }

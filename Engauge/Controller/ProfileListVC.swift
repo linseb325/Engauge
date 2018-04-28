@@ -10,6 +10,7 @@ import UIKit
 import FirebaseAuth
 
 // TODO: Admin choosing for manual transaction logic/navigation
+// TODO: Manual refreshing OR database listeners for adding/removing users?
 
 class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     

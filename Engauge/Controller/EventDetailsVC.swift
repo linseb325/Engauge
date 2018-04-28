@@ -191,7 +191,7 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
                 // Deletion was successful.
                 if let navcon = self.navigationController {
                     // Should always be true because this VC should always be presented with a show segue
-                    print("Brennan - EventDetailsVC is in a navigation controller. Dismissing it.")
+                    print("Brennan - EventDetailsVC is in a navigation controller as expected. Dismissing it.")
                     navcon.popViewController(animated: true)
                 } else {
                     // Should never be true. See above

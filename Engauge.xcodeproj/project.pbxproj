@@ -41,6 +41,7 @@
 		C8F4656D208965310051F279 /* EventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F4656B208965310051F279 /* EventTableViewCell.swift */; };
 		C8F4656E208965310051F279 /* EventTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8F4656C208965310051F279 /* EventTableViewCell.xib */; };
 		C8F689122092907D00DB3406 /* TransactionListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F689112092907D00DB3406 /* TransactionListVC.swift */; };
+		C8F689142092B74B00DB3406 /* TransactionDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F689132092B74B00DB3406 /* TransactionDetailsVC.swift */; };
 		C8FA5AF72063054A00EE7F64 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FA5AF62063054A00EE7F64 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -81,6 +82,7 @@
 		C8F4656B208965310051F279 /* EventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTableViewCell.swift; sourceTree = "<group>"; };
 		C8F4656C208965310051F279 /* EventTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventTableViewCell.xib; sourceTree = "<group>"; };
 		C8F689112092907D00DB3406 /* TransactionListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionListVC.swift; sourceTree = "<group>"; };
+		C8F689132092B74B00DB3406 /* TransactionDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDetailsVC.swift; sourceTree = "<group>"; };
 		C8FA5AF62063054A00EE7F64 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		D59D261DD2848CECED032518 /* Pods-Engauge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Engauge.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Engauge/Pods-Engauge.debug.xcconfig"; sourceTree = "<group>"; };
 		E020E6CE04F8C5421691A37C /* Pods_Engauge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Engauge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -167,6 +169,7 @@
 				C8D3CBE6208B8B3700AC4769 /* ProfileListVC.swift */,
 				C8C0BA01208E9FEC003DBE8A /* EditProfileVC.swift */,
 				C8F689112092907D00DB3406 /* TransactionListVC.swift */,
+				C8F689132092B74B00DB3406 /* TransactionDetailsVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -380,6 +383,7 @@
 				C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */,
 				C80F3213204B4D6E002F6FED /* Constants.swift in Sources */,
 				C8D3CBEA208B8C0900AC4769 /* ProfileTableViewCell.swift in Sources */,
+				C8F689142092B74B00DB3406 /* TransactionDetailsVC.swift in Sources */,
 				C8B98B1D205C086000A24B95 /* MyTabBarController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
