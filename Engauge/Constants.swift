@@ -76,7 +76,6 @@ struct DBKeys {
         static let imageURL = "imageURL"
         static let name = "name"
         static let schoolID = "schoolID"
-        static let thumbnailURL = "thumbnailURL"
     }
     
     struct SCHOOL {
@@ -87,6 +86,8 @@ struct DBKeys {
     }
     
     static let SCHOOL_EVENTS_KEY = "schoolEvents"
+    
+    static let SCHOOL_PRIZES_KEY = "schoolPrizes"
     
     static let SCHOOL_TRANSACTIONS_KEY = "schoolTransactions"
     
@@ -132,6 +133,7 @@ struct StorageKeys {
     static let EVENT_PICS_FULL = "event-pics-full"
     static let EVENT_PICS_THUMBNAIL = "event-pics-thumbnail"
     static let QR_CODE_PICS = "qr-code-pics"
+    static let PRIZE_PICS = "prize-pics"
 }
 
 

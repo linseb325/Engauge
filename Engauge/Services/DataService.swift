@@ -24,6 +24,7 @@ class DataService {
     let REF_PRIZES = Database.database().reference().child(DBKeys.PRIZE.key)
     let REF_SCHOOLS = Database.database().reference().child(DBKeys.SCHOOL.key)
     let REF_SCHOOL_EVENTS = Database.database().reference().child(DBKeys.SCHOOL_EVENTS_KEY)
+    let REF_SCHOOL_PRIZES = Database.database().reference().child(DBKeys.SCHOOL_PRIZES_KEY)
     let REF_SCHOOL_TRANSACTIONS = Database.database().reference().child(DBKeys.SCHOOL_TRANSACTIONS_KEY)
     let REF_SCHOOL_USERS = Database.database().reference().child(DBKeys.SCHOOL_USERS_KEY)
     let REF_TRANSACTIONS = Database.database().reference().child(DBKeys.TRANSACTION.key)
@@ -600,6 +601,23 @@ class DataService {
             })
         }
     }
+    
+    
+    
+    
+    
+    
+    // MARK: Prizes
+    
+    func getNameOfPrize(withID prizeID: String, completion: @escaping (String?) -> Void) {
+        DataService.instance.REF_PRIZES.child(prizeID).child(DBKeys.PRIZE.name).observeSingleEvent(of: .value) { (snapshot) in
+            completion(snapshot.value as? String)
+        }
+    }
+    
+    
+    
+    
     
     
     

@@ -129,6 +129,12 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
         
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        if let selectedIndexPath = self.transactionsTableView.indexPathForSelectedRow {
+            transactionsTableView.deselectRow(at: selectedIndexPath, animated: true)
+        }
+    }
+    
     override func viewDidLayoutSubviews() {
         print("Did layout subviews")
     }
@@ -149,6 +155,12 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.transactions.count
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if !transactionsStackView.isHidden, transactions.count > indexPath.row {
+            performSegue(withIdentifier: "toTransactionDetailsVC", sender: transactions[indexPath.row])
+        }
     }
     
     
@@ -327,6 +339,10 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
             if let destVC = segue.destination.contentsViewController as? EditEventTVC {
                 destVC.event = self.event
             }
+        case "toTransactionDetailsVC":
+            if let transactionScreen = segue.destination.contentsViewController as? TransactionDetailsVC, let pickedTransaction = sender as? Transaction {
+                transactionScreen.transaction = pickedTransaction
+            }
         default:
             break
         }
@@ -338,7 +354,7 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
             updateUIForCurrentEvent()
         }
     }
-
+    
     
     
     

@@ -8,6 +8,7 @@
 
 import Foundation
 import FirebaseStorage
+import UIKit
 
 class StorageService {
     
@@ -20,13 +21,80 @@ class StorageService {
     let REF_EVENT_PICS_FULL = Storage.storage().reference().child(StorageKeys.EVENT_PICS_FULL)
     let REF_EVENT_PICS_THUMBNAIL = Storage.storage().reference().child(StorageKeys.EVENT_PICS_THUMBNAIL)
     let REF_QR_CODE_PICS = Storage.storage().reference().child(StorageKeys.QR_CODE_PICS)
+    let REF_PRIZE_PICS = Storage.storage().reference().child(StorageKeys.PRIZE_PICS)
     
+    func getImage(atStorageURL imageURL: String, withMaxSize maxBytes: Int64, completion: @escaping (UIImage?) -> Void) {
+        Storage.storage().reference(forURL: imageURL).getData(maxSize: maxBytes) { (data, error) in
+            guard error == nil, let imageData = data else {
+                completion(nil)
+                return
+            }
+            
+            completion(UIImage(data: imageData))
+        }
+    }
     
     func deleteImage(atURL imageURL: String, completion: ((String?) -> Void)? = nil) {
         Storage.storage().reference(forURL: imageURL).delete { (error) in
             completion?(error != nil ? self.messageForStorageError(error! as NSError) : nil)
         }
     }
+    
+    func getImageForPrize(withID prizeID: String, completion: @escaping (UIImage?) -> Void) {
+        DataService.instance.REF_PRIZES.child(prizeID).child(DBKeys.PRIZE.imageURL).observeSingleEvent(of: .value) { (snapshot) in
+            guard let prizeImageURL = snapshot.value as? String else {
+                completion(nil)
+                return
+            }
+            
+            Storage.storage().reference(forURL: prizeImageURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
+                guard error == nil, let imageData = data else {
+                    completion(nil)
+                    return
+                }
+                
+                completion(UIImage(data: imageData))
+            }
+        }
+    }
+    
+    func getImageForUser(withUID uid: String, thumbnail: Bool, completion: @escaping (UIImage?) -> Void) {
+        DataService.instance.REF_USERS.child(uid).child(thumbnail ? DBKeys.USER.thumbnailURL : DBKeys.USER.imageURL).observeSingleEvent(of: .value) { (snapshot) in
+            guard let userImageURL = snapshot.value as? String else {
+                completion(nil)
+                return
+            }
+            
+            Storage.storage().reference(forURL: userImageURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
+                guard error == nil, let imageData = data else {
+                    completion(nil)
+                    return
+                }
+                
+                completion(UIImage(data: imageData))
+            }
+        }
+    }
+    
+    func getImageForEvent(withID eventID: String, thumbnail: Bool, completion: @escaping (UIImage?) -> Void) {
+        DataService.instance.REF_EVENTS.child(eventID).child(thumbnail ? DBKeys.EVENT.thumbnailURL : DBKeys.EVENT.imageURL).observeSingleEvent(of: .value) { (snapshot) in
+            guard let eventImageURL = snapshot.value as? String else {
+                completion(nil)
+                return
+            }
+            
+            Storage.storage().reference(forURL: eventImageURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
+                guard error == nil, let imageData = data else {
+                    completion(nil)
+                    return
+                }
+                
+                completion(UIImage(data: imageData))
+            }
+        }
+    }
+
+    
     
     
     
