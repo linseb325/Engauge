@@ -41,16 +41,24 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // userID is only for fetching initial data when this screen loads.
     var userID: String?
+    private var currUserID: String?
     private var thisProfileUser: EngaugeUser?
     
     // Database references and handles for event observers
     private var userEventsRef: DatabaseReference?
     private var userTransactionsRef: DatabaseReference?
+    private var userInfoRef: DatabaseReference?
+    
     private var eventAddedHandle: DatabaseHandle?
     private var eventRemovedHandle: DatabaseHandle?
+    
     private var transactionAddedHandle: DatabaseHandle?
     private var transactionRemovedHandle: DatabaseHandle?
     
+    private var userInfoChangedHandle: DatabaseHandle?
+    
+    
+    // Event and Transaction data
     var adminIsChoosingForManualTransaction = false
     
     private var usersScheduledEvents: [Event]?
@@ -67,13 +75,19 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         
         self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
             guard let currUser = user else {
+                self.currUserID = nil
                 // TODO: There is no user signed in!
                 return
             }
             
             // There is a user signed in.
-            let userIDForLookup = self.userID ?? currUser.uid
+            self.currUserID = currUser.uid
+            if self.userID == nil {
+                self.userID = currUser.uid
+            }
             
+            /*
+            // Get the viewed user's profile info.
             DataService.instance.getUser(withUID: userIDForLookup) { (user) in
                 guard let thisProfileUser = user else {
                     // TODO: Couldn't retrieve the user info for this screen.
@@ -81,10 +95,13 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 }
                 
                 self.thisProfileUser = thisProfileUser
-                
-                self.updateUIForCurrentUser()
-                self.configureAdaptableUI(currUser: currUser, thisProfileUser: thisProfileUser)
+                // Was stuff here
             }
+            */
+            
+            self.userInfoRef = DataService.instance.REF_USERS.child(self.userID!)
+            self.attachUserInfoDatabaseObserver()
+        
         }
         
         
@@ -102,18 +119,17 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // MARK: Updating the UI
     
+    // Sets the user's profile image and labels.
+    // Requires that self.thisProfileUser is already set.
     private func updateUIForCurrentUser() {
         
-        // Check to make sure thisProfileUser is assigned to something.
         guard let thisProfileUser = self.thisProfileUser else {
             return
         }
         
         // Download and display the user's profile image.
-        Storage.storage().reference(forURL: thisProfileUser.thumbnailURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
-            if error == nil, data != nil {
-                self.imageView.image = UIImage(data: data!)
-            }
+        StorageService.instance.getImageForUser(withUID: thisProfileUser.userID, thumbnail: true) { (profileImage) in
+            self.imageView.image = profileImage
         }
         
         // Display the user's info.
@@ -124,47 +140,71 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         
     }
     
+    
     // Configures UI based on the roles of the current user and the user he/she is viewing.
     // This affects: Edit button, All Users button, Sign Out button, Table View Header + Content, self.tableViewMode, Balance label
-    private func configureAdaptableUI(currUser: User, thisProfileUser: EngaugeUser) {
+    // TODO: What if bar button items are already set?
+    // TODO: Is it OK to pass in "no-curr-user" as the argument?
+    private func configureAdaptableUI() {
         
-        // Am I looking at my own profile?
-        if thisProfileUser.userID == currUser.uid {
-            // This is me!
-            if self.isFirstVisibleVCofATab {
-                // I can edit my profile from this screen.
-                let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.handleEditTapped))
-                self.navigationItem.setRightBarButton(editButton, animated: true)
-                
-                // If I'm an Admin or Scheduler, I can get to the list of profiles from here.
-                DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
-                    if let currUserRoleNum = roleNum, (currUserRoleNum == UserRole.admin.toInt || currUserRoleNum == UserRole.scheduler.toInt) {
+        guard let thisProfileUser = self.thisProfileUser else {
+            return
+        }
+        
+        guard let currUserID = self.currUserID else {
+            return
+        }
+        
+        DataService.instance.getRoleForUser(withUID: currUserID) { (roleNum) in
+            
+            guard let currUserRoleNum = roleNum else {
+                return
+            }
+            
+            // Am I looking at my own profile?
+            if thisProfileUser.userID == currUserID {
+                // This is me!
+                if self.isFirstVisibleVCofATab {
+                    // I can edit my profile from this screen.
+                    let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.handleEditTapped))
+                    self.navigationItem.setRightBarButton(editButton, animated: true)
+                    // I can sign out from here.
+                    self.signOutButton.isHidden = false
+                    
+                    // If I'm an Admin or Scheduler, I can get to the list of profiles from here.
+                    if currUserRoleNum == UserRole.admin.toInt || currUserRoleNum == UserRole.scheduler.toInt {
                         // User can navigate to the profile list from here.
                         let allProfilesButton = UIBarButtonItem(title: "All Users", style: .plain, target: self, action: #selector(self.handleAllUsersTapped))
                         self.navigationItem.setLeftBarButton(allProfilesButton, animated: true)
+                    } else {
+                        // User can't navigate to the profile list from here.
+                        self.navigationItem.setLeftBarButton(nil, animated: true)
                     }
                 }
+            } else {
+                // This is someone else. Hide the sign out button.
+                // TODO: ...and hide the edit button? [Definitely needs to be hidden here because I'm not looking at myself. But would that erase the admin transaction buttons if visible?]
+                self.navigationItem.setRightBarButton(nil, animated: true)
+                self.signOutButton.isHidden = true
+                self.view.layoutIfNeeded()
             }
-        } else {
-            // This is someone else. Hide the sign out button.
-            self.signOutButton.isHidden = true
-            self.view.layoutIfNeeded()
-        }
-        
-        // What kind of user am I looking at?
-        switch thisProfileUser.role {
-        case UserRole.student.toInt:
-            // I'm looking at a student
-            // Download recent transactions and populate the table view.
-            self.tableViewMode = .transactions
-            self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
-            self.userTransactionsRef = DataService.instance.REF_USER_TRANSACTIONS.child(thisProfileUser.userID)
-            self.usersRecentTransactions = []
-            self.usersScheduledEvents = nil
-            self.attachDatabaseObservers(forTableViewMode: .transactions)
             
-            // If I'm an admin looking at a student, I can initiate a manual transaction from here.
-            DataService.instance.getRoleForUser(withUID: currUser.uid) { (currUserRoleNum) in
+            // What kind of user am I looking at?
+            switch thisProfileUser.role {
+                
+            case UserRole.student.toInt:
+                // I'm looking at a student
+                self.balanceLabel.isHidden = false
+                self.view.layoutIfNeeded()
+                // Download recent transactions and populate the table view.
+                self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
+                self.userTransactionsRef = DataService.instance.REF_USER_TRANSACTIONS.child(thisProfileUser.userID)
+                self.usersRecentTransactions = []
+                self.usersScheduledEvents = nil
+                self.tableViewMode = .transactions
+                self.attachTableViewDatabaseObservers(forTableViewMode: self.tableViewMode)
+                
+                // If I'm an admin looking at a student, I can initiate a manual transaction from here.
                 if currUserRoleNum == UserRole.admin.toInt {
                     if self.adminIsChoosingForManualTransaction {
                         // Admin can choose this user for a pending manual transaction.
@@ -172,27 +212,29 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         self.navigationItem.setRightBarButton(chooseForManualTransactionButton, animated: true)
                     } else {
                         // Admin can initiate a manual transaction with this user.
-                        let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "add-transaction"), style: .plain, target: self, action: #selector(self.handleManualTransactionButtonTapped))
+                        let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "add-transaction"), style: .plain, target: self, action: #selector(self.handleInitiateManualTransactionButtonTapped))
                         self.navigationItem.setRightBarButton(manualTransactionButton, animated: true)
                     }
                 }
+                
+            case UserRole.scheduler.toInt, UserRole.admin.toInt:
+                // I'm looking at a scheduler or admin
+                self.balanceLabel.isHidden = true
+                self.view.layoutIfNeeded()
+                // Download recent events and populate the table view.
+                self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
+                self.userEventsRef = DataService.instance.REF_USER_EVENTS.child(thisProfileUser.userID)
+                self.usersScheduledEvents = []
+                self.usersRecentTransactions = nil
+                self.tableViewMode = .events
+                self.attachTableViewDatabaseObservers(forTableViewMode: self.tableViewMode)
+                
+            default:
+                // TODO: User role number is invalid.
+                break
             }
-        case UserRole.scheduler.toInt, UserRole.admin.toInt:
-            // I'm looking at a scheduler or admin
-            self.balanceLabel.isHidden = true
-            self.view.layoutIfNeeded()
-            // Download recent events and populate the table view.
-            self.tableViewMode = .events
-            self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
-            self.userEventsRef = DataService.instance.REF_USER_EVENTS.child(thisProfileUser.userID)
-            self.usersScheduledEvents = []
-            self.usersRecentTransactions = nil
-            self.attachDatabaseObservers(forTableViewMode: .events)
-        default:
-            // TODO: User role number is invalid.
-            break
         }
-
+        
     }
     
     
@@ -220,14 +262,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             break
         }
     }
-    
-    @IBAction func unwindFromEditProfileVC(sender: UIStoryboardSegue) {
-        if let sourceVC = sender.source as? EditProfileVC, let editedUser = sourceVC.editedUser {
-            self.thisProfileUser = editedUser
-            updateUIForCurrentUser()
-        }
-    }
-
     
     
     
@@ -264,9 +298,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         switch self.tableViewMode {
         case .events:
             return 80
-        case .transactions:
-            return 44
-        case .none:
+        case .transactions, .none:
             return 44
         }
     }
@@ -281,6 +313,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             break
         }
     }
+    
     
     
     
@@ -313,7 +346,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         performSegue(withIdentifier: "toProfileListVC", sender: nil)
     }
     
-    @objc private func handleManualTransactionButtonTapped() {
+    @objc private func handleInitiateManualTransactionButtonTapped() {
         print("Brennan - manual transaction tapped")
         // TODO: Navigate to the manual transaction screen, pre-populate the UI with this user's data, and make sure the user can only go back here from the next screen.
     }
@@ -327,19 +360,34 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // MARK: Database Observers
     
-    private func attachDatabaseObservers(forTableViewMode mode: TableViewMode) {
+    // Requires that userInfoRef is already set
+    private func attachUserInfoDatabaseObserver() {
+        removeUserInfoDatabaseObserverIfNecessary()
+        
+        userInfoRef?.observe(.value) { (snapshot) in
+            if let userData = snapshot.value as? [String : Any], let updatedUser = DataService.instance.userFromSnapshotValues(userData, withUID: snapshot.key) {
+                self.thisProfileUser = updatedUser
+                self.updateUIForCurrentUser()
+                self.configureAdaptableUI()
+            }
+        }
+    }
+    
+    // Requires that the table view database refs are already set.
+    // Detaches any existing observers at the references.
+    private func attachTableViewDatabaseObservers(forTableViewMode mode: TableViewMode) {
         guard (userEventsRef != nil || userTransactionsRef != nil) else {
             print("Brennan - Database refs weren't set before trying to attach observers")
             return
         }
         
-        
         switch mode {
             
         case .events:
+            removeTableViewDatabaseObserversIfNecessary()
+            
             // This user scheduled an event
             self.eventAddedHandle = self.userEventsRef?.observe(.childAdded, with: { (snapshot) in
-                print("Event added")
                 DataService.instance.getEvent(withID: snapshot.key, completion: { (addedEvent) in
                     if addedEvent != nil {
                         self.usersScheduledEvents?.append(addedEvent!)
@@ -350,15 +398,15 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             })
             // This user removed an event
             self.eventRemovedHandle = self.userEventsRef?.observe(.childRemoved, with: { (snapshot) in
-                print("Event removed")
                 self.usersScheduledEvents?.removeEvent(withID: snapshot.key)
                 self.recentTransactionsEventsTableView.reloadData()
             })
             
         case .transactions:
+            removeTableViewDatabaseObserversIfNecessary()
+            
             // This user was involved in a transaction
-            self.transactionAddedHandle = self.userTransactionsRef?.observe(.childAdded, with: { (snapshot) in
-                print("Transaction added")
+            self.transactionAddedHandle = self.userTransactionsRef?.observe(.childAdded) { (snapshot) in
                 DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
                     if addedTransaction != nil {
                         self.usersRecentTransactions?.append(addedTransaction!)
@@ -366,13 +414,12 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         self.recentTransactionsEventsTableView.reloadData()
                     }
                 }
-            })
-            // A transaction was removed for this user
-            self.transactionRemovedHandle = self.userTransactionsRef?.observe(.childRemoved, with: { (snapshot) in
-                print("Transaction removed")
+            }
+            // A transaction was removed for this user (probably impossible)
+            self.transactionRemovedHandle = self.userTransactionsRef?.observe(.childRemoved) { (snapshot) in
                 self.usersRecentTransactions?.removeTransaction(withID: snapshot.key)
                 self.recentTransactionsEventsTableView.reloadData()
-            })
+            }
             
         default:
             print("Brennan - Table view mode is neither .events nor .transactions. Couldn't attach observers.")
@@ -384,12 +431,17 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // MARK: Removing Observers
     
-    private func removeDatabaseObserversIfNecessary() {
+    private func removeTableViewDatabaseObserversIfNecessary() {
         if eventAddedHandle != nil   { userEventsRef?.removeObserver(withHandle: eventAddedHandle!) }
         if eventRemovedHandle != nil { userEventsRef?.removeObserver(withHandle: eventRemovedHandle!) }
         if transactionAddedHandle != nil   { userTransactionsRef?.removeObserver(withHandle: transactionAddedHandle!) }
         if transactionRemovedHandle != nil { userTransactionsRef?.removeObserver(withHandle: transactionRemovedHandle!) }
     }
+    
+    private func removeUserInfoDatabaseObserverIfNecessary() {
+        if userInfoChangedHandle != nil { userInfoRef?.removeObserver(withHandle: userInfoChangedHandle!) }
+    }
+    
     private func removeAuthObserverIfNecessary() {
         if authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(authListenerHandle!) }
     }
@@ -404,8 +456,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     deinit {
         removeAuthObserverIfNecessary()
-        removeDatabaseObserversIfNecessary()
+        removeUserInfoDatabaseObserverIfNecessary()
+        removeTableViewDatabaseObserversIfNecessary()
     }
-    
     
 }

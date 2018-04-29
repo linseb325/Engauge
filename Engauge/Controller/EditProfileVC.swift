@@ -35,7 +35,6 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
     // MARK: Properties
     
     var user: EngaugeUser!
-    var editedUser: EngaugeUser?
     
     private lazy var imagePicker = UIImagePickerController()
     private var didChangeImage = false
@@ -160,8 +159,9 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
                     StorageService.instance.deleteImage(atURL: self.user.imageURL)
                     StorageService.instance.deleteImage(atURL: self.user.thumbnailURL)
                     
-                    // Now, grab the edited profile from the database and unwind to update the previous screen.
-                    self.setEditedUserAndUnwind()
+                    self.showSuccessAlert(onDismiss: { (okAction) in
+                        self.dismiss(animated: true)
+                    })
                 }
             }
         } else {
@@ -173,20 +173,10 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
                     return
                 }
                 
-                self.setEditedUserAndUnwind()
+                self.showSuccessAlert(onDismiss: { (okAction) in
+                    self.dismiss(animated: true)
+                })
             }
-        }
-    }
-    
-    private func setEditedUserAndUnwind() {
-        DataService.instance.getUser(withUID: self.user.userID) { (updatedUser) in
-            if updatedUser != nil {
-                self.editedUser = updatedUser
-            }
-            
-            self.showSuccessAlert(onDismiss: { (okAction) in
-                self.performSegue(withIdentifier: "unwindFromEditProfileVC", sender: nil)
-            })
         }
     }
     

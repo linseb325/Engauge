@@ -8,6 +8,7 @@
 
 import UIKit
 import FirebaseDatabase
+import FirebaseAuth
 
 class TransactionDetailsVC: UIViewController {
     
@@ -59,6 +60,22 @@ class TransactionDetailsVC: UIViewController {
     
     private func updateUI() {
         
+        // Enable or disable the link from the user's name to his/her profile details.
+        DataService.instance.getRoleForUser(withUID: Auth.auth().currentUser?.uid ?? "no-curr-user") { (currUserRoleNum) in
+            
+            switch currUserRoleNum {
+                
+            case UserRole.admin.toInt, UserRole.scheduler.toInt:
+                if (Auth.auth().currentUser?.uid ?? "no-curr-user") != self.transaction.userID {
+                    //
+                    self.userNameButton.isUserInteractionEnabled = true
+                }
+                
+            default:
+                self.userNameButton.isUserInteractionEnabled = false
+            }
+        }
+        
         // Set an image based on this transaction's source.
         setAppropriateImage()
         
@@ -88,6 +105,7 @@ class TransactionDetailsVC: UIViewController {
             pointValueLabel.textColor = .black
         }
         
+        // Configure the source label
         var str = ""
         switch transaction.source {
             
@@ -112,7 +130,7 @@ class TransactionDetailsVC: UIViewController {
                 str += "\ninitiated by \(manualInitiatorName ?? "an Admin")"
                 self.transactionSourceLabel.text = str
             }
-            break
+            
         case .undetermined:
             break
         }
@@ -124,29 +142,17 @@ class TransactionDetailsVC: UIViewController {
             
         case .qrScan:
             StorageService.instance.getImageForEvent(withID: transaction.eventID!, thumbnail: true) { (eventImage) in
-                if eventImage != nil {
-                    self.imageView.image = eventImage
-                } else {
-                    // TODO: Display a generic QR/event image.
-                }
+                self.imageView.image = (eventImage != nil) ? eventImage : UIImage(named: "qr-code")
             }
             
         case .prizeRedemption:
             StorageService.instance.getImageForPrize(withID: transaction.prizeID!) { (prizeImage) in
-                if prizeImage != nil {
-                    self.imageView.image = prizeImage
-                } else {
-                    // TODO: Display a generic prize/redemption image.
-                }
+                self.imageView.image = (prizeImage != nil) ? prizeImage : UIImage(named: "gift")
             }
             
         case .manualInitiation:
             StorageService.instance.getImageForUser(withUID: transaction.manualInitiatorUID!, thumbnail: true) { (adminImage) in
-                if adminImage != nil {
-                    self.imageView.image = adminImage
-                } else {
-                    self.imageView.image = UIImage(named: "avatar-square-gray")
-                }
+                self.imageView.image = (adminImage != nil) ? adminImage : UIImage(named: "avatar-square-gray")
             }
             
         case .undetermined:
@@ -157,13 +163,14 @@ class TransactionDetailsVC: UIViewController {
     
     
     
-    
-    
-    
     // MARK: Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.identifier {
+        case "toProfileDetailsVC":
+            if let profileScreen = segue.destination as? ProfileDetailsVC, let userID = sender as? String {
+                profileScreen.userID = userID
+            }
         default:
             break
         }
@@ -172,21 +179,11 @@ class TransactionDetailsVC: UIViewController {
     
     
     
-    // MARK: Firebase Observers
+    // MARK: User Button Tapped
     
-    private func attachDatabaseObservers() {
-        
+    @IBAction func userNameButtonTapped(_ sender: UIButton) {
+        performSegue(withIdentifier: "toProfileDetailsVC", sender: transaction.userID)
     }
-    
-    
-    
-    
-    // MARK: Removing Observers
-    
-    private func removeDatabaseObserversIfNecessary() {
-        
-    }
-    
     
     
     

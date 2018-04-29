@@ -124,8 +124,8 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         dismissKeyboard()
-        let chosenUser = (searchOn ? filteredUsers! : users)[indexPath.row]
-        performSegue(withIdentifier: "toProfileDetailsVC", sender: chosenUser)
+        let selectedUser = (searchOn ? filteredUsers! : users)[indexPath.row]
+        performSegue(withIdentifier: "toProfileDetailsVC", sender: selectedUser)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
