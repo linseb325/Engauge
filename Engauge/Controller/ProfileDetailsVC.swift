@@ -73,6 +73,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // TODO: Register nibs for table view cells
+        
         self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
             guard let currUser = user else {
                 self.currUserID = nil
@@ -143,8 +145,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // Configures UI based on the roles of the current user and the user he/she is viewing.
     // This affects: Edit button, All Users button, Sign Out button, Table View Header + Content, self.tableViewMode, Balance label
-    // TODO: What if bar button items are already set?
-    // TODO: Is it OK to pass in "no-curr-user" as the argument?
     private func configureAdaptableUI() {
         
         guard let thisProfileUser = self.thisProfileUser else {
@@ -199,10 +199,12 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 // Download recent transactions and populate the table view.
                 self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
                 self.userTransactionsRef = DataService.instance.REF_USER_TRANSACTIONS.child(thisProfileUser.userID)
-                self.usersRecentTransactions = []
+                self.usersRecentTransactions = [Transaction]()
+                print("just set transactions = []")
                 self.usersScheduledEvents = nil
                 self.tableViewMode = .transactions
-                self.attachTableViewDatabaseObservers(forTableViewMode: self.tableViewMode)
+                self.recentTransactionsEventsTableView.reloadData()     // Gotta include this to refresh the table view if there's no transactions for this user.
+                self.attachTableViewDatabaseObservers()
                 
                 // If I'm an admin looking at a student, I can initiate a manual transaction from here.
                 if currUserRoleNum == UserRole.admin.toInt {
@@ -224,10 +226,12 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 // Download recent events and populate the table view.
                 self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
                 self.userEventsRef = DataService.instance.REF_USER_EVENTS.child(thisProfileUser.userID)
-                self.usersScheduledEvents = []
+                self.usersScheduledEvents = [Event]()
+                print("just set events = []")
                 self.usersRecentTransactions = nil
                 self.tableViewMode = .events
-                self.attachTableViewDatabaseObservers(forTableViewMode: self.tableViewMode)
+                self.recentTransactionsEventsTableView.reloadData()     // Gotta include this to refresh the table view if there's no events for this user.
+                self.attachTableViewDatabaseObservers()
                 
             default:
                 // TODO: User role number is invalid.
@@ -236,6 +240,89 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         }
         
     }
+    
+    
+    
+    
+    // MARK: Database Observers
+    
+    // Requires that userInfoRef is already set
+    // This observer will update the viewed user's UI and the adaptable UI whenever user data changes.
+    private func attachUserInfoDatabaseObserver() {
+        removeUserInfoDatabaseObserverIfNecessary()
+        
+        self.userInfoChangedHandle = userInfoRef?.observe(.value) { (snapshot) in
+            print("User info changed")
+            if let userData = snapshot.value as? [String : Any], let updatedUser = DataService.instance.userFromSnapshotValues(userData, withUID: snapshot.key) {
+                self.thisProfileUser = updatedUser
+                self.updateUIForCurrentUser()
+                self.configureAdaptableUI()
+            }
+        }
+    }
+    
+    // Requires that the table view database refs are already set.
+    // Detaches any existing observers at the references.
+    private func attachTableViewDatabaseObservers() {
+        print("Inside attachTableViewDatabaseObservers")
+        guard (userEventsRef != nil || userTransactionsRef != nil) else {
+            print("Brennan - Database refs weren't set before trying to attach observers")
+            return
+        }
+        
+        print("Before the switch on tableViewMode")
+        switch self.tableViewMode {
+            
+        case .events:
+            removeTableViewDatabaseObserversIfNecessary()
+            
+            // This user scheduled an event
+            self.eventAddedHandle = self.userEventsRef?.observe(.childAdded, with: { (snapshot) in
+                print("Event added")
+                DataService.instance.getEvent(withID: snapshot.key, completion: { (addedEvent) in
+                    if addedEvent != nil {
+                        self.usersScheduledEvents?.append(addedEvent!)
+                        self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
+                        print("Reloading TV data after retrieving an event")
+                        self.recentTransactionsEventsTableView.reloadData()
+                    }
+                })
+            })
+            // This user removed an event
+            self.eventRemovedHandle = self.userEventsRef?.observe(.childRemoved, with: { (snapshot) in
+                print("Event removed")
+                self.usersScheduledEvents?.removeEvent(withID: snapshot.key)
+                self.recentTransactionsEventsTableView.reloadData()
+            })
+            
+        case .transactions:
+            removeTableViewDatabaseObserversIfNecessary()
+            
+            // This user was involved in a transaction
+            self.transactionAddedHandle = self.userTransactionsRef?.observe(.childAdded) { (snapshot) in
+                print("Transaction added")
+                DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
+                    if addedTransaction != nil {
+                        self.usersRecentTransactions?.append(addedTransaction!)
+                        self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
+                        print("Reloading TV data after retrieving a transaction")
+                        self.recentTransactionsEventsTableView.reloadData()
+                    }
+                }
+            }
+            // A transaction was removed for this user (probably impossible)
+            self.transactionRemovedHandle = self.userTransactionsRef?.observe(.childRemoved) { (snapshot) in
+                print("Transaction removed")
+                self.usersRecentTransactions?.removeTransaction(withID: snapshot.key)
+                self.recentTransactionsEventsTableView.reloadData()
+            }
+            
+        default:
+            print("Brennan - Table view mode is neither .events nor .transactions. Couldn't attach observers.")
+        }
+    }
+
+    
     
     
     
@@ -268,11 +355,17 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // MARK: Table View methods
     
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch self.tableViewMode {
         case .events:
+            print("Need \(self.usersScheduledEvents?.count ?? -99999) event cells")
             return self.usersScheduledEvents?.count ?? 0
         case .transactions:
+            print("Need \(self.usersRecentTransactions?.count ?? -99999) transaction cells")
             return self.usersRecentTransactions?.count ?? 0
         case .none:
             return 0
@@ -280,6 +373,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        print("Configuring cell # \(indexPath.row) for table view mode: \(self.tableViewMode)")
+        
         switch self.tableViewMode {
         case .events:
             let cell = Bundle.main.loadNibNamed("EventTableViewCell", owner: self, options: nil)?.first as? EventTableViewCell
@@ -358,92 +453,49 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     
     
-    // MARK: Database Observers
-    
-    // Requires that userInfoRef is already set
-    private func attachUserInfoDatabaseObserver() {
-        removeUserInfoDatabaseObserverIfNecessary()
-        
-        userInfoRef?.observe(.value) { (snapshot) in
-            if let userData = snapshot.value as? [String : Any], let updatedUser = DataService.instance.userFromSnapshotValues(userData, withUID: snapshot.key) {
-                self.thisProfileUser = updatedUser
-                self.updateUIForCurrentUser()
-                self.configureAdaptableUI()
-            }
-        }
-    }
-    
-    // Requires that the table view database refs are already set.
-    // Detaches any existing observers at the references.
-    private func attachTableViewDatabaseObservers(forTableViewMode mode: TableViewMode) {
-        guard (userEventsRef != nil || userTransactionsRef != nil) else {
-            print("Brennan - Database refs weren't set before trying to attach observers")
-            return
-        }
-        
-        switch mode {
-            
-        case .events:
-            removeTableViewDatabaseObserversIfNecessary()
-            
-            // This user scheduled an event
-            self.eventAddedHandle = self.userEventsRef?.observe(.childAdded, with: { (snapshot) in
-                DataService.instance.getEvent(withID: snapshot.key, completion: { (addedEvent) in
-                    if addedEvent != nil {
-                        self.usersScheduledEvents?.append(addedEvent!)
-                        self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
-                        self.recentTransactionsEventsTableView.reloadData()
-                    }
-                })
-            })
-            // This user removed an event
-            self.eventRemovedHandle = self.userEventsRef?.observe(.childRemoved, with: { (snapshot) in
-                self.usersScheduledEvents?.removeEvent(withID: snapshot.key)
-                self.recentTransactionsEventsTableView.reloadData()
-            })
-            
-        case .transactions:
-            removeTableViewDatabaseObserversIfNecessary()
-            
-            // This user was involved in a transaction
-            self.transactionAddedHandle = self.userTransactionsRef?.observe(.childAdded) { (snapshot) in
-                DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
-                    if addedTransaction != nil {
-                        self.usersRecentTransactions?.append(addedTransaction!)
-                        self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
-                        self.recentTransactionsEventsTableView.reloadData()
-                    }
-                }
-            }
-            // A transaction was removed for this user (probably impossible)
-            self.transactionRemovedHandle = self.userTransactionsRef?.observe(.childRemoved) { (snapshot) in
-                self.usersRecentTransactions?.removeTransaction(withID: snapshot.key)
-                self.recentTransactionsEventsTableView.reloadData()
-            }
-            
-        default:
-            print("Brennan - Table view mode is neither .events nor .transactions. Couldn't attach observers.")
-        }
-    }
-    
-    
-    
-    
     // MARK: Removing Observers
     
     private func removeTableViewDatabaseObserversIfNecessary() {
-        if eventAddedHandle != nil   { userEventsRef?.removeObserver(withHandle: eventAddedHandle!) }
-        if eventRemovedHandle != nil { userEventsRef?.removeObserver(withHandle: eventRemovedHandle!) }
-        if transactionAddedHandle != nil   { userTransactionsRef?.removeObserver(withHandle: transactionAddedHandle!) }
-        if transactionRemovedHandle != nil { userTransactionsRef?.removeObserver(withHandle: transactionRemovedHandle!) }
+        print("Removing table view observers/handles if necessary")
+        if eventAddedHandle != nil   {
+            userEventsRef?.removeObserver(withHandle: eventAddedHandle!)
+            eventAddedHandle = nil
+        }
+        if eventRemovedHandle != nil {
+            userEventsRef?.removeObserver(withHandle: eventRemovedHandle!)
+            eventRemovedHandle = nil
+        }
+        if transactionAddedHandle != nil   {
+            userTransactionsRef?.removeObserver(withHandle: transactionAddedHandle!)
+            transactionAddedHandle = nil
+        }
+        if transactionRemovedHandle != nil {
+            userTransactionsRef?.removeObserver(withHandle: transactionRemovedHandle!)
+            transactionRemovedHandle = nil
+        }
+        
+        // FIXME: Delete the following
+        switch (eventAddedHandle == nil, eventRemovedHandle == nil, transactionAddedHandle == nil, transactionRemovedHandle == nil) {
+        case (true, true, true, true):
+            print("Removed all table view observers/handles")
+        default:
+            print("Couldn't remove all table view observers/handles! ***********")
+        }
     }
     
     private func removeUserInfoDatabaseObserverIfNecessary() {
-        if userInfoChangedHandle != nil { userInfoRef?.removeObserver(withHandle: userInfoChangedHandle!) }
+        print("Removing user info observer/handle")
+        if userInfoChangedHandle != nil {
+            userInfoRef?.removeObserver(withHandle: userInfoChangedHandle!)
+            userInfoChangedHandle = nil
+        }
     }
     
     private func removeAuthObserverIfNecessary() {
-        if authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(authListenerHandle!) }
+        if authListenerHandle != nil {
+            Auth.auth().removeStateDidChangeListener(authListenerHandle!)
+            self.authListenerHandle = nil
+        }
     }
     
     
