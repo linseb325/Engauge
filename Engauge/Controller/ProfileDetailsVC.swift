@@ -6,6 +6,8 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
+// TODO: Listen for changes to events/transactions and update in the data model and table view?
+
 import UIKit
 import FirebaseAuth
 import FirebaseStorage
@@ -200,7 +202,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 self.recentTransactionsEventsHeaderLabel.text = "RECENT TRANSACTIONS:"
                 self.userTransactionsRef = DataService.instance.REF_USER_TRANSACTIONS.child(thisProfileUser.userID)
                 self.usersRecentTransactions = [Transaction]()
-                print("just set transactions = []")
                 self.usersScheduledEvents = nil
                 self.tableViewMode = .transactions
                 self.recentTransactionsEventsTableView.reloadData()     // Gotta include this to refresh the table view if there's no transactions for this user.
@@ -227,7 +228,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                 self.recentTransactionsEventsHeaderLabel.text = "UPCOMING/RECENT EVENTS:"
                 self.userEventsRef = DataService.instance.REF_USER_EVENTS.child(thisProfileUser.userID)
                 self.usersScheduledEvents = [Event]()
-                print("just set events = []")
                 self.usersRecentTransactions = nil
                 self.tableViewMode = .events
                 self.recentTransactionsEventsTableView.reloadData()     // Gotta include this to refresh the table view if there's no events for this user.
@@ -252,7 +252,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         removeUserInfoDatabaseObserverIfNecessary()
         
         self.userInfoChangedHandle = userInfoRef?.observe(.value) { (snapshot) in
-            print("User info changed")
             if let userData = snapshot.value as? [String : Any], let updatedUser = DataService.instance.userFromSnapshotValues(userData, withUID: snapshot.key) {
                 self.thisProfileUser = updatedUser
                 self.updateUIForCurrentUser()
@@ -264,13 +263,11 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     // Requires that the table view database refs are already set.
     // Detaches any existing observers at the references.
     private func attachTableViewDatabaseObservers() {
-        print("Inside attachTableViewDatabaseObservers")
         guard (userEventsRef != nil || userTransactionsRef != nil) else {
             print("Brennan - Database refs weren't set before trying to attach observers")
             return
         }
         
-        print("Before the switch on tableViewMode")
         switch self.tableViewMode {
             
         case .events:
@@ -278,19 +275,16 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             
             // This user scheduled an event
             self.eventAddedHandle = self.userEventsRef?.observe(.childAdded, with: { (snapshot) in
-                print("Event added")
                 DataService.instance.getEvent(withID: snapshot.key, completion: { (addedEvent) in
                     if addedEvent != nil {
                         self.usersScheduledEvents?.append(addedEvent!)
                         self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
-                        print("Reloading TV data after retrieving an event")
                         self.recentTransactionsEventsTableView.reloadData()
                     }
                 })
             })
             // This user removed an event
             self.eventRemovedHandle = self.userEventsRef?.observe(.childRemoved, with: { (snapshot) in
-                print("Event removed")
                 self.usersScheduledEvents?.removeEvent(withID: snapshot.key)
                 self.recentTransactionsEventsTableView.reloadData()
             })
@@ -300,19 +294,16 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             
             // This user was involved in a transaction
             self.transactionAddedHandle = self.userTransactionsRef?.observe(.childAdded) { (snapshot) in
-                print("Transaction added")
                 DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
                     if addedTransaction != nil {
                         self.usersRecentTransactions?.append(addedTransaction!)
                         self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
-                        print("Reloading TV data after retrieving a transaction")
                         self.recentTransactionsEventsTableView.reloadData()
                     }
                 }
             }
             // A transaction was removed for this user (probably impossible)
             self.transactionRemovedHandle = self.userTransactionsRef?.observe(.childRemoved) { (snapshot) in
-                print("Transaction removed")
                 self.usersRecentTransactions?.removeTransaction(withID: snapshot.key)
                 self.recentTransactionsEventsTableView.reloadData()
             }
@@ -362,10 +353,8 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch self.tableViewMode {
         case .events:
-            print("Need \(self.usersScheduledEvents?.count ?? -99999) event cells")
             return self.usersScheduledEvents?.count ?? 0
         case .transactions:
-            print("Need \(self.usersRecentTransactions?.count ?? -99999) transaction cells")
             return self.usersRecentTransactions?.count ?? 0
         case .none:
             return 0
@@ -373,7 +362,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("Configuring cell # \(indexPath.row) for table view mode: \(self.tableViewMode)")
         
         switch self.tableViewMode {
         case .events:
@@ -456,7 +444,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     // MARK: Removing Observers
     
     private func removeTableViewDatabaseObserversIfNecessary() {
-        print("Removing table view observers/handles if necessary")
         if eventAddedHandle != nil   {
             userEventsRef?.removeObserver(withHandle: eventAddedHandle!)
             eventAddedHandle = nil
@@ -473,18 +460,9 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             userTransactionsRef?.removeObserver(withHandle: transactionRemovedHandle!)
             transactionRemovedHandle = nil
         }
-        
-        // FIXME: Delete the following
-        switch (eventAddedHandle == nil, eventRemovedHandle == nil, transactionAddedHandle == nil, transactionRemovedHandle == nil) {
-        case (true, true, true, true):
-            print("Removed all table view observers/handles")
-        default:
-            print("Couldn't remove all table view observers/handles! ***********")
-        }
     }
     
     private func removeUserInfoDatabaseObserverIfNecessary() {
-        print("Removing user info observer/handle")
         if userInfoChangedHandle != nil {
             userInfoRef?.removeObserver(withHandle: userInfoChangedHandle!)
             userInfoChangedHandle = nil
