@@ -143,6 +143,11 @@ struct StorageImageQuality {
     static let THUMBNAIL: CGFloat = 0.1
 }
 
+struct ManualTransaction {
+    static let maxPoints = 100
+    static let minPoints = 1
+}
+
 
 
 

@@ -101,11 +101,6 @@ class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         }
     }
     
-    @IBAction func cancelTapped(_ sender: UIBarButtonItem) {
-        dismissKeyboard()
-        dismiss(animated: true)
-    }
-    
     
     
     
