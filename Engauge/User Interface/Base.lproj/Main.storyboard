@@ -634,7 +634,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="OeV-0o-IQZ" secondAttribute="trailing" constant="12" id="3v6-2u-13X"/>
@@ -2171,7 +2171,7 @@
     <inferredMetricsTieBreakers>
         <segue reference="XHn-fl-3aI"/>
         <segue reference="S8e-SG-bGU"/>
-        <segue reference="hFH-w0-DNy"/>
+        <segue reference="16Z-ux-IRP"/>
         <segue reference="OvX-ch-a0k"/>
         <segue reference="7i8-bh-2pM"/>
     </inferredMetricsTieBreakers>

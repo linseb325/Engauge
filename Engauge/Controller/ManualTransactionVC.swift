@@ -8,6 +8,7 @@
 
 import UIKit
 import FirebaseDatabase
+import FirebaseAuth
 
 class ManualTransactionVC: UIViewController, UITextFieldDelegate {
     
@@ -110,8 +111,15 @@ class ManualTransactionVC: UIViewController, UITextFieldDelegate {
     }
     
     private func updateBalanceLabel() {
-        balanceLabel.text = "Balance: \(selectedUser?.pointBalance ?? 0) points"
+        if let currPointBalance = selectedUser?.pointBalance {
+            balanceLabel.text = "Balance: \(currPointBalance) points"
+        } else if didSelectAUser {
+            balanceLabel.text = "[NOT A STUDENT]"
+        } else {
+            balanceLabel.text = " "
+        }
     }
+    
     /** Updates the text field's text based on self.numPoints */
     private func updateNumPointsTextFieldText() {
         numPointsTextField.text = "\(numPoints)"
@@ -170,7 +178,6 @@ class ManualTransactionVC: UIViewController, UITextFieldDelegate {
     // MARK: Button and Gesture Recognizer Actions
     
     @IBAction func selectUserTapped(_ sender: UITapGestureRecognizer) {
-        print("Select user tapped")
         if canChangeSelectedUser {
             performSegue(withIdentifier: "toProfileListVC", sender: nil)
         }
@@ -179,9 +186,67 @@ class ManualTransactionVC: UIViewController, UITextFieldDelegate {
     @IBAction func cancelTapped(_ sender: UIBarButtonItem) {
         dismiss(animated: true)
     }
+    
     @IBAction func applyTapped(_ sender: UIBarButtonItem) {
-        // TODO: Check for errors and try to complete the transaction. On success, display a success message and dismiss this screen.
-        print("Apply tapped")
+        
+        guard let pickedUser = selectedUser else {
+            showErrorAlert(message: "Please select a user for the manual transaction.")
+            return
+        }
+        
+        guard pickedUser.role == UserRole.student.toInt, let currBalance = pickedUser.pointBalance else {
+            showErrorAlert(message: "Please select a student for the manual transaction.")
+            return
+        }
+        
+        guard (ManualTransaction.minPoints...ManualTransaction.maxPoints).contains(numPoints) else {
+            showErrorAlert(message: "Please select a point value between \(ManualTransaction.minPoints) and \(ManualTransaction.maxPoints).")
+            return
+        }
+        
+        let transactionPointValue = numPointsSignSegmentedControl.selectedSegmentIndex == 0 ? numPoints : -numPoints
+        
+        guard (currBalance + transactionPointValue) >= 0 else {
+            // This transaction would take the user under 0 points.
+            showErrorAlert(message: "That transaction would cause this user's balance to drop below zero, which isn't allowed.")
+            return
+        }
+        
+        let areYouSureAlert = UIAlertController(title: "Are you sure?", message: "Are you sure you'd like to \(transactionPointValue >= 0 ? "add" : "subtract") \(abs(transactionPointValue)) point\(abs(transactionPointValue) != 1 ? "s" : "") \(transactionPointValue >= 0 ? "to" : "from") \(pickedUser.fullName)'s balance?", preferredStyle: .alert)
+        areYouSureAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        areYouSureAlert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { (continueAction) in
+            
+            guard let myUID = Auth.auth().currentUser?.uid else {
+                // TODO: Couldn't get my UID! Return to the sign-in screen.
+                self.showErrorAlert(title: "Auth Error", message: "Couldn't verify your user ID.", dismissHandler: { (okAction) in
+                    // TODO
+                })
+                return
+            }
+            DataService.instance.performTransaction(withPointValue: transactionPointValue, toUserWithUID: pickedUser.userID, forSchoolWithID: pickedUser.schoolID, forEventWithID: nil, forPrizeWithID: nil, withManualInitiatorUID: myUID) { (success) in
+                if success {
+                    self.showSuccessAlertAndDismiss()
+                } else {
+                    self.showErrorAlert(title: "Database Error", message: "Couldn't complete the transaction.")
+                }
+            }
+        }))
+        
+        present(areYouSureAlert, animated: true)
+        
+    }
+    
+    
+    
+    
+    // MARK: Success Alert
+    
+    private func showSuccessAlertAndDismiss() {
+        let alert = UIAlertController(title: "Success!", message: "Completed the manual transaction.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { (okAction) in
+            self.dismiss(animated: true)
+        })
+        present(alert, animated: true)
     }
     
     
@@ -190,7 +255,6 @@ class ManualTransactionVC: UIViewController, UITextFieldDelegate {
     // MARK: Stepper Updates
     
     @IBAction func stepperChanged(_ sender: UIStepper) {
-        print("Stepper value changed")
         let stepVal = Int(sender.value)
         
         if stepVal > ManualTransaction.maxPoints {
@@ -265,10 +329,8 @@ class ManualTransactionVC: UIViewController, UITextFieldDelegate {
         removeBalanceObserverIfNecessary()
         self.selectedUserBalanceRef = DataService.instance.REF_USERS.child(selectedUser!.userID).child(DBKeys.USER.pointBalance)
         self.userBalanceChangedHandle = selectedUserBalanceRef?.observe(.value) { (snapshot) in
-            if let updatedBalance = snapshot.value as? Int {
-                self.selectedUser?.pointBalance = updatedBalance
-                self.updateBalanceLabel()
-            }
+            self.selectedUser?.pointBalance = snapshot.value as? Int
+            self.updateBalanceLabel()
         }
         
     }

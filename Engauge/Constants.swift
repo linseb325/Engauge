@@ -108,6 +108,8 @@ struct DBKeys {
     
     static let USER_FAVORITE_EVENTS_KEY = "userFavoriteEvents"
     
+    static let USER_EVENTS_ATTENDED_KEY = "userEventsAttended"
+    
     static let USER_TRANSACTIONS_KEY = "userTransactions"
     
     struct USER {

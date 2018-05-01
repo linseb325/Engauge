@@ -452,15 +452,19 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     }
     
     @objc private func handleInitiateManualTransactionButtonTapped() {
-        print("Brennan - manual transaction tapped")
-        // TODO: Navigate to the manual transaction screen, pre-populate the UI with this user's data, and make sure the user can only go back here from the next screen.
+        // Navigate to the manual transaction screen, pre-populate the UI with this user's data, and make sure the user can only go back here from the next screen.
         if let thisProfileUser = self.thisProfileUser {
             performSegue(withIdentifier: "toManualTransactionVC", sender: thisProfileUser)
         }
     }
     
     @objc private func handleChooseForManualTransactionButtonTapped() {
-        // TODO: Unwind to the manual transaction details screen, passing the selected user back to that screen.
+        // Unwind to the manual transaction details screen, passing the selected user back to that screen.
+        guard let thisUsersRole = thisProfileUser?.role, thisUsersRole == UserRole.student.toInt else {
+            showErrorAlert(message: "This user isn't a student, so you can't choose him/her for a manual transaction.")
+            return
+        }
+        
         performSegue(withIdentifier: "unwindToManualTransactionVC", sender: nil)
     }
     
