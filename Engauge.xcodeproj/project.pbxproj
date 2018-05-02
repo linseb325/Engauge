@@ -23,6 +23,10 @@
 		C83C4BD42069D8B000456851 /* NewEventTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C83C4BD32069D8B000456851 /* NewEventTVC.swift */; };
 		C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85333612062D52400D01734 /* EventDetailsVC.swift */; };
 		C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */; };
+		C8A5AD5520994F3C0051FFA3 /* NotificationListTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */; };
+		C8A5AD572099512B0051FFA3 /* EngaugeNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */; };
+		C8A5AD5A209952D60051FFA3 /* NotificationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD58209952D60051FFA3 /* NotificationTableViewCell.swift */; };
+		C8A5AD5B209952D60051FFA3 /* NotificationTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8A5AD59209952D60051FFA3 /* NotificationTableViewCell.xib */; };
 		C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B162058639700A24B95 /* FilterEventsTVC.swift */; };
 		C8B98B1920596E1400A24B95 /* EventFilterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B1820596E1400A24B95 /* EventFilterFactory.swift */; };
 		C8B98B1D205C086000A24B95 /* MyTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B1C205C086000A24B95 /* MyTabBarController.swift */; };
@@ -65,6 +69,10 @@
 		C83C4BD32069D8B000456851 /* NewEventTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEventTVC.swift; sourceTree = "<group>"; };
 		C85333612062D52400D01734 /* EventDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsVC.swift; sourceTree = "<group>"; };
 		C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationTVC.swift; sourceTree = "<group>"; };
+		C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationListTVC.swift; sourceTree = "<group>"; };
+		C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngaugeNotification.swift; sourceTree = "<group>"; };
+		C8A5AD58209952D60051FFA3 /* NotificationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTableViewCell.swift; sourceTree = "<group>"; };
+		C8A5AD59209952D60051FFA3 /* NotificationTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NotificationTableViewCell.xib; sourceTree = "<group>"; };
 		C8B98B162058639700A24B95 /* FilterEventsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterEventsTVC.swift; sourceTree = "<group>"; };
 		C8B98B1820596E1400A24B95 /* EventFilterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFilterFactory.swift; sourceTree = "<group>"; };
 		C8B98B1C205C086000A24B95 /* MyTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabBarController.swift; sourceTree = "<group>"; };
@@ -173,6 +181,7 @@
 				C8F689112092907D00DB3406 /* TransactionListVC.swift */,
 				C8F689132092B74B00DB3406 /* TransactionDetailsVC.swift */,
 				C8E8E25C20966CD900D3DA02 /* ManualTransactionVC.swift */,
+				C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -185,6 +194,7 @@
 				C8B98B1820596E1400A24B95 /* EventFilterFactory.swift */,
 				C8CB84BC2064374600913E20 /* Transaction.swift */,
 				C80569A3208679910010F9A9 /* EngaugeUser.swift */,
+				C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -196,6 +206,7 @@
 				C8F4656B208965310051F279 /* EventTableViewCell.swift */,
 				C8F465672089648E0051F279 /* TransactionTableViewCell.swift */,
 				C8D3CBE8208B8C0900AC4769 /* ProfileTableViewCell.swift */,
+				C8A5AD58209952D60051FFA3 /* NotificationTableViewCell.swift */,
 			);
 			path = "Custom Views";
 			sourceTree = "<group>";
@@ -217,6 +228,7 @@
 				C8F4656C208965310051F279 /* EventTableViewCell.xib */,
 				C8F465682089648E0051F279 /* TransactionTableViewCell.xib */,
 				C8D3CBE9208B8C0900AC4769 /* ProfileTableViewCell.xib */,
+				C8A5AD59209952D60051FFA3 /* NotificationTableViewCell.xib */,
 			);
 			path = "User Interface";
 			sourceTree = "<group>";
@@ -283,6 +295,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8A5AD5B209952D60051FFA3 /* NotificationTableViewCell.xib in Resources */,
 				C8F4656E208965310051F279 /* EventTableViewCell.xib in Resources */,
 				C8F4656A2089648E0051F279 /* TransactionTableViewCell.xib in Resources */,
 				C80F32032049F456002F6FED /* LaunchScreen.storyboard in Resources */,
@@ -364,6 +377,7 @@
 				C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */,
 				C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */,
 				C8B9D80F2065FC7A0011EC7B /* FavoriteBarButtonItem.swift in Sources */,
+				C8A5AD5A209952D60051FFA3 /* NotificationTableViewCell.swift in Sources */,
 				C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */,
 				C83C4BD42069D8B000456851 /* NewEventTVC.swift in Sources */,
 				C8D51084204F79D800835AD3 /* DataService.swift in Sources */,
@@ -372,6 +386,7 @@
 				C8D51082204F742F00835AD3 /* School.swift in Sources */,
 				C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,
+				C8A5AD572099512B0051FFA3 /* EngaugeNotification.swift in Sources */,
 				C8C0BA02208E9FEC003DBE8A /* EditProfileVC.swift in Sources */,
 				C8F689122092907D00DB3406 /* TransactionListVC.swift in Sources */,
 				C80569A4208679910010F9A9 /* EngaugeUser.swift in Sources */,
@@ -386,6 +401,7 @@
 				C8D3CBE7208B8B3700AC4769 /* ProfileListVC.swift in Sources */,
 				C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */,
 				C80F3213204B4D6E002F6FED /* Constants.swift in Sources */,
+				C8A5AD5520994F3C0051FFA3 /* NotificationListTVC.swift in Sources */,
 				C8D3CBEA208B8C0900AC4769 /* ProfileTableViewCell.swift in Sources */,
 				C8F689142092B74B00DB3406 /* TransactionDetailsVC.swift in Sources */,
 				C8B98B1D205C086000A24B95 /* MyTabBarController.swift in Sources */,

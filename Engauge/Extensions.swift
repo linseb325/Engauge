@@ -123,6 +123,27 @@ extension Array where Element == Transaction {
     
 }
 
+// MARK: Array<EngaugeNotification>
+
+extension Array where Element == EngaugeNotification {
+    
+    func indexOfNotification(withID nid: String) -> Int? {
+        for i in 0..<self.count {
+            if self[i].notificationID == nid {
+                return i
+            }
+        }
+        return nil
+    }
+    
+    mutating func removeNotification(withID nid: String) {
+        if let removeHere = indexOfNotification(withID: nid) {
+            self.remove(at: removeHere)
+        }
+    }
+    
+}
+
 
 
 

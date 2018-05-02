@@ -67,6 +67,7 @@ struct DBKeys {
         static let key = "notifications"
         static let receiverUID = "receiverUID"
         static let senderUID = "senderUID"
+        static let timestamp = "timestamp"
     }
     
     struct PRIZE {
@@ -110,6 +111,8 @@ struct DBKeys {
     
     static let USER_EVENTS_ATTENDED_KEY = "userEventsAttended"
     
+    static let USER_NOTIFICATIONS_KEY = "userNotifications"
+    
     static let USER_TRANSACTIONS_KEY = "userTransactions"
     
     struct USER {
@@ -119,7 +122,6 @@ struct DBKeys {
         static let firstName = "firstName"
         static let imageURL = "imageURL"
         static let lastName = "lastName"
-        static let notifications = "notifications"
         static let pointBalance = "pointBalance"
         static let role = "role"
         static let schoolID = "schoolID"

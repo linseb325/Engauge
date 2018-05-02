@@ -29,7 +29,9 @@ class DataService {
     let REF_SCHOOL_USERS = Database.database().reference().child(DBKeys.SCHOOL_USERS_KEY)
     let REF_TRANSACTIONS = Database.database().reference().child(DBKeys.TRANSACTION.key)
     let REF_USER_EVENTS = Database.database().reference().child(DBKeys.USER_EVENTS_KEY)
+    let REF_USER_EVENTS_ATTENDED = Database.database().reference().child(DBKeys.USER_EVENTS_KEY)
     let REF_USER_FAVORITE_EVENTS = Database.database().reference().child(DBKeys.USER_FAVORITE_EVENTS_KEY)
+    let REF_USER_NOTIFICATIONS = Database.database().reference().child(DBKeys.USER_NOTIFICATIONS_KEY)
     let REF_USER_TRANSACTIONS = Database.database().reference().child(DBKeys.USER_TRANSACTIONS_KEY)
     let REF_USERS = Database.database().reference().child(DBKeys.USER.key)
     
@@ -177,46 +179,6 @@ class DataService {
                 }
             }
             completion(schools)
-        }
-    }
-    
-    
-    
-    
-    // MARK: Creating notifications
-    
-    func sendRoleRequestNotification(fromUserWithUID senderUID: String, forSchoolWithID receiverSchoolID: String, completion: ((String?) -> Void)?) {
-        // Grab the admin's UID.
-        DataService.instance.REF_SCHOOLS.child(receiverSchoolID).observeSingleEvent(of: .value) { (snapshot) in
-            // Can we grab the school's admin's UID?
-            guard let schoolInfo = snapshot.value as? [String : Any], let adminUID = schoolInfo[DBKeys.SCHOOL.adminUID] as? String else {
-                completion?("Database error. Unable to deliver the notification to the Admin.")
-                return
-            }
-            
-            // Make sure the admin user exists in the "users" node of the database.
-            DataService.instance.REF_USERS.child(adminUID).observeSingleEvent(of: .value, with: { (snapshot) in
-                guard let adminInfo = snapshot.value as? [String : Any], adminInfo.count > 0 else {
-                    completion?("Database error. Unable to deliver the notification to the Admin.")
-                    return
-                }
-                
-                let notifID = DataService.instance.REF_NOTIFICATIONS.childByAutoId().key
-                let notifData = [DBKeys.NOTIFICATION.senderUID: senderUID,
-                                 DBKeys.NOTIFICATION.receiverUID: adminUID]
-                let updates: [String : Any] = ["/\(DBKeys.NOTIFICATION.key)/\(notifID)/": notifData,
-                               "/\(DBKeys.USER.key)/\(adminUID)/\(DBKeys.USER.notifications)/\(notifID)/": true]
-                
-                DataService.instance.REF_ROOT.updateChildValues(updates, withCompletionBlock: { (error, ref) in
-                    if error != nil {
-                        // Database error.
-                        completion?("Database error. Unable to deliver the notification to the Admin.")
-                    } else {
-                        // Successfully added the notification.
-                        completion?(nil)
-                    }
-                })
-            })
         }
     }
     
@@ -718,6 +680,86 @@ class DataService {
         }
     }
     
+    
+    
+    
+    // MARK: Notifications
+    
+    func sendRoleRequestNotification(fromUserWithUID senderUID: String, forSchoolWithID receiverSchoolID: String, completion: ((String?) -> Void)?) {
+        // Grab the admin's UID.
+        DataService.instance.REF_SCHOOLS.child(receiverSchoolID).observeSingleEvent(of: .value) { (snapshot) in
+            // Can we grab the school's admin's UID?
+            guard let schoolInfo = snapshot.value as? [String : Any], let adminUID = schoolInfo[DBKeys.SCHOOL.adminUID] as? String else {
+                completion?("Database error. Unable to deliver the notification to the admin because the school's admin information was not found.")
+                return
+            }
+            
+            // Make sure the admin user exists in the "users" node of the database.
+            DataService.instance.REF_USERS.child(adminUID).observeSingleEvent(of: .value) { (snapshot) in
+                guard let adminInfo = snapshot.value as? [String : Any], adminInfo.count > 0 else {
+                    completion?("Database error. Unable to deliver the notification to the admin because the admin's profile information was not found.")
+                    return
+                }
+                
+                let notifID = DataService.instance.REF_NOTIFICATIONS.childByAutoId().key
+                let notifData = [DBKeys.NOTIFICATION.senderUID: senderUID,
+                                 DBKeys.NOTIFICATION.receiverUID: adminUID]
+                let updates: [String : Any] = [
+                    "/\(DBKeys.NOTIFICATION.key)/\(notifID)/": notifData,
+                    "/\(DBKeys.USER_NOTIFICATIONS_KEY)/\(adminUID)/\(notifID)": true
+                ]
+                
+                DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
+                    if error != nil {
+                        // Database error.
+                        completion?("Database error. Unable to deliver the notification to the admin.")
+                    } else {
+                        // Successfully added the notification.
+                        completion?(nil)
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     - Deletes the notification data from these nodes:
+        - "notifications"
+        - "userNotifications"
+     - Updates the boolean value for key "approvedForScheduler" under the requester's data under the "users" node.
+     */
+    func performUpdatesForRoleRequestDecision(forNotificationWithID notificationID: String, senderUID: String, receiverUID: String, approveUserForScheduler: Bool, completion: ((Bool) -> Void)? = nil) {
+        
+        let updates: [String : Any?] = [
+            "\(DBKeys.NOTIFICATION.key)/\(notificationID)" : nil,
+            "\(DBKeys.USER_NOTIFICATIONS_KEY)/\(receiverUID)/\(notificationID)" : nil,
+            "\(DBKeys.USER.key)/\(senderUID)/\(DBKeys.USER.approvedForScheduler)" : approveUserForScheduler
+        ]
+        
+        DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
+            completion?(error == nil)
+        }
+    }
+    
+    func getNotification(withID notifID: String, completion: @escaping (EngaugeNotification?) -> Void) {
+        DataService.instance.REF_NOTIFICATIONS.child(notifID).observeSingleEvent(of: .value) { (snapshot) in
+            guard let notifData = snapshot.value as? [String : Any], let retrievedNotif = DataService.instance.notificationFromSnapshotValues(notifData, andNotificationID: notifID) else {
+                completion(nil)
+                return
+            }
+            completion(retrievedNotif)
+        }
+    }
+    
+    func notificationFromSnapshotValues(_ notifData: [String : Any], andNotificationID notifID: String) -> EngaugeNotification? {
+        guard let senderUID = notifData[DBKeys.NOTIFICATION.senderUID] as? String,
+            let receiverUID = notifData[DBKeys.NOTIFICATION.receiverUID] as? String,
+            let timestampAsDouble = notifData[DBKeys.NOTIFICATION.timestamp] as? Double else {
+                return nil
+        }
+        
+        return EngaugeNotification(notificationID: notifID, senderUID: senderUID, receiverUID: receiverUID, timestamp: Date(timeIntervalSince1970: timestampAsDouble))
+    }
     
     
     

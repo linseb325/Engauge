@@ -2121,6 +2121,52 @@
             </objects>
             <point key="canvasLocation" x="-38" y="-870"/>
         </scene>
+        <!--Role Requests-->
+        <scene sceneID="9d8-P8-Mhb">
+            <objects>
+                <tableViewController id="PK2-yu-WuW" customClass="NotificationListTVC" customModule="Engauge" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="FhL-mb-fsm">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="8cT-Np-t7c">
+                                <rect key="frame" x="0.0" y="28" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="8cT-Np-t7c" id="ZbF-dP-4Q1">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="PK2-yu-WuW" id="NIs-wa-exM"/>
+                            <outlet property="delegate" destination="PK2-yu-WuW" id="r1F-8X-Sgf"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Role Requests" id="di2-GD-oKf"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VIl-9J-nim" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-4385.625" y="1206.338028169014"/>
+        </scene>
+        <!--Requests-->
+        <scene sceneID="kYJ-3z-hbf">
+            <objects>
+                <navigationController id="zYv-qt-SU6" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Requests" image="bell" id="dW1-i2-1Mx"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="DrP-aV-F5K">
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="PK2-yu-WuW" kind="relationship" relationship="rootViewController" id="r8f-8q-7Ut"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bxM-4a-y5I" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-5392" y="1207"/>
+        </scene>
         <!--My Tab Bar Controller-->
         <scene sceneID="KmI-2v-0bn">
             <objects>
@@ -2134,6 +2180,7 @@
                         <segue destination="v9j-iz-ayV" kind="relationship" relationship="viewControllers" id="Wda-bo-Xoj"/>
                         <segue destination="9P5-j4-GQk" kind="relationship" relationship="viewControllers" id="MtN-yi-uU7"/>
                         <segue destination="qJw-kA-J2K" kind="relationship" relationship="viewControllers" id="0mh-vc-vPv"/>
+                        <segue destination="zYv-qt-SU6" kind="relationship" relationship="viewControllers" id="cvX-me-Yes"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lp7-fk-T3G" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2164,13 +2211,14 @@
         <image name="add-profile-pic" width="1600" height="1600"/>
         <image name="avatar" width="25" height="25"/>
         <image name="avatar-square-gray" width="720" height="720"/>
+        <image name="bell" width="25" height="25"/>
         <image name="calendar-icon" width="25" height="25"/>
         <image name="gauge" width="500" height="500"/>
         <image name="swap" width="25" height="25"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="XHn-fl-3aI"/>
-        <segue reference="S8e-SG-bGU"/>
+        <segue reference="Obs-b4-stq"/>
         <segue reference="16Z-ux-IRP"/>
         <segue reference="OvX-ch-a0k"/>
         <segue reference="7i8-bh-2pM"/>

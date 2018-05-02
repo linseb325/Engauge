@@ -206,7 +206,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
                         self.disableTableViewSelection()
                     } else {
                         // Admin can initiate a manual transaction with this user.
-                        let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "add-transaction"), style: .plain, target: self, action: #selector(self.handleInitiateManualTransactionButtonTapped))
+                        let manualTransactionButton = UIBarButtonItem(image: UIImage(named: "swap"), style: .plain, target: self, action: #selector(self.handleInitiateManualTransactionButtonTapped))
                         self.navigationItem.setRightBarButton(manualTransactionButton, animated: true)
                     }
                 }
