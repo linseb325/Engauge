@@ -135,7 +135,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     // Configures UI based on the roles of the current user and the user he/she is viewing.
     // Asks two questions:
         // (1) Am I looking at my own profile, and is this VC the first in the "Profile" tab? [Edit, All Users, Sign Out]
-        // (2) What is this user's role, and how
+        // (2) What is this user's role?
     // This affects: Edit button, All Users button, Sign Out button, Table View Header + Content, self.tableViewMode, Balance label
     private func configureAdaptableUI() {
         
