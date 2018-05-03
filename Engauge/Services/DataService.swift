@@ -148,6 +148,12 @@ class DataService {
         }
     }
     
+    func getEmailAddressForUser(withUID uid: String, completion: @escaping (String?) -> Void) {
+        DataService.instance.REF_USERS.child(uid).child(DBKeys.USER.emailAddress).observeSingleEvent(of: .value) { (snapshot) in
+            completion(snapshot.value as? String)
+        }
+    }
+    
     func getSchoolIDForUser(withUID uid: String, completion: @escaping (String?) -> Void) {
         DataService.instance.REF_USERS.child("/\(uid)/\(DBKeys.USER.schoolID)").observeSingleEvent(of: .value) { (snapshot) in
             completion(snapshot.value as? String)
@@ -702,8 +708,11 @@ class DataService {
                 }
                 
                 let notifID = DataService.instance.REF_NOTIFICATIONS.childByAutoId().key
-                let notifData = [DBKeys.NOTIFICATION.senderUID: senderUID,
-                                 DBKeys.NOTIFICATION.receiverUID: adminUID]
+                let notifData: [String : Any] = [
+                    DBKeys.NOTIFICATION.senderUID: senderUID,
+                    DBKeys.NOTIFICATION.receiverUID: adminUID,
+                    DBKeys.NOTIFICATION.timestamp: Date().timeIntervalSince1970
+                    ]
                 let updates: [String : Any] = [
                     "/\(DBKeys.NOTIFICATION.key)/\(notifID)/": notifData,
                     "/\(DBKeys.USER_NOTIFICATIONS_KEY)/\(adminUID)/\(notifID)": true

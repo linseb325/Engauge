@@ -38,6 +38,7 @@
 		C8D3CBEB208B8C0900AC4769 /* ProfileTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8D3CBE9208B8C0900AC4769 /* ProfileTableViewCell.xib */; };
 		C8D51082204F742F00835AD3 /* School.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51081204F742F00835AD3 /* School.swift */; };
 		C8D51084204F79D800835AD3 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51083204F79D800835AD3 /* DataService.swift */; };
+		C8D66867209A90FB004E529E /* RoleRequestDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D66866209A90FB004E529E /* RoleRequestDetailsVC.swift */; };
 		C8E8E25D20966CD900D3DA02 /* ManualTransactionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E8E25C20966CD900D3DA02 /* ManualTransactionVC.swift */; };
 		C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E9153C20792D7700E4E973 /* EditEventTVC.swift */; };
 		C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E939CC2052178A00CEAF87 /* StorageService.swift */; };
@@ -84,6 +85,7 @@
 		C8D3CBE9208B8C0900AC4769 /* ProfileTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileTableViewCell.xib; sourceTree = "<group>"; };
 		C8D51081204F742F00835AD3 /* School.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = School.swift; sourceTree = "<group>"; };
 		C8D51083204F79D800835AD3 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		C8D66866209A90FB004E529E /* RoleRequestDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleRequestDetailsVC.swift; sourceTree = "<group>"; };
 		C8E8E25C20966CD900D3DA02 /* ManualTransactionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualTransactionVC.swift; sourceTree = "<group>"; };
 		C8E9153C20792D7700E4E973 /* EditEventTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventTVC.swift; sourceTree = "<group>"; };
 		C8E939CC2052178A00CEAF87 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 				C8F689132092B74B00DB3406 /* TransactionDetailsVC.swift */,
 				C8E8E25C20966CD900D3DA02 /* ManualTransactionVC.swift */,
 				C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */,
+				C8D66866209A90FB004E529E /* RoleRequestDetailsVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -401,6 +404,7 @@
 				C8D3CBE7208B8B3700AC4769 /* ProfileListVC.swift in Sources */,
 				C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */,
 				C80F3213204B4D6E002F6FED /* Constants.swift in Sources */,
+				C8D66867209A90FB004E529E /* RoleRequestDetailsVC.swift in Sources */,
 				C8A5AD5520994F3C0051FFA3 /* NotificationListTVC.swift in Sources */,
 				C8D3CBEA208B8C0900AC4769 /* ProfileTableViewCell.swift in Sources */,
 				C8F689142092B74B00DB3406 /* TransactionDetailsVC.swift in Sources */,

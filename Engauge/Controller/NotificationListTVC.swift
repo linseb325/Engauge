@@ -127,10 +127,7 @@ class NotificationListTVC: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("Selected a notification.")
-        /*
-        performSegue(withIdentifier: "toNotificationDetailsVC", sender: notifications[indexPath.row])
-        */
+        performSegue(withIdentifier: "toRoleRequestDetailsVC", sender: notifications[indexPath.row])
     }
     
     
@@ -141,13 +138,10 @@ class NotificationListTVC: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.identifier {
             
-        case "toNotificationDetailsVC":
-            /*
-            if let notifDeetsScreen = segue.destination as? NotificationDetailsVC, let pickedNotif = sender as? EngaugeNotification {
-                notifDeetsScreen.notification = pickedNotif
+        case "toRoleRequestDetailsVC":
+            if let roleReqScreen = segue.destination as? RoleRequestDetailsVC, let pickedNotif = sender as? EngaugeNotification {
+                roleReqScreen.notification = pickedNotif
             }
-            */
-            break
         default:
             break
         }
