@@ -28,6 +28,12 @@ extension Date {
         return Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: self))!
     }
     
+    var lastMoment: Date {
+        var oneDay = DateComponents()
+        oneDay.day = 1
+        return Calendar.current.date(byAdding: oneDay, to: self)!.firstMoment.addingTimeInterval(-1)
+    }
+    
     var roundingDownToNearestMinute: Date {
         let calendar = Calendar.current
         let dateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: self)

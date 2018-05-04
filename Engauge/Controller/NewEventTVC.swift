@@ -297,7 +297,7 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
         
         let qrFilter = CIFilter(name: "CIQRCodeGenerator", withInputParameters: ["inputMessage" : eventIDEncoded,
                                                                                  "inputCorrectionLevel" : "Q"])
-        guard let outputCIImage = qrFilter?.outputImage, let outputCGImage = CIContext(options: nil).createCGImage(outputCIImage, from: outputCIImage.extent) else {
+        guard let outputCIImage = qrFilter?.outputImage?.transformed(by: CGAffineTransform(scaleX: 20, y: 20)), let outputCGImage = CIContext(options: nil).createCGImage(outputCIImage, from: outputCIImage.extent) else {
             return nil
         }
         

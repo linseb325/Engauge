@@ -20,9 +20,9 @@ struct EventFilterFactory {
     
     // Filter for events between startDate and endDate
     static func filterForEventsBetweenDates(_ startDate: Date, and endDate: Date) throws -> EventFilter {
-        guard let start = EventFilterFactory.formatter.calendar.date(bySettingHour: 0, minute: 0, second: 0, of: startDate), let end = EventFilterFactory.formatter.calendar.date(bySettingHour: 23, minute: 59, second: 59, of: endDate) else {
-            throw DateFilterError.dateConversionError
-        }
+        let start = startDate.firstMoment
+        let end = endDate.lastMoment
+        
         // Lower bound must be before upper bound
         guard start <= end else {
             throw DateFilterError.invalidDateBounds
@@ -33,19 +33,13 @@ struct EventFilterFactory {
     
     // Filter for events after startDate
     static func filterForEventsAfterDate(_ startDate: Date) throws -> EventFilter {
-        guard let start = formatter.calendar.date(bySettingHour: 0, minute: 0, second: 0, of: startDate) else {
-            throw DateFilterError.dateConversionError
-        }
-        
+        let start = startDate.firstMoment
         return { $0.startTime >= start }
     }
     
     // Filter for events before endDate
     static func filterForEventsBeforeDate(_ endDate: Date) throws -> EventFilter {
-        guard let end = EventFilterFactory.formatter.calendar.date(bySettingHour: 23, minute: 59, second: 59, of: endDate) else {
-            throw DateFilterError.dateConversionError
-        }
-        
+        let end = endDate.lastMoment
         return { $0.startTime <= end }
     }
     
@@ -63,7 +57,7 @@ struct EventFilterFactory {
     // Possible errors for creating date filters
     enum DateFilterError: Error {
         case invalidDateBounds
-        case dateConversionError
+        case dateConversionError        // Shouldn't happen anymore (Edited EventFilterFactory's static methods on 5/3/18)
     }
     
 }

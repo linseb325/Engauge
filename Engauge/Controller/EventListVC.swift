@@ -343,14 +343,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
     }
     
-    /*
-    @IBAction func unwindFromNewEventVC(sender: UIStoryboardSegue) {
-        if let sourceVC = sender.source as? NewEventTVC, let newEvent = sourceVC.eventCreated {
-            // TODO: Add the new event to the model and table view?
-        }
-    }
-    */
-    
     
     
     
@@ -395,9 +387,18 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     }
     
     private func removeDatabaseObserversIfNecessary() {
-        if eventDataChangedHandle != nil  { refAllEvents?.removeObserver(withHandle: eventDataChangedHandle!) }
-        if eventAddedHandle != nil   { refSchoolEventIDs?.removeObserver(withHandle: eventAddedHandle!) }
-        if eventRemovedHandle != nil { refSchoolEventIDs?.removeObserver(withHandle: eventRemovedHandle!) }
+        if eventDataChangedHandle != nil {
+            refAllEvents?.removeObserver(withHandle: eventDataChangedHandle!)
+            eventDataChangedHandle = nil
+        }
+        if eventAddedHandle != nil {
+            refSchoolEventIDs?.removeObserver(withHandle: eventAddedHandle!)
+            eventAddedHandle = nil
+        }
+        if eventRemovedHandle != nil {
+            refSchoolEventIDs?.removeObserver(withHandle: eventRemovedHandle!)
+            eventRemovedHandle = nil
+        }
     }
     
     private func removeAuthObserverIfNecessary() {

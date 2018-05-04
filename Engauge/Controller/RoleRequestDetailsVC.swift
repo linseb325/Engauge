@@ -57,7 +57,7 @@ class RoleRequestDetailsVC: UIViewController {
         // Retrieve and display the requester's e-mail address.
         DataService.instance.getEmailAddressForUser(withUID: notification.senderUID) { (userEmail) in
             if userEmail != nil {
-                self.emailLabel.text = userEmail
+                self.emailLabel.text = "(\(userEmail))"
             }
         }
     }

@@ -46,7 +46,6 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
     // MARK: Properties
     
     var event: Event!
-    var editedEvent: Event?
     
     private var formatter: DateFormatter = {
         let form = DateFormatter()
@@ -315,8 +314,15 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
                         }
                         
                         // All Firebase updates were successful.
-                        // Now, get the edited event from the database and unwind so we can update the previous screen.
-                        self.setEditedEventAndUnwind()
+                        // Now, show a success alert and dismiss this screen.
+                        self.showSuccessAlert(onDismiss: { (okAction) in
+                            if let navcon = self.navigationController, navcon.viewControllers.count > 1 {
+                                navcon.popViewController(animated: true)
+                            } else {
+                                self.dismiss(animated: true)
+                            }
+                        })
+                        
                     }
                 }
             }
@@ -329,21 +335,15 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
                 }
                 
                 // All Firebase updates (just database updates in this case) were successful.
-                // Now, get the edited event from the database and unwind so we can update the previous screen.
-                self.setEditedEventAndUnwind()
+                // Now, show a success alert and dismiss this screen.
+                self.showSuccessAlert(onDismiss: { (okAction) in
+                    if let navcon = self.navigationController, navcon.viewControllers.count > 1 {
+                        navcon.popViewController(animated: true)
+                    } else {
+                        self.dismiss(animated: true)
+                    }
+                })
             }
-        }
-    }
-    
-    private func setEditedEventAndUnwind() {
-        DataService.instance.getEvent(withID: self.event.eventID) { (event) in
-            if event != nil {
-                self.editedEvent = event!
-            }
-            
-            self.showSuccessAlert(onDismiss: { (okAction) in
-                self.performSegue(withIdentifier: "unwindFromEditEventTVC", sender: nil)
-            })
         }
     }
     

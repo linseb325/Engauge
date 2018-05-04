@@ -358,13 +358,6 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
         }
     }
     
-    @IBAction func unwindFromEditEventTVC(sender: UIStoryboardSegue) {
-        if let sourceVC = sender.source as? EditEventTVC, let editedEvent = sourceVC.editedEvent {
-            self.event = editedEvent
-            updateUIForCurrentEvent()
-        }
-    }
-    
     
     
     
