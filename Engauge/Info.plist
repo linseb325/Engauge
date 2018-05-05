@@ -42,6 +42,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Uploading a profile image requires camera access.</string>
+	<string>The camera is required for account creation and QR code scanning.</string>
 </dict>
 </plist>

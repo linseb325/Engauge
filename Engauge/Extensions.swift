@@ -287,9 +287,24 @@ extension String {
     var isWhitespaceOrEmpty: Bool {
         return self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+    
+    /** A string passed to ref.child(...) must be non-empty and may not contain certain illegal characters. */
+    var isLegalFirebaseChild: Bool {
+        guard !self.isEmpty else {
+            return false
+        }
+        
+        for currChar in self {
+            if String.illegalFirebaseChildCharacters.contains(currChar) {
+                return false
+            }
+        }
+        
+        return true
+    }
+    
+    static var illegalFirebaseChildCharacters: [Character] = [ ".", "#", "$", "[", "]" ]
 }
-
-
 
 
 

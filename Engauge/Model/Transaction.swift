@@ -51,7 +51,7 @@ struct Transaction {
         }
     }
     
-    
+    static let VALUE_QR_SCAN = 1
     
     
     

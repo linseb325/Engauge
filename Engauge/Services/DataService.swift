@@ -29,7 +29,7 @@ class DataService {
     let REF_SCHOOL_USERS = Database.database().reference().child(DBKeys.SCHOOL_USERS_KEY)
     let REF_TRANSACTIONS = Database.database().reference().child(DBKeys.TRANSACTION.key)
     let REF_USER_EVENTS = Database.database().reference().child(DBKeys.USER_EVENTS_KEY)
-    let REF_USER_EVENTS_ATTENDED = Database.database().reference().child(DBKeys.USER_EVENTS_KEY)
+    let REF_USER_EVENTS_ATTENDED = Database.database().reference().child(DBKeys.USER_EVENTS_ATTENDED_KEY)
     let REF_USER_FAVORITE_EVENTS = Database.database().reference().child(DBKeys.USER_FAVORITE_EVENTS_KEY)
     let REF_USER_NOTIFICATIONS = Database.database().reference().child(DBKeys.USER_NOTIFICATIONS_KEY)
     let REF_USER_TRANSACTIONS = Database.database().reference().child(DBKeys.USER_TRANSACTIONS_KEY)
@@ -442,6 +442,21 @@ class DataService {
         }
     }
     
+    /**
+     - returns: **nil** if there was trouble getting the event's info from the database; **true** or **false** otherwise
+     */
+    func isEventInProgress(eventID: String, completion: @escaping (Bool?) -> Void) {
+        DataService.instance.getEvent(withID: eventID) { (theEvent) in
+            guard let event = theEvent else {
+                completion(nil)
+                return
+            }
+            
+            let now = Date()
+            completion((now < event.endTime) && (now > event.startTime))
+        }
+    }
+    
     
     
     
@@ -487,86 +502,76 @@ class DataService {
     
     
     
-    // MARK: Transactions
+    // MARK: QR Scanning
     
-    func getTransaction(withID transactionID: String, completion: @escaping (Transaction?) -> Void) {
-        DataService.instance.REF_TRANSACTIONS.child(transactionID).observeSingleEvent(of: .value) { (snapshot) in
-            if let transactionData = snapshot.value as? [String : Any],
-                let schoolID = transactionData[DBKeys.TRANSACTION.schoolID] as? String,
-                let userID = transactionData[DBKeys.TRANSACTION.userID] as? String,
-                let pointValue = transactionData[DBKeys.TRANSACTION.pointValue] as? Int,
-                let timestampDouble = transactionData[DBKeys.TRANSACTION.timestamp] as? Double {
-                // Optional info for a transaction
-                let eventID = transactionData[DBKeys.TRANSACTION.eventID] as? String
-                let prizeID = transactionData[DBKeys.TRANSACTION.prizeID] as? String
-                let manualInitiatorUID = transactionData[DBKeys.TRANSACTION.manualInitiatorUID] as? String
-                // Converting Double to Date for timestamp
-                let timestamp = Date(timeIntervalSince1970: timestampDouble)
-                
-                let retrievedTransaction = Transaction(transactionID: transactionID, schoolID: schoolID, userID: userID, pointValue: pointValue, timestamp: timestamp, eventID: eventID, prizeID: prizeID, manualInitiatorUID: manualInitiatorUID)
-                
-                completion(retrievedTransaction)
+    func didUser(withUID uid: String, alreadyAttendEventwithID eventID: String, completion: @escaping (Bool) -> Void) {
+        DataService.instance.REF_USER_EVENTS_ATTENDED.child(uid).child(eventID).observeSingleEvent(of: .value) { (snapshot) in
+            if let x = snapshot.value as? Bool {
+                completion(true)
             } else {
-                completion(nil)
+                completion(false)
             }
         }
     }
     
-    
-    
-    func getTransactions(withIDs transactionIDs: [String], completion: @escaping ([Transaction]) -> Void) {
-        var transactions = [Transaction]()
+    /**
+     - Checks the following:
+        - Is the eventID a valid Firebase child? (If not, the app will crash when trying to look up event information.)
+        - Is the event currently in progress?
+        - Did the user already scan this event's QR code?
+        - Could we retrieve the user's school ID?
+        - Was the point transaction successful?
+     */
+    func processQRScanForEvent(withID eventID: String, byUserWithUID uid: String, completion: @escaping (Bool, QRScanError?) -> Void) {
         
-        var transactionsToRetrieve = transactionIDs.count
-        
-        guard transactionsToRetrieve > 0 else {
-            completion(transactions)
+        guard eventID.isLegalFirebaseChild else {
+            completion(false, .badEventID)
             return
         }
         
-        for transactionID in transactionIDs {
-            DataService.instance.getTransaction(withID: transactionID) { (transaction) in
-                if transaction != nil {
-                    transactions.append(transaction!)
-                }
-                transactionsToRetrieve -= 1
-                if transactionsToRetrieve <= 0 {
-                    completion(transactions)
-                }
-            }
-        }
-    }
-    
-    func getTransactionsForUser(withUID uid: String, completion: @escaping ([Transaction]) -> Void) {
-        DataService.instance.REF_USER_TRANSACTIONS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
-            guard let transactionIDs = (snapshot.value as? [String : Any])?.keys, transactionIDs.count > 0 else {
-                completion([Transaction]())
+        DataService.instance.isEventInProgress(eventID: eventID) { (inProgress) in
+            guard let eventInProgress = inProgress else {
+                completion(false, .databaseError)
                 return
             }
             
-            DataService.instance.getTransactions(withIDs: Array(transactionIDs)) { (transactions) in
-                completion(transactions)
+            guard eventInProgress else {
+                completion(false, .eventNotInProgress)
+                return
+            }
+            
+            DataService.instance.didUser(withUID: uid, alreadyAttendEventwithID: eventID) { (alreadyAttended) in
+                guard !alreadyAttended else {
+                    completion(false, .userAlreadyScanned)
+                    return
+                }
+                
+                DataService.instance.getSchoolIDForUser(withUID: uid) { (schoolID) in
+                    guard schoolID != nil else {
+                        completion(false, .couldNotRetrieveSchoolID)
+                        return
+                    }
+                    
+                    DataService.instance.performTransaction(withPointValue: Transaction.VALUE_QR_SCAN, toUserWithUID: uid, forSchoolWithID: schoolID!, forEventWithID: eventID) { (transactionSuccess) in
+                        if transactionSuccess {
+                            completion(true, nil)
+                        } else {
+                            completion(false, .couldNotCompleteTransaction)
+                        }
+                    }
+                }
             }
         }
     }
     
-    func getTransactionIDsForEvent(withID eventID: String, completion: @escaping ([String]) -> Void) {
-        DataService.instance.REF_EVENT_TRANSACTIONS.child(eventID).observeSingleEvent(of: .value) { (snapshot) in
-            let theTIDs = Array((snapshot.value as? [String : Any])?.keys ?? [String : Any]().keys)
-            completion(theTIDs)
-        }
+    enum QRScanError {
+        case couldNotRetrieveSchoolID
+        case couldNotCompleteTransaction
+        case userAlreadyScanned
+        case databaseError
+        case eventNotInProgress
+        case badEventID
     }
-    
-    func getTransactionsForEvent(withID eventID: String, completion: @escaping ([Transaction]) -> Void) {
-        DataService.instance.getTransactionIDsForEvent(withID: eventID) { (transactionIDs) in
-            DataService.instance.getTransactions(withIDs: transactionIDs, completion: { (transactions) in
-                completion(transactions)
-            })
-        }
-    }
-    
-    
-    
     
     
     
@@ -580,30 +585,28 @@ class DataService {
     
     
     
-    // MARK: Transactions
+    // MARK: Performing Transactions
     
-    enum TransResult {
-        case success
-        case notEnoughPoints
-        case userIsNotStudent
-        case databaseError
-        case zeroTransaction
-        case outsideNumPointsBounds
-    }
-    
-    func performTransaction(withPointValue transactionPointValue: Int, toUserWithUID uid: String, forSchoolWithID schoolID: String, forEventWithID eventID: String?, forPrizeWithID prizeID: String?, withManualInitiatorUID manualInitiatorUID: String?, completion: @escaping (Bool) -> Void) {
+    /** Calls addTransactionToDatabase, then changePointBalanceForUser. */
+    func performTransaction(withPointValue transactionPointValue: Int, toUserWithUID uid: String, forSchoolWithID schoolID: String, forEventWithID eventID: String? = nil, forPrizeWithID prizeID: String? = nil, withManualInitiatorUID manualInitiatorUID: String? = nil, completion: @escaping (Bool) -> Void) {
+        
         DataService.instance.addTransactionToDatabase(withPointValue: transactionPointValue, toUserWithUID: uid, forSchoolWithID: schoolID, forEventWithID: eventID, forPrizeWithID: prizeID, withManualInitiatorUID: manualInitiatorUID) { (databaseUpdatesSuccessful) in
             guard databaseUpdatesSuccessful else {
+                print("addTransactionToDatabase failed")
                 completion(false)
                 return
             }
             
             DataService.instance.changePointBalanceForUser(withUID: uid, byPointValue: transactionPointValue) { (balanceChangeSuccessful) in
+                if !balanceChangeSuccessful { print("changePointBalanceForUser failed") }
                 completion(balanceChangeSuccessful)
             }
         }
     }
     
+    /**
+     Changes a user's point balance via database transaction.
+    */
     func changePointBalanceForUser(withUID uid: String, byPointValue transactionPointValue: Int, completion: @escaping (_ success: Bool) -> Void) {
         
         guard transactionPointValue != 0 else {
@@ -613,20 +616,25 @@ class DataService {
         
         DataService.instance.REF_USERS.child(uid).child(DBKeys.USER.pointBalance).runTransactionBlock({ (balanceData) -> TransactionResult in
             if var pointBalance = balanceData.value as? Int {
+                print("here1")
                 
                 guard pointBalance >= 0, (pointBalance + transactionPointValue) >= 0 else {
                     // This transaction, if completed, would take the user's balance below zero. ABORT!
                     return TransactionResult.abort()
                 }
+                print("here2")
                 
                 pointBalance += transactionPointValue
                 
                 balanceData.value = pointBalance
+                print("here3")
                 return TransactionResult.success(withValue: balanceData)
             }
+            print("here4")
             return TransactionResult.abort()
             
         }, andCompletionBlock: { (error, success, snapshot) in
+            print("here5")
             completion(success)
         })
         
@@ -688,6 +696,83 @@ class DataService {
     
     
     
+    // MARK: Retrieving Transaction Data
+    
+    func getTransaction(withID transactionID: String, completion: @escaping (Transaction?) -> Void) {
+        DataService.instance.REF_TRANSACTIONS.child(transactionID).observeSingleEvent(of: .value) { (snapshot) in
+            if let transactionData = snapshot.value as? [String : Any],
+                let schoolID = transactionData[DBKeys.TRANSACTION.schoolID] as? String,
+                let userID = transactionData[DBKeys.TRANSACTION.userID] as? String,
+                let pointValue = transactionData[DBKeys.TRANSACTION.pointValue] as? Int,
+                let timestampDouble = transactionData[DBKeys.TRANSACTION.timestamp] as? Double {
+                // Optional info for a transaction
+                let eventID = transactionData[DBKeys.TRANSACTION.eventID] as? String
+                let prizeID = transactionData[DBKeys.TRANSACTION.prizeID] as? String
+                let manualInitiatorUID = transactionData[DBKeys.TRANSACTION.manualInitiatorUID] as? String
+                // Converting Double to Date for timestamp
+                let timestamp = Date(timeIntervalSince1970: timestampDouble)
+                
+                let retrievedTransaction = Transaction(transactionID: transactionID, schoolID: schoolID, userID: userID, pointValue: pointValue, timestamp: timestamp, eventID: eventID, prizeID: prizeID, manualInitiatorUID: manualInitiatorUID)
+                
+                completion(retrievedTransaction)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    func getTransactions(withIDs transactionIDs: [String], completion: @escaping ([Transaction]) -> Void) {
+        var transactions = [Transaction]()
+        
+        var transactionsToRetrieve = transactionIDs.count
+        
+        guard transactionsToRetrieve > 0 else {
+            completion(transactions)
+            return
+        }
+        
+        for transactionID in transactionIDs {
+            DataService.instance.getTransaction(withID: transactionID) { (transaction) in
+                if transaction != nil {
+                    transactions.append(transaction!)
+                }
+                transactionsToRetrieve -= 1
+                if transactionsToRetrieve <= 0 {
+                    completion(transactions)
+                }
+            }
+        }
+    }
+    
+    func getTransactionsForUser(withUID uid: String, completion: @escaping ([Transaction]) -> Void) {
+        DataService.instance.REF_USER_TRANSACTIONS.child(uid).observeSingleEvent(of: .value) { (snapshot) in
+            guard let transactionIDs = (snapshot.value as? [String : Any])?.keys, transactionIDs.count > 0 else {
+                completion([Transaction]())
+                return
+            }
+            
+            DataService.instance.getTransactions(withIDs: Array(transactionIDs)) { (transactions) in
+                completion(transactions)
+            }
+        }
+    }
+    
+    func getTransactionIDsForEvent(withID eventID: String, completion: @escaping ([String]) -> Void) {
+        DataService.instance.REF_EVENT_TRANSACTIONS.child(eventID).observeSingleEvent(of: .value) { (snapshot) in
+            let theTIDs = Array((snapshot.value as? [String : Any])?.keys ?? [String : Any]().keys)
+            completion(theTIDs)
+        }
+    }
+    
+    func getTransactionsForEvent(withID eventID: String, completion: @escaping ([Transaction]) -> Void) {
+        DataService.instance.getTransactionIDsForEvent(withID: eventID) { (transactionIDs) in
+            DataService.instance.getTransactions(withIDs: transactionIDs) { (transactions) in
+                completion(transactions)
+            }
+        }
+    }
+    
+    
     
     // MARK: Notifications
     
@@ -736,7 +821,7 @@ class DataService {
         - "notifications"
         - "userNotifications"
      - Updates the boolean value for key "approvedForScheduler" under the requester's data under the "users" node.
-     */
+    */
     func performUpdatesForRoleRequestDecision(forNotificationWithID notificationID: String, senderUID: String, receiverUID: String, approveUserForScheduler: Bool, completion: ((Bool) -> Void)? = nil) {
         
         let updates: [String : Any?] = [

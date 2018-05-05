@@ -19,9 +19,11 @@
 		C80F3213204B4D6E002F6FED /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80F3212204B4D6E002F6FED /* Constants.swift */; };
 		C8137F322056D0130074D2AF /* EventListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F312056D0130074D2AF /* EventListVC.swift */; };
 		C8137F342056D0970074D2AF /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8137F332056D0970074D2AF /* Event.swift */; };
+		C81CD533209BF40B004E2590 /* QRScanVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81CD532209BF40B004E2590 /* QRScanVC.swift */; };
 		C837D1B32085062D00D90D61 /* ProfileDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C837D1B22085062D00D90D61 /* ProfileDetailsVC.swift */; };
 		C83C4BD42069D8B000456851 /* NewEventTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C83C4BD32069D8B000456851 /* NewEventTVC.swift */; };
 		C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85333612062D52400D01734 /* EventDetailsVC.swift */; };
+		C85CCB0B209D2340000CBE5F /* QRScanResultVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85CCB0A209D2340000CBE5F /* QRScanResultVC.swift */; };
 		C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */; };
 		C8A5AD5520994F3C0051FFA3 /* NotificationListTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */; };
 		C8A5AD572099512B0051FFA3 /* EngaugeNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */; };
@@ -66,9 +68,11 @@
 		C80F3212204B4D6E002F6FED /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		C8137F312056D0130074D2AF /* EventListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListVC.swift; sourceTree = "<group>"; };
 		C8137F332056D0970074D2AF /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		C81CD532209BF40B004E2590 /* QRScanVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanVC.swift; sourceTree = "<group>"; };
 		C837D1B22085062D00D90D61 /* ProfileDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailsVC.swift; sourceTree = "<group>"; };
 		C83C4BD32069D8B000456851 /* NewEventTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEventTVC.swift; sourceTree = "<group>"; };
 		C85333612062D52400D01734 /* EventDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsVC.swift; sourceTree = "<group>"; };
+		C85CCB0A209D2340000CBE5F /* QRScanResultVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanResultVC.swift; sourceTree = "<group>"; };
 		C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationTVC.swift; sourceTree = "<group>"; };
 		C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationListTVC.swift; sourceTree = "<group>"; };
 		C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngaugeNotification.swift; sourceTree = "<group>"; };
@@ -185,6 +189,8 @@
 				C8E8E25C20966CD900D3DA02 /* ManualTransactionVC.swift */,
 				C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */,
 				C8D66866209A90FB004E529E /* RoleRequestDetailsVC.swift */,
+				C81CD532209BF40B004E2590 /* QRScanVC.swift */,
+				C85CCB0A209D2340000CBE5F /* QRScanResultVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -381,6 +387,7 @@
 				C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */,
 				C8B9D80F2065FC7A0011EC7B /* FavoriteBarButtonItem.swift in Sources */,
 				C8A5AD5A209952D60051FFA3 /* NotificationTableViewCell.swift in Sources */,
+				C85CCB0B209D2340000CBE5F /* QRScanResultVC.swift in Sources */,
 				C80F3211204A2CEF002F6FED /* AuthService.swift in Sources */,
 				C83C4BD42069D8B000456851 /* NewEventTVC.swift in Sources */,
 				C8D51084204F79D800835AD3 /* DataService.swift in Sources */,
@@ -396,6 +403,7 @@
 				C8E8E25D20966CD900D3DA02 /* ManualTransactionVC.swift in Sources */,
 				C8137F342056D0970074D2AF /* Event.swift in Sources */,
 				C8137F322056D0130074D2AF /* EventListVC.swift in Sources */,
+				C81CD533209BF40B004E2590 /* QRScanVC.swift in Sources */,
 				C8F465692089648E0051F279 /* TransactionTableViewCell.swift in Sources */,
 				C80F31F92049F456002F6FED /* AppDelegate.swift in Sources */,
 				C837D1B32085062D00D90D61 /* ProfileDetailsVC.swift in Sources */,
