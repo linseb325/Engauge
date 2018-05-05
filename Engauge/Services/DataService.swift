@@ -590,15 +590,30 @@ class DataService {
     /** Calls addTransactionToDatabase, then changePointBalanceForUser. */
     func performTransaction(withPointValue transactionPointValue: Int, toUserWithUID uid: String, forSchoolWithID schoolID: String, forEventWithID eventID: String? = nil, forPrizeWithID prizeID: String? = nil, withManualInitiatorUID manualInitiatorUID: String? = nil, completion: @escaping (Bool) -> Void) {
         
-        DataService.instance.addTransactionToDatabase(withPointValue: transactionPointValue, toUserWithUID: uid, forSchoolWithID: schoolID, forEventWithID: eventID, forPrizeWithID: prizeID, withManualInitiatorUID: manualInitiatorUID) { (databaseUpdatesSuccessful) in
+        DataService.instance.addTransactionToDatabase(withPointValue: transactionPointValue, toUserWithUID: uid, forSchoolWithID: schoolID, forEventWithID: eventID, forPrizeWithID: prizeID, withManualInitiatorUID: manualInitiatorUID) { (databaseUpdatesSuccessful, tid)  in
             guard databaseUpdatesSuccessful else {
                 print("addTransactionToDatabase failed")
                 completion(false)
                 return
             }
             
+            guard let newTID = tid else {
+                print("Couldn't get the transaction's ID in performTransaction")
+                completion(false)
+                return
+            }
+            
             DataService.instance.changePointBalanceForUser(withUID: uid, byPointValue: transactionPointValue) { (balanceChangeSuccessful) in
-                if !balanceChangeSuccessful { print("changePointBalanceForUser failed") }
+                guard balanceChangeSuccessful else {
+                    print("changePointBalanceForUser failed. Trying to remove the created transaction from the database.")
+                    DataService.instance.removeAllTracesOfTransactionFromDatabase(withTransactionID: newTID) { (transactionUndoSuccessful) in
+                        if !transactionUndoSuccessful {
+                            print("Couldn't undo the transaction for some reason...")
+                        }
+                        completion(false)
+                    }
+                    return
+                }
                 completion(balanceChangeSuccessful)
             }
         }
@@ -616,40 +631,33 @@ class DataService {
         
         DataService.instance.REF_USERS.child(uid).child(DBKeys.USER.pointBalance).runTransactionBlock({ (balanceData) -> TransactionResult in
             if var pointBalance = balanceData.value as? Int {
-                print("here1")
                 
                 guard pointBalance >= 0, (pointBalance + transactionPointValue) >= 0 else {
                     // This transaction, if completed, would take the user's balance below zero. ABORT!
                     return TransactionResult.abort()
                 }
-                print("here2")
                 
                 pointBalance += transactionPointValue
-                
                 balanceData.value = pointBalance
-                print("here3")
+                
                 return TransactionResult.success(withValue: balanceData)
             }
-            print("here4")
             return TransactionResult.abort()
             
         }, andCompletionBlock: { (error, success, snapshot) in
-            print("here5")
             completion(success)
         })
         
     }
     
     /**
-     - Updates the following database nodes:
-        - "transactions"
-        - "userTransactions"
-        - "schoolTransactions"
-        - "eventTransactions" (IF NECESSARY)
-        - "userEventsAttended" (IF NECESSARY)
-     - Important: You must pass a non-nil value in for exactly ONE of these arguments: eventID, prizeID, manualInitiatorUID
+     - Updates the following database nodes:- "transactions"
+            - "userTransactions"
+            - "schoolTransactions"
+            - "eventTransactions" (IF NECESSARY)
+            - "userEventsAttended" (IF NECESSARY)- Important: You must pass a non-nil value in for exactly ONE of these arguments: eventID, prizeID, manualInitiatorUID
      */
-    func addTransactionToDatabase(withPointValue pointValue: Int, toUserWithUID uid: String, forSchoolWithID schoolID: String, forEventWithID eventID: String? = nil, forPrizeWithID prizeID: String? = nil, withManualInitiatorUID manualInitiatorUID: String? = nil, completion: @escaping (_ success: Bool) -> Void) {
+    func addTransactionToDatabase(withPointValue pointValue: Int, toUserWithUID uid: String, forSchoolWithID schoolID: String, forEventWithID eventID: String? = nil, forPrizeWithID prizeID: String? = nil, withManualInitiatorUID manualInitiatorUID: String? = nil, completion: @escaping (_ success: Bool, _ transactionID: String?) -> Void) {
         let transactionID = DataService.instance.REF_TRANSACTIONS.childByAutoId().key
         
         var updates: [String : Any] = [
@@ -683,14 +691,65 @@ class DataService {
             
         default:
             // Invalid parameters
-            completion(false)
+            completion(false, nil)
             return
         }
         
         updates["\(DBKeys.TRANSACTION.key)/\(transactionID)"] = transactionData
         
         DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
-            completion(error == nil)
+            if error == nil {
+                completion(true, transactionID)
+            } else {
+                completion(false, nil)
+            }
+        }
+    }
+    
+    /**
+     - Removes all of a transaction's information from the database as if it never happened.
+     - Reverses the actions of DataService.instance.addTransactionToDatabase(...).
+     - **Does NOT alter the affected user's point balance.**
+     - Updates the following database nodes:
+         - "transactions"
+         - "userTransactions"
+         - "schoolTransactions"
+         - "eventTransactions" (IF NECESSARY)
+         - "userEventsAttended" (IF NECESSARY)
+     */
+    func removeAllTracesOfTransactionFromDatabase(withTransactionID transactionID: String, completion: @escaping (_ success: Bool) -> Void) {
+        DataService.instance.getTransaction(withID: transactionID) { (retrievedTransaction) in
+            guard let transaction = retrievedTransaction else {
+                completion(false)
+                return
+            }
+            
+            var updates: [String : Any?] = [
+                "\(DBKeys.TRANSACTION.key)/\(transactionID)" : nil,
+                "\(DBKeys.USER_TRANSACTIONS_KEY)/\(transaction.userID)/\(transactionID)" : nil,
+                "\(DBKeys.SCHOOL_TRANSACTIONS_KEY)/\(transaction.schoolID)/\(transactionID)" : nil
+            ]
+            
+            switch transaction.source {
+                
+            case .qrScan:
+                // QR Scan
+                updates.updateValue(nil, forKey: "\(DBKeys.EVENT_TRANSACTIONS_KEY)/\(transaction.eventID!)/\(transactionID)")
+                updates.updateValue(nil, forKey: "\(DBKeys.USER_EVENTS_ATTENDED_KEY)/\(transaction.userID)/\(transaction.eventID!)")
+                
+            case .undetermined:
+                // Couldn't determine a source for this transaction.
+                completion(false)
+                return
+                
+            default:
+                // Prize Redemption or Manual Transaction
+                break
+            }
+            
+            DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
+                completion(error == nil)
+            }
         }
     }
     
