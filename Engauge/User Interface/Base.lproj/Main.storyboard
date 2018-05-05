@@ -2333,16 +2333,16 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Gad-Iv-7zx">
-                                <rect key="frame" x="16" y="296.33333333333331" width="343" height="221.33333333333331"/>
+                                <rect key="frame" x="16" y="295.33333333333331" width="343" height="221.33333333333331"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="gauge" translatesAutoresizingMaskIntoConstraints="NO" id="fWG-46-Aag">
-                                        <rect key="frame" x="85.666666666666671" y="0.33333333333331439" width="171.66666666666663" height="171.33333333333334"/>
+                                        <rect key="frame" x="85.666666666666671" y="0.0" width="171.66666666666663" height="171.33333333333334"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="fWG-46-Aag" secondAttribute="height" multiplier="1:1" id="M8b-Tv-92v"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" " textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bCj-OZ-bJS">
-                                        <rect key="frame" x="169" y="191.66666666666669" width="5.3333333333333428" height="30"/>
+                                        <rect key="frame" x="169" y="191.33333333333337" width="5.3333333333333428" height="30"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -2354,13 +2354,13 @@
                                 </constraints>
                             </stackView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IVd-nK-f0V">
-                                <rect key="frame" x="184.66666666666666" y="236.33333333333334" width="5.6666666666666572" height="30.000000000000028"/>
+                                <rect key="frame" x="184.66666666666666" y="235.33333333333334" width="5.6666666666666572" height="30.000000000000028"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="25"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oIU-Kr-lk1">
-                                <rect key="frame" x="185.33333333333334" y="567.66666666666663" width="5.6666666666666572" height="30"/>
+                                <rect key="frame" x="185.33333333333334" y="566.66666666666663" width="5.6666666666666572" height="30"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="25"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -2389,6 +2389,52 @@
             </objects>
             <point key="canvasLocation" x="-4988" y="3501.7241379310344"/>
         </scene>
+        <!--Prizes-->
+        <scene sceneID="zf1-bm-A8Y">
+            <objects>
+                <tableViewController id="fBe-pk-ytZ" customClass="PrizeListTVC" customModule="Engauge" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="bF3-T6-QlO">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="MS9-e3-Mk9">
+                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="MS9-e3-Mk9" id="NKz-rq-9M0">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.666666666666664"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="fBe-pk-ytZ" id="bFY-7G-tg9"/>
+                            <outlet property="delegate" destination="fBe-pk-ytZ" id="ywu-Li-l2T"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Prizes" id="qa3-jr-q4D"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JJR-nf-Mxo" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-5824" y="2392"/>
+        </scene>
+        <!--Prizes-->
+        <scene sceneID="L8g-PM-aAx">
+            <objects>
+                <navigationController id="ik8-M8-5wF" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Prizes" image="gift-box" id="ieP-zE-VWt"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="s6l-d1-YZz">
+                        <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="fBe-pk-ytZ" kind="relationship" relationship="rootViewController" id="myL-Dq-j4b"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="R8I-OI-bSg" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-6776" y="2392"/>
+        </scene>
         <!--My Tab Bar Controller-->
         <scene sceneID="KmI-2v-0bn">
             <objects>
@@ -2404,6 +2450,7 @@
                         <segue destination="qJw-kA-J2K" kind="relationship" relationship="viewControllers" id="0mh-vc-vPv"/>
                         <segue destination="zYv-qt-SU6" kind="relationship" relationship="viewControllers" id="cvX-me-Yes"/>
                         <segue destination="5jH-lB-2IO" kind="relationship" relationship="viewControllers" id="9Kb-dF-FNt"/>
+                        <segue destination="ik8-M8-5wF" kind="relationship" relationship="viewControllers" id="BC5-c2-bCv"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lp7-fk-T3G" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2437,6 +2484,7 @@
         <image name="bell" width="25" height="25"/>
         <image name="calendar-icon" width="25" height="25"/>
         <image name="gauge" width="500" height="500"/>
+        <image name="gift-box" width="25" height="25"/>
         <image name="qr-icon" width="25" height="25"/>
         <image name="swap" width="25" height="25"/>
     </resources>

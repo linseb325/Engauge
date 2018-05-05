@@ -41,6 +41,10 @@
 		C8D51082204F742F00835AD3 /* School.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51081204F742F00835AD3 /* School.swift */; };
 		C8D51084204F79D800835AD3 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D51083204F79D800835AD3 /* DataService.swift */; };
 		C8D66867209A90FB004E529E /* RoleRequestDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D66866209A90FB004E529E /* RoleRequestDetailsVC.swift */; };
+		C8DE9CA8209E3B6C0094B926 /* PrizeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8DE9CA6209E3B6C0094B926 /* PrizeTableViewCell.swift */; };
+		C8DE9CA9209E3B6C0094B926 /* PrizeTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8DE9CA7209E3B6C0094B926 /* PrizeTableViewCell.xib */; };
+		C8DE9CAB209E4B970094B926 /* Prize.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8DE9CAA209E4B970094B926 /* Prize.swift */; };
+		C8DE9CAD209E57A20094B926 /* PrizeListTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8DE9CAC209E57A20094B926 /* PrizeListTVC.swift */; };
 		C8E8E25D20966CD900D3DA02 /* ManualTransactionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E8E25C20966CD900D3DA02 /* ManualTransactionVC.swift */; };
 		C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E9153C20792D7700E4E973 /* EditEventTVC.swift */; };
 		C8E939CD2052178A00CEAF87 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E939CC2052178A00CEAF87 /* StorageService.swift */; };
@@ -90,6 +94,10 @@
 		C8D51081204F742F00835AD3 /* School.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = School.swift; sourceTree = "<group>"; };
 		C8D51083204F79D800835AD3 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		C8D66866209A90FB004E529E /* RoleRequestDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleRequestDetailsVC.swift; sourceTree = "<group>"; };
+		C8DE9CA6209E3B6C0094B926 /* PrizeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrizeTableViewCell.swift; sourceTree = "<group>"; };
+		C8DE9CA7209E3B6C0094B926 /* PrizeTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrizeTableViewCell.xib; sourceTree = "<group>"; };
+		C8DE9CAA209E4B970094B926 /* Prize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prize.swift; sourceTree = "<group>"; };
+		C8DE9CAC209E57A20094B926 /* PrizeListTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrizeListTVC.swift; sourceTree = "<group>"; };
 		C8E8E25C20966CD900D3DA02 /* ManualTransactionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualTransactionVC.swift; sourceTree = "<group>"; };
 		C8E9153C20792D7700E4E973 /* EditEventTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventTVC.swift; sourceTree = "<group>"; };
 		C8E939CC2052178A00CEAF87 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
@@ -191,6 +199,7 @@
 				C8D66866209A90FB004E529E /* RoleRequestDetailsVC.swift */,
 				C81CD532209BF40B004E2590 /* QRScanVC.swift */,
 				C85CCB0A209D2340000CBE5F /* QRScanResultVC.swift */,
+				C8DE9CAC209E57A20094B926 /* PrizeListTVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -204,6 +213,7 @@
 				C8CB84BC2064374600913E20 /* Transaction.swift */,
 				C80569A3208679910010F9A9 /* EngaugeUser.swift */,
 				C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */,
+				C8DE9CAA209E4B970094B926 /* Prize.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -216,6 +226,7 @@
 				C8F465672089648E0051F279 /* TransactionTableViewCell.swift */,
 				C8D3CBE8208B8C0900AC4769 /* ProfileTableViewCell.swift */,
 				C8A5AD58209952D60051FFA3 /* NotificationTableViewCell.swift */,
+				C8DE9CA6209E3B6C0094B926 /* PrizeTableViewCell.swift */,
 			);
 			path = "Custom Views";
 			sourceTree = "<group>";
@@ -238,6 +249,7 @@
 				C8F465682089648E0051F279 /* TransactionTableViewCell.xib */,
 				C8D3CBE9208B8C0900AC4769 /* ProfileTableViewCell.xib */,
 				C8A5AD59209952D60051FFA3 /* NotificationTableViewCell.xib */,
+				C8DE9CA7209E3B6C0094B926 /* PrizeTableViewCell.xib */,
 			);
 			path = "User Interface";
 			sourceTree = "<group>";
@@ -312,6 +324,7 @@
 				C80F320B204A00C4002F6FED /* GoogleService-Info.plist in Resources */,
 				C80F32002049F456002F6FED /* Assets.xcassets in Resources */,
 				C80F31FE2049F456002F6FED /* Main.storyboard in Resources */,
+				C8DE9CA9209E3B6C0094B926 /* PrizeTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,6 +395,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8DE9CA8209E3B6C0094B926 /* PrizeTableViewCell.swift in Sources */,
 				C8F4656D208965310051F279 /* EventTableViewCell.swift in Sources */,
 				C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */,
 				C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */,
@@ -393,11 +407,13 @@
 				C8D51084204F79D800835AD3 /* DataService.swift in Sources */,
 				C8B98B1920596E1400A24B95 /* EventFilterFactory.swift in Sources */,
 				C8CB84BD2064374600913E20 /* Transaction.swift in Sources */,
+				C8DE9CAB209E4B970094B926 /* Prize.swift in Sources */,
 				C8D51082204F742F00835AD3 /* School.swift in Sources */,
 				C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,
 				C8A5AD572099512B0051FFA3 /* EngaugeNotification.swift in Sources */,
 				C8C0BA02208E9FEC003DBE8A /* EditProfileVC.swift in Sources */,
+				C8DE9CAD209E57A20094B926 /* PrizeListTVC.swift in Sources */,
 				C8F689122092907D00DB3406 /* TransactionListVC.swift in Sources */,
 				C80569A4208679910010F9A9 /* EngaugeUser.swift in Sources */,
 				C8E8E25D20966CD900D3DA02 /* ManualTransactionVC.swift in Sources */,

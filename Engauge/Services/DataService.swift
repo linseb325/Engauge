@@ -583,6 +583,60 @@ class DataService {
         }
     }
     
+    /**
+     Adds a new prize to the database.
+     - Updates these database nodes:
+        - "prizes"
+        - "schoolPrizes"
+     */
+    func createPrize(withID prizeID: String, prizeData: [String : Any], completion: ((String?) -> Void)?) {
+        // TODO: Error check: Make sure prizeData doesn't contain any invalid database keys.
+        
+        guard let newPrizeSchoolID = prizeData[DBKeys.PRIZE.schoolID] as? String else {
+            completion?("Database error: There was a problem adding the new event to the database")
+            return
+        }
+        
+        let updates: [String : Any] = [
+            "/\(DBKeys.PRIZE.key)/\(prizeID)" : prizeData,
+            "/\(DBKeys.SCHOOL_PRIZES_KEY)/\(newPrizeSchoolID)/\(prizeID)" : true
+        ]
+        
+        DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
+            completion?(error != nil ? "Database error: There was a problem adding the new prize to the database." : nil)
+        }
+    }
+    
+    func getPrize(withID prizeID: String, completion: @escaping (Prize?) -> Void) {
+        DataService.instance.REF_PRIZES.child(prizeID).observeSingleEvent(of: .value) { (snapshot) in
+            if let prizeData = snapshot.value as? [String : Any],
+                let prize = DataService.instance.prizeFromSnapshotValues(prizeData, withID: prizeID) {
+                completion(prize)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    /** Tries to build a Prize object from a Firebase Database snapshot. */
+    func prizeFromSnapshotValues(_ prizeData: [String : Any], withID prizeID: String) -> Prize? {
+        if let name = prizeData[DBKeys.PRIZE.name] as? String,
+            let price = prizeData[DBKeys.PRIZE.price] as? Int,
+            let quantityAvailable = prizeData[DBKeys.PRIZE.quantityAvailable] as? Int,
+            let description = prizeData[DBKeys.PRIZE.description] as? String,
+            let imageURL = prizeData[DBKeys.PRIZE.imageURL] as? String,
+            let schoolID = prizeData[DBKeys.PRIZE.schoolID] as? String {
+            
+            let prize = Prize(prizeID: prizeID, name: name, price: price, quantityAvailable: quantityAvailable, description: description, imageURL: imageURL, schoolID: schoolID)
+            return prize
+            
+        } else {
+            return nil
+        }
+    }
+
+    
+    
     
     
     // MARK: Performing Transactions

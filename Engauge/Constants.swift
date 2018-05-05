@@ -72,10 +72,11 @@ struct DBKeys {
     
     struct PRIZE {
         static let key = "prizes"
-        static let cost = "cost"
+        static let price = "price"
         static let description = "description"
         static let imageURL = "imageURL"
         static let name = "name"
+        static let quantityAvailable = "quantityAvailable"
         static let schoolID = "schoolID"
     }
     
