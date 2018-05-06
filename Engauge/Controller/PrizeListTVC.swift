@@ -116,7 +116,7 @@ class PrizeListTVC: UITableViewController {
             }
             
             self.prizeRemovedHandle = self.schoolPrizesRef?.observe(.childRemoved) { (snapshot) in
-                if let indexOfPrizeToRemove = self.prizes.index(where: { $0.name == snapshot.key }) {
+                if let indexOfPrizeToRemove = self.prizes.index(where: { $0.prizeID == snapshot.key }) {
                     self.prizes.remove(at: indexOfPrizeToRemove)
                     self.tableView.reloadData()
                 }

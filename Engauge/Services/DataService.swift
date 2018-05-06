@@ -114,7 +114,6 @@ class DataService {
         }
     }
     
-    
     // TODO: Test this function by creating a user
     func createUserInDatabase(withUID uid: String, forSchoolWithID schoolID: String, userInfo: [String : Any], completion: ((String?) -> Void)?) {
         
@@ -164,7 +163,12 @@ class DataService {
         DataService.instance.REF_USERS.child(uid).updateChildValues(userDataUpdates) { (error, ref) in
             completion?(error != nil ? "Database error: There was a problem updating the user data." : nil)
         }
-
+    }
+    
+    func getPointBalanceForUser(withUID uid: String, completion: @escaping (Int?) -> Void) {
+        DataService.instance.REF_USERS.child(uid).child(DBKeys.USER.pointBalance).observeSingleEvent(of: .value) { (snapshot) in
+            completion(snapshot.value as? Int)
+        }
     }
     
     
@@ -634,41 +638,73 @@ class DataService {
             return nil
         }
     }
-
     
     
     
     
     // MARK: Performing Transactions
     
-    /** Calls addTransactionToDatabase, then changePointBalanceForUser. */
+    /** Calls addTransactionToDatabase, then changePointBalanceForUser. (Then changeQuantityAvailableForPrize, if necessary.) */
     func performTransaction(withPointValue transactionPointValue: Int, toUserWithUID uid: String, forSchoolWithID schoolID: String, forEventWithID eventID: String? = nil, forPrizeWithID prizeID: String? = nil, withManualInitiatorUID manualInitiatorUID: String? = nil, completion: @escaping (Bool) -> Void) {
         
+        // 1) Add the transaction to the database.
         DataService.instance.addTransactionToDatabase(withPointValue: transactionPointValue, toUserWithUID: uid, forSchoolWithID: schoolID, forEventWithID: eventID, forPrizeWithID: prizeID, withManualInitiatorUID: manualInitiatorUID) { (databaseUpdatesSuccessful, tid)  in
             guard databaseUpdatesSuccessful else {
-                print("addTransactionToDatabase failed")
                 completion(false)
                 return
             }
             
             guard let newTID = tid else {
-                print("Couldn't get the transaction's ID in performTransaction")
                 completion(false)
                 return
             }
             
+            // 2) Change the user's point balance via database transaction.
             DataService.instance.changePointBalanceForUser(withUID: uid, byPointValue: transactionPointValue) { (balanceChangeSuccessful) in
                 guard balanceChangeSuccessful else {
                     print("changePointBalanceForUser failed. Trying to remove the created transaction from the database.")
                     DataService.instance.removeAllTracesOfTransactionFromDatabase(withTransactionID: newTID) { (transactionUndoSuccessful) in
                         if !transactionUndoSuccessful {
-                            print("Couldn't undo the transaction for some reason...")
+                            fatalError("BRENNAN - Couldn't undo a transaction for some reason. TID = \(newTID)")
+                        } else {
+                            completion(false)
                         }
-                        completion(false)
                     }
                     return
                 }
-                completion(balanceChangeSuccessful)
+                
+                // 3) If this is a prize transaction, deduct 1 from the prize's quantity available. Otherwise, our work is done here.
+                if let boughtPrizeID = prizeID {
+                    // This is a prize transaction
+                    DataService.instance.changeQuantityAvailableForPrize(withID: boughtPrizeID, by: -1) { (quantityChangeSuccessful) in
+                        guard quantityChangeSuccessful else {
+                            // Could not change the prize's quantity. Try to undo the other two steps.
+                            DataService.instance.changePointBalanceForUser(withUID: uid, byPointValue: -transactionPointValue) { (balanceChangeUndoSuccessful) in
+                                guard balanceChangeUndoSuccessful else {
+                                    // Couldn't undo the change to the user's balance.
+                                    fatalError("BRENNAN - Couldn't undo a point balance change (and by extension, nor a prize transaction) for some reason. TID = \(newTID)")
+                                }
+                                
+                                DataService.instance.removeAllTracesOfTransactionFromDatabase(withTransactionID: newTID) { (transactionUndoSuccessful) in
+                                    guard transactionUndoSuccessful else {
+                                        // Couldn't undo adding the transaction to the database.
+                                        fatalError("BRENNAN - Couldn't undo a prize transaction for some reason. TID = \(newTID)")
+                                    }
+                                    
+                                    completion(false)
+                                }
+                            }
+                            return
+                        }
+                        
+                        // Successfully changed the prize's quantity. All steps complete.
+                        print("Brennan - made all required changes for a prize transaction")
+                        completion(true)
+                    }
+                } else {
+                    // This is not a prize transaction
+                    completion(true)
+                }
             }
         }
     }
@@ -693,8 +729,37 @@ class DataService {
                 
                 pointBalance += transactionPointValue
                 balanceData.value = pointBalance
-                
                 return TransactionResult.success(withValue: balanceData)
+            } else {
+                print("Couldn't get the user's point balance in the transaction block that changes the balance.")
+                print("balanceData.key = \(balanceData.key ?? "nil")")
+                print("balanceData.value = \(balanceData.value ?? "nil")")
+                return TransactionResult.abort()
+            }
+            
+        }, andCompletionBlock: { (error, success, snapshot) in
+            completion(success)
+        })
+        
+    }
+    
+    /**
+     Changes a prize's quantity available via database transaction.
+     */
+    func changeQuantityAvailableForPrize(withID prizeID: String, by quantityChange: Int, completion: @escaping (_ success: Bool) -> Void) {
+        
+        DataService.instance.REF_PRIZES.child(prizeID).child(DBKeys.PRIZE.quantityAvailable).runTransactionBlock({ (quantityData) -> TransactionResult in
+            if var quantityAvailable = quantityData.value as? Int {
+                
+                guard quantityAvailable > 0, (quantityAvailable + quantityChange) >= 0 else {
+                    // This transaction, if completed, would take the prize's quantity below zero. ABORT!
+                    return TransactionResult.abort()
+                }
+                
+                quantityAvailable += quantityChange
+                quantityData.value = quantityAvailable
+                
+                return TransactionResult.success(withValue: quantityData)
             }
             return TransactionResult.abort()
             
@@ -703,7 +768,7 @@ class DataService {
         })
         
     }
-    
+
     /**
      - Updates the following database nodes:- "transactions"
             - "userTransactions"

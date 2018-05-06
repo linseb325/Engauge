@@ -206,6 +206,13 @@ class PrizeDetailsVC: UIViewController {
         }
     }
     
+    /**
+     - Performs these error checks:
+            - Is self.prize set to something?
+            - Are there any of these left?
+            - Do I have enough points to buy this?
+     - If all error checks are passed, calls self.showAreYouSureAlert().
+     */
     @IBAction func redeemTapped(_ sender: UIButton) {
         guard let currPrize = self.prize else {
             return
@@ -217,9 +224,60 @@ class PrizeDetailsVC: UIViewController {
             return
         }
         
-        showAreYouSureAlert()
+        guard let currUserUID = Auth.auth().currentUser?.uid else {
+            showErrorAlert(message: "Couldn't verify your user credentials.")
+            return
+        }
+        
+        DataService.instance.getPointBalanceForUser(withUID: currUserUID) { (balance) in
+            guard let currUserPointBalance = balance else {
+                self.showErrorAlert(message: "Couldn't verify your current point balance.")
+                return
+            }
+            
+            // Do I have enough points to buy this?
+            guard (currUserPointBalance - currPrize.price) >= 0 else {
+                self.showErrorAlert(message: "You don't have enough points to purchase this prize. Go attend some events!")
+                return
+            }
+            
+            self.showAreYouSureAlert()
+        }
     }
     
+    
+    
+    
+    // MARK: Processing the Transaction
+    
+    private func completePrizePurchaseIfPossible() {
+        guard let currPrize = self.prize else {
+            showErrorAlert(message: "Couldn't verify this prize's information. Did not complete the transaction.")
+            return
+        }
+        
+        guard let currUserUID = Auth.auth().currentUser?.uid else {
+            showErrorAlert(message: "Couldn't verify your user credentials. Did not complete the transaction.")
+            return
+        }
+        
+        DataService.instance.getSchoolIDForUser(withUID: currUserUID) { (schoolID) in
+            guard let currUserSchoolID = schoolID else {
+                self.showErrorAlert(message: "Couldn't verify your school's information. Did not complete the transaction.")
+                return
+            }
+            
+            DataService.instance.performTransaction(withPointValue: -currPrize.price, toUserWithUID: currUserUID, forSchoolWithID: currUserSchoolID, forPrizeWithID: currPrize.prizeID) { (transactionSuccessful) in
+                if transactionSuccessful {
+                    // Completed the transaction.
+                    self.showSuccessAlert()
+                } else {
+                    // Couldn't complete the transaction.
+                    self.showErrorAlert(title: "Database Error", message: "Could not complete the transaction. Try again.")
+                }
+            }
+        }
+    }
     
     
     
@@ -229,6 +287,7 @@ class PrizeDetailsVC: UIViewController {
     private func showSuccessAlert() {
         let successAlert = UIAlertController(title: "Success!", message: "Redeemed your points for this prize.", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default) { (okAction) in
+            // Dismiss this screen
             if let navcon = self.navigationController {
                 navcon.popViewController(animated: true)
             } else {
@@ -240,13 +299,19 @@ class PrizeDetailsVC: UIViewController {
     }
     
     private func showAreYouSureAlert() {
-        let areYouSureAlert = UIAlertController(title: "Are you sure?", message: "Are you sure you would like to redeem \(prize!.price) point\(prize!.price > 1 ? "s" : "") for \(prize!.name)?", preferredStyle: .alert)
+        guard let currPrize = self.prize else {
+            showErrorAlert(message: "There was an issue verifying this prize's information.")
+            return
+        }
+        
+        let areYouSureAlert = UIAlertController(title: "Are you sure?", message: "Are you sure you would like to redeem \(currPrize.price) point\(currPrize.price > 1 ? "s" : "") for \(currPrize.name)?", preferredStyle: .alert)
         areYouSureAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         areYouSureAlert.addAction(UIAlertAction(title: "Redeem", style: .default, handler: { (redeemAction) in
-            // TODO NOW: Try to process the transaction
+            self.completePrizePurchaseIfPossible()
         }))
         present(areYouSureAlert, animated: true)
     }
+    
     
     
     
@@ -255,6 +320,5 @@ class PrizeDetailsVC: UIViewController {
     deinit {
         removeDatabaseObserverIfNecessary()
     }
-    
     
 }

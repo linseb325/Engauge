@@ -60,14 +60,14 @@ class TransactionDetailsVC: UIViewController {
     
     private func updateUI() {
         
-        // Enable or disable the link from the user's name to his/her profile details.
+        // Only admins and schedulers can get to the user's profile details from a transaction involving that user.
         DataService.instance.getRoleForUser(withUID: Auth.auth().currentUser?.uid ?? "no-curr-user") { (currUserRoleNum) in
             
             switch currUserRoleNum {
                 
             case UserRole.admin.toInt, UserRole.scheduler.toInt:
                 if (Auth.auth().currentUser?.uid ?? "no-curr-user") != self.transaction.userID {
-                    //
+                    // This is someone else's transaction, not mine. So I can get to their profile from here.
                     self.userNameButton.isUserInteractionEnabled = true
                 }
                 
@@ -79,7 +79,7 @@ class TransactionDetailsVC: UIViewController {
         // Set an image based on this transaction's source.
         setAppropriateImage()
         
-        // Set user name label
+        // Set user name label's text
         DataService.instance.getNameForUser(withUID: transaction.userID) { (userFullName) in
             if userFullName != nil {
                 self.userNameButton.setTitle(userFullName!, for: .normal)
