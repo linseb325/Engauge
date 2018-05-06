@@ -58,7 +58,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     private var userInfoChangedHandle: DatabaseHandle?
     
-    
     // Event and Transaction data
     var adminIsChoosingForManualTransaction = false
     

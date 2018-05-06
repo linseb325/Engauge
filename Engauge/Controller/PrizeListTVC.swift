@@ -44,6 +44,12 @@ class PrizeListTVC: UITableViewController {
         attachDatabaseObservers()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        if let selectedIndexPath = tableView.indexPathForSelectedRow {
+            tableView.deselectRow(at: selectedIndexPath, animated: true)
+        }
+    }
+    
     
     
     
@@ -60,7 +66,6 @@ class PrizeListTVC: UITableViewController {
             guard let currUserRoleNum = roleNum else {
                 // Couldn't retrieve the current user's role.
                 self.navigationItem.setRightBarButtonItems(nil, animated: true)
-                self.navigationItem.setLeftBarButtonItems(nil, animated: true)
                 return
             }
             
@@ -183,6 +188,10 @@ class PrizeListTVC: UITableViewController {
         return cell ?? UITableViewCell()
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "toPrizeDetailsVC", sender: prizes[indexPath.row].prizeID)
+    }
+    
     
     
     
@@ -192,7 +201,9 @@ class PrizeListTVC: UITableViewController {
         
         switch segue.identifier {
         case "toPrizeDetailsVC":
-            break
+            if let prizeScreen = segue.destination as? PrizeDetailsVC, let pickedPrizeID = sender as? String {
+                prizeScreen.prizeID = pickedPrizeID
+            }
             
         case "toNewPrizeTVC":
             break
