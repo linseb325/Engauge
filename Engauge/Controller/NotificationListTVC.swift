@@ -17,9 +17,6 @@ class NotificationListTVC: UITableViewController {
     
     
     
-    
-    
-    
     // MARK: Properties
     
     private var notifications = [EngaugeNotification]()

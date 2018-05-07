@@ -156,13 +156,9 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     }
     
     private func applySearch() {
+        // Searching by TID
         if searchOn {
-            self.filteredTransactions = self.transactions.filter { $0.transactionID.lowercased().contains(searchText!.lowercased())
-                ||
-                ((tableView.cellForRow(at: IndexPath(
-                        row: self.transactions.indexOfTransaction(withID: $0.transactionID)!,
-                        section: 0)) as? TransactionTableViewCell)?
-                    .mainLabel.text?.lowercased().contains(searchText!.lowercased()) ?? false) }
+            self.filteredTransactions = self.transactions.filter { $0.transactionID.lowercased().contains(searchText!.lowercased()) }
         }
     }
     

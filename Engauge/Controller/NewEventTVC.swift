@@ -215,7 +215,7 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
         eventData[DBKeys.EVENT.description] = eventDescription
         
         // Get the school ID, add it to the event data, and call the saveEventToFirebase function.
-        DataService.instance.getSchoolIDForUser(withUID: Auth.auth().currentUser?.uid ?? "") { (currUserSchoolID) in
+        DataService.instance.getSchoolIDForUser(withUID: Auth.auth().currentUser?.uid ?? "no-curr-user") { (currUserSchoolID) in
             guard let eventSchoolID = currUserSchoolID else {
                 self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
                 return

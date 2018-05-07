@@ -96,7 +96,7 @@ class PrizeDetailsVC: UIViewController {
     }
     
     /**
-     - Current user's role? [edit button, redeem button]
+     - Current user's role? [edit/delete buttons, redeem button]
      */
     private func configureRoleBasedUI() {
         
@@ -206,6 +206,21 @@ class PrizeDetailsVC: UIViewController {
         if prizeDataChangedHandle != nil {
             prizeDataRef?.removeObserver(withHandle: prizeDataChangedHandle!)
             prizeDataChangedHandle = nil
+        }
+    }
+    
+    
+    
+    
+    // MARK: Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        switch segue.identifier {
+        case "toEditPrizeTVC":
+            if let editPrizeScreen = segue.destination.contentsViewController as? EditPrizeTVC, let currPrize = sender as? Prize {
+                editPrizeScreen.prize = currPrize
+            }
+        default:
+            break
         }
     }
     

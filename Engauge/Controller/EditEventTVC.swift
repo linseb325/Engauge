@@ -327,7 +327,7 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
                 }
             }
         } else {
-            // Didn't change the image. Just update the event data in the database.
+            // Didn't change the image. Just (1) update the event data in the database.
             DataService.instance.updateEventData(eventDataUpdates, forEventWithID: self.event.eventID) { (errorMessage) in
                 guard errorMessage == nil else {
                     self.showErrorAlert(message: errorMessage!)

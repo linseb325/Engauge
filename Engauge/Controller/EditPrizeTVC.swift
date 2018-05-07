@@ -1,8 +1,8 @@
 //
-//  NewPrizeTVC.swift
+//  EditPrizeTVC.swift
 //  Engauge
 //
-//  Created by Brennan Linse on 5/6/18.
+//  Created by Brennan Linse on 5/7/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
@@ -10,7 +10,7 @@ import UIKit
 import FirebaseStorage
 import FirebaseAuth
 
-class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class EditPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     
     
@@ -100,6 +100,8 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
     
     // MARK: Properties
     
+    var prize: Prize!
+    
     private var price = Prize.minPrice {
         didSet {
             updatePriceStepperValue()
@@ -114,7 +116,7 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
     }
     
     private lazy var imagePicker = UIImagePickerController()
-    private var didSelectImage = false
+    private var didChangeImage = false
     
     
     
@@ -124,7 +126,30 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        updateUIForCurrentPrize()
+        
         tableView.allowsSelection = false
+    }
+    
+    
+    
+    
+    // MARK: Initializing the UI
+    
+    private func updateUIForCurrentPrize() {
+        
+        // Retrieve and display the prize image.
+        StorageService.instance.getImageForPrize(withID: prize.prizeID) { (prizeImage) in
+            if prizeImage != nil {
+                self.imageView.image = prizeImage
+            }
+        }
+        
+        // Set the text fields/views, steppers, and data model.
+        nameTextField.text = prize.name
+        price = prize.price
+        quantityAvailable = prize.quantityAvailable
+        descriptionTextView.text = prize.description
     }
     
     
@@ -136,10 +161,10 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
         dismiss(animated: true)
     }
     
-    @IBAction func doneTapped(_ sender: UIBarButtonItem) {
+    @IBAction func saveTapped(_ sender: UIBarButtonItem) {
         dismissKeyboard()
         
-        // Make sure everything is filled out, then save the new prize to Firebase Storage and Database.
+        // Make sure everything is filled out, then update the prize info in Firebase Storage and Database.
         
         guard let prizeName = nameTextField.text, !prizeName.isWhitespaceOrEmpty else {
             showErrorAlert(message: "Please enter a name for this prize.")
@@ -162,11 +187,6 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
         }
         let prizeDescription = descriptionText.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard didSelectImage else {
-            showErrorAlert(message: "Please select an image for this prize.")
-            return
-        }
-        
         guard let selectedImage = imageView.image, let prizeImageData = UIImageJPEGRepresentation(selectedImage, StorageImageQuality.THUMBNAIL) else {
             showErrorAlert(message: "There was an issue converting the prize image for storage.")
             return
@@ -179,7 +199,7 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
             DBKeys.PRIZE.description : prizeDescription
         ]
         
-        // Get the school ID, add it to the prize data, and call the saveEventToFirebase function.
+        // Get the school ID, add it to the prize data, and call the saveChangesToFirebase function.
         DataService.instance.getSchoolIDForUser(withUID: Auth.auth().currentUser?.uid ?? "no-curr-user") { (currUserSchoolID) in
             guard let prizeSchoolID = currUserSchoolID else {
                 self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
@@ -187,8 +207,65 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
             }
             
             prizeData[DBKeys.PRIZE.schoolID] = prizeSchoolID
-            self.savePrizeToFirebase(prizeData: prizeData, prizeImageData: prizeImageData)
+            self.saveChangesToFirebase(prizeData: prizeData, prizeImageData: prizeImageData)
         }
+    }
+    
+    
+    
+    
+    // MARK: Saving to Firebase services
+    
+    private func saveChangesToFirebase(prizeData: [String : Any], prizeImageData: Data) {
+        
+        if didChangeImage {
+            // User changed the image.
+            // Upload the prize image to Storage before performing the database updates.
+            let uniqueID = UUID().uuidString
+            
+            let metadata = StorageMetadata()
+            metadata.contentType = "image/jpeg"
+            
+            StorageService.instance.REF_PRIZE_PICS.child(uniqueID).putData(prizeImageData, metadata: metadata) { (metadata, error) in
+                guard error == nil else {
+                    self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                    return
+                }
+                
+                guard let prizeImageURL = metadata?.downloadURL()?.absoluteString else {
+                    self.showErrorAlert(message: "There was a problem saving the prize image to storage.")
+                    return
+                }
+                
+                // Prize image upload complete. Save the prize data to the database.
+                var changedPrizeData = prizeData
+                changedPrizeData[DBKeys.PRIZE.imageURL] = prizeImageURL
+                
+                DataService.instance.updatePrizeData(changedPrizeData, forPrizeWithID: self.prize.prizeID) { (errMsg) in
+                    guard errMsg == nil else {
+                        self.showErrorAlert(message: errMsg!)
+                        return
+                    }
+                    
+                    // Successfully updated the prize data. Now it's safe to delete the old image from storage.
+                    StorageService.instance.deleteImage(atURL: self.prize.imageURL)
+                    
+                    self.showSuccessAlertAndDismiss()
+                }
+            }
+        } else {
+            // User didn't change the image.
+            DataService.instance.updatePrizeData(prizeData, forPrizeWithID: self.prize.prizeID) { (errMsg) in
+                guard errMsg == nil else {
+                    self.showErrorAlert(message: errMsg!)
+                    return
+                }
+                
+                // Successfully updated the prize data.
+                self.showSuccessAlertAndDismiss()
+            }
+        }
+        
     }
     
     
@@ -200,7 +277,7 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let selectedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
             imageView.image = selectedImage
-            didSelectImage = true
+            didChangeImage = true
         }
         picker.dismiss(animated: true)
     }
@@ -325,7 +402,7 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
         } else {
             price = Int(sender.value)
         }
-
+        
     }
     
     @IBAction func quantityStepperChanged(_ sender: UIStepper) {
@@ -383,51 +460,10 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
     
     
     
-    // MARK: Saving to Firebase services
-    
-    private func savePrizeToFirebase(prizeData: [String : Any], prizeImageData: Data) {
-        
-        let prizeID = DataService.instance.REF_PRIZES.childByAutoId().key
-        
-        let uniqueID = UUID().uuidString
-        
-        // Upload the prize image to Storage.
-        let metadata = StorageMetadata()
-        metadata.contentType = "image/jpeg"
-        StorageService.instance.REF_PRIZE_PICS.child(uniqueID).putData(prizeImageData, metadata: metadata) { (metadata, error) in
-            guard error == nil else {
-                self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
-                return
-            }
-            
-            guard let prizeImageURL = metadata?.downloadURL()?.absoluteString else {
-                self.showErrorAlert(message: "There was a problem saving the prize image to storage.")
-                return
-            }
-            
-            // Prize image upload complete. Save the prize data to the database.
-            var newPrizeData = prizeData
-            newPrizeData[DBKeys.PRIZE.imageURL] = prizeImageURL
-            
-            DataService.instance.createPrize(withID: prizeID, prizeData: newPrizeData) { (errMsg) in
-                guard errMsg == nil else {
-                    self.showErrorAlert(message: errMsg!)
-                    return
-                }
-                
-                // Successfully created the new prize.
-                self.showSuccessAlert()
-            }
-        }
-    }
-    
-    
-    
-    
     // MARK: Success alert
     
-    private func showSuccessAlert() {
-        let successAlert = UIAlertController(title: "Success!", message: "Successfully created the prize.", preferredStyle: .alert)
+    private func showSuccessAlertAndDismiss() {
+        let successAlert = UIAlertController(title: "Success!", message: "Saved your changes.", preferredStyle: .alert)
         successAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (okAction) in
             self.dismiss(animated: true)
         }))
