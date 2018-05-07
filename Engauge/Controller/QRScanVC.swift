@@ -17,8 +17,6 @@ class QRScanVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     
     
-    
-    
     // MARK: Properties
     
     var captureSession: AVCaptureSession?
@@ -230,12 +228,9 @@ class QRScanVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     
     
-    
-    
-    
-    
-    
-    
-    
+    // MARK: Deinitializer
+    deinit {
+        print("Deallocating an instance of QRScanVC")
+    }
     
 }

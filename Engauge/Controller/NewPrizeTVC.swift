@@ -436,4 +436,11 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
     
     
     
+    
+    // MARK: Deinitializer
+    
+    deinit {
+        print("Deallocating an instance of NewPrizeTVC")
+    }
+    
 }

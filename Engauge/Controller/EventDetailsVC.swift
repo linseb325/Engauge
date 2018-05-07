@@ -383,17 +383,11 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     
     
     
-    
-    
-    
-    
-    
-    
-    
+    // MARK: Deinitializer
     
     deinit {
+        print("Deallocating an instance of EventDetailsVC")
         removeDatabaseObserverIfNecessary()
     }
-    
     
 }

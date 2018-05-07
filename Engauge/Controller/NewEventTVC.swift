@@ -413,4 +413,11 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
     
     
     
+    
+    // MARK: Deinitializer
+    
+    deinit {
+        print("Deallocating an instance of NewEventTVC")
+    }
+    
 }

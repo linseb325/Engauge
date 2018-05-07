@@ -11,7 +11,7 @@ import UIKit
 class MyTabBarController: UITabBarController {
     
     deinit {
-        print("Brennan - deallocating MyTabBarController")
+        print("Deallocating an instance of MyTabBarController")
     }
     
     override func viewDidLoad() {

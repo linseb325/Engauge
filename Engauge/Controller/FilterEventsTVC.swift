@@ -145,6 +145,15 @@ class FilterEventsTVC: UITableViewController {
         }
     }
     
+    // Only let the user select the rows that expand/collapse the date pickers.
+    override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        if indexPath.section == 0, (indexPath.row == 1 || indexPath.row == 3) {
+            return indexPath
+        } else {
+            return nil
+        }
+    }
+    
     // Row heights
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
@@ -258,7 +267,11 @@ class FilterEventsTVC: UITableViewController {
     
     
     
+    // MARK: Deinitializer
     
+    deinit {
+        print("Deallocating an instance of FilterEventsTVC")
+    }
     
     
 }

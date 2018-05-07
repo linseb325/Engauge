@@ -287,18 +287,14 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
         scrollView.contentInset = zeroContentInsets
         scrollView.scrollIndicatorInsets = zeroContentInsets
     }
-
     
     
     
     
-    
-    
-    
-    
-    
+    // MARK: Deinitializer
     
     deinit {
+        print("Deallocating an instance of EditProfileVC")
         NotificationCenter.default.removeObserver(self)
     }
     

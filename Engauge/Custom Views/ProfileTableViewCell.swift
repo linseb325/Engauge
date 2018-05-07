@@ -77,6 +77,7 @@ class ProfileTableViewCell: UITableViewCell {
     
     
     deinit {
+        print("Deallocating an instance of ProfileTableViewCell")
         self.userRef?.removeAllObservers()
     }
 }

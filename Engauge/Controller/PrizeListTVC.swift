@@ -201,7 +201,7 @@ class PrizeListTVC: UITableViewController {
         
         switch segue.identifier {
         case "toPrizeDetailsVC":
-            if let prizeScreen = segue.destination as? PrizeDetailsVC, let pickedPrizeID = sender as? String {
+            if let prizeScreen = segue.destination.contentsViewController as? PrizeDetailsVC, let pickedPrizeID = sender as? String {
                 prizeScreen.prizeID = pickedPrizeID
             }
             
@@ -219,6 +219,7 @@ class PrizeListTVC: UITableViewController {
     // MARK: Deinitializer
     
     deinit {
+        print("Deallocating an instance of PrizeListTVC")
         removeDatabaseObserversIfNecessary()
     }
     

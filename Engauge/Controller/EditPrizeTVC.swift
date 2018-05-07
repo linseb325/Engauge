@@ -472,4 +472,11 @@ class EditPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelega
     
     
     
+    
+    // MARK: Deinitializer
+    
+    deinit {
+        print("Deallocating an instance of EditPrizeTVC")
+    }
+    
 }

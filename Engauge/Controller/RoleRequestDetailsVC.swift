@@ -119,4 +119,12 @@ class RoleRequestDetailsVC: UIViewController {
         present(areYouSureAlert, animated: true)
     }
     
+    
+    
+    // MARK: Deinitializer
+    
+    deinit {
+        print("Deallocating an instance of RoleRequestDetailsVC")
+    }
+    
 }

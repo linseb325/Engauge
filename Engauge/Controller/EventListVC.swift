@@ -411,6 +411,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // Remove Database and Auth event listeners when this VC is deallocated.
     deinit {
+        print("Deallocating an instance of EventListVC")
         removeAuthObserverIfNecessary()
         removeDatabaseObserversIfNecessary()
     }

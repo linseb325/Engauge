@@ -147,11 +147,10 @@ class NotificationListTVC: UITableViewController {
     
     
     
-    
-    
     // MARK: Deinitializer
     
     deinit {
+        print("Deallocating an instance of NotificationListTVC")
         removeAuthObserverHandleIfNecessary()
         removeNotificationObserverHandlesIfNecessary()
     }

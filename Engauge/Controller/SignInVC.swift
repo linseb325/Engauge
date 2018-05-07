@@ -12,13 +12,10 @@ import FirebaseDatabase
 
 class SignInVC: UIViewController, UITextFieldDelegate {
     
-    deinit {
-        print("Brennan - deallocating SignInVC from memory")
-    }
-    
     // MARK: Outlets
     @IBOutlet weak var emailTextField: UITextField! { didSet { emailTextField.delegate = self } }
     @IBOutlet weak var passwordTextField: UITextField! { didSet { passwordTextField.delegate = self } }
+    
     
     
     
@@ -53,6 +50,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     
     
     
+    
     // MARK: Actions
     
     // Sign In
@@ -63,13 +61,13 @@ class SignInVC: UIViewController, UITextFieldDelegate {
         errorAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         
         // Typed an e-mail address?
-        guard let email = emailTextField.text, email != "" else {
+        guard let email = emailTextField.text, !email.isEmpty else {
             self.showErrorAlert(message: "E-mail is required to sign in.")
             return
         }
         
         // Typed a password?
-        guard let password = passwordTextField.text, password != "" else {
+        guard let password = passwordTextField.text, !password.isEmpty else {
             self.showErrorAlert(message: "Password is required to sign in.")
             return
         }
@@ -131,7 +129,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                 // If the user is a Scheduler, has he/she been approved for the role?
                 DataService.instance.REF_USERS.child(signedInUser.uid).observeSingleEvent(of: .value, with: { (snapshot) in
                     // Can we verify the user's role?
-                    guard let userData = snapshot.value as? [String : Any], let role = userData[DBKeys.USER.role] as? Int else {
+                    guard let userData = snapshot.value as? [String : Any], let roleNum = userData[DBKeys.USER.role] as? Int else {
                         // Couldn't verify the user's role.
                         
                         // Sign out.
@@ -146,7 +144,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                     }
                     
                     // Is the user a Scheduler?
-                    if role == UserRole.scheduler.toInt {
+                    if roleNum == UserRole.scheduler.toInt {
                         // Has the Scheduler been approved?
                         guard userData[DBKeys.USER.approvedForScheduler] as? Bool == true else {
                             // Scheduler hasn't been approved.
@@ -164,6 +162,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                     
                     // PASSED ALL CHECKS
                     print("Brennan - sign-in successful. User is verified (and approved if a Scheduler).")
+                    // TODO:
                     self.dismiss(animated: true) { print("Brennan - dismissed SignInVC because sign-in was successful.") }
                 })
             }
@@ -172,8 +171,9 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     
     // Create Account
     @IBAction func createAccountButtonTapped(_ sender: UIButton) {
-        self.view.endEditing(true)
+        dismissKeyboard()
     }
+    
     
     
     
@@ -181,8 +181,17 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     
     // Dismiss the keyboard when the user taps the "return" button.
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        self.view.endEditing(true)
+        dismissKeyboard()
         return true
+    }
+    
+    
+    
+    
+    // MARK: Deinitializer
+    
+    deinit {
+        print("Deallocating an instance of SignInVC")
     }
     
 }

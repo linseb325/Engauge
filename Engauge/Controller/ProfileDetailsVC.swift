@@ -508,13 +508,10 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     
     
-    
-    
-    
     // MARK: Deinitializer
     
     deinit {
-        print("deallocating ProfileDetailsVC")
+        print("Deallocating an instance of ProfileDetailsVC")
         removeAuthObserverIfNecessary()
         removeUserInfoDatabaseObserverIfNecessary()
         removeTableViewDatabaseObserversIfNecessary()

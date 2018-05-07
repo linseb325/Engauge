@@ -430,4 +430,13 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
         present(alert, animated: true)
     }
     
+    
+    
+    
+    // MARK: Deinitializer
+    
+    deinit {
+        print("Deallocating an instance of EditEventTVC")
+    }
+    
 }

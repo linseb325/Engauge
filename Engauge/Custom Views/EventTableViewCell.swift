@@ -112,6 +112,7 @@ class EventTableViewCell: UITableViewCell {
     
     
     deinit {
+        print("Deallocating an instance of EventTableViewCell")
         self.eventRef?.removeAllObservers()
     }
 }

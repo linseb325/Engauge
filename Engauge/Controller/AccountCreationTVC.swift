@@ -417,4 +417,13 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
         dismissKeyboard()
         return true
     }
+    
+    
+    
+    // MARK: Deinitializer
+    
+    deinit {
+        print("Deallocating an instance of AccountCreationTVC")
+    }
+    
 }

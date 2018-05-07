@@ -374,6 +374,7 @@ class PrizeDetailsVC: UIViewController {
     // MARK: Deinitializer
     
     deinit {
+        print("Deallocating an instance of PrizeDetailsVC")
         removeDatabaseObserverIfNecessary()
     }
     

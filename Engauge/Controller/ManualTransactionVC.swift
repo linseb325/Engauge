@@ -343,17 +343,14 @@ class ManualTransactionVC: UIViewController, UITextFieldDelegate {
             self.userBalanceChangedHandle = nil
         }
     }
-
     
     
     
     
-    
-    
-    
-    
+    // MARK: Deinitializer
     
     deinit {
+        print("Deallocating an instance of ManualTransactionVC")
         removeBalanceObserverIfNecessary()
     }
 }

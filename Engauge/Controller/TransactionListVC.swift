@@ -202,6 +202,7 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     // MARK: Deinitializer
     
     deinit {
+        print("Deallocating an instance of TransactionListVC")
         removeAuthObserverIfNecessary()
         removeDatabaseObserversIfNecessary()
     }

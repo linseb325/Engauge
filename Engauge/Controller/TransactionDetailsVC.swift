@@ -188,11 +188,9 @@ class TransactionDetailsVC: UIViewController {
     
     
     
-    
-    
     // MARK: Deinitializer
     
     deinit {
-        
+        print("Deallocating an instance of TransactionDetailsVC")
     }
 }
