@@ -381,7 +381,7 @@ class DataService {
     
     
     
-    // Deletes the event's data from the database and its images from storage.
+    /** Deletes the event's data from the database and its images from storage. */
     func deleteEvent(_ eventToDelete: Event, completion: ((String?) -> Void)?) {
         // Must delete event ID from the school's list of events, the EVENTS node, the user who scheduled the event, and from the favorites list of all users who have favorited the event.
         
@@ -610,6 +610,40 @@ class DataService {
             completion?(error != nil ? "Database error: There was a problem adding the new prize to the database." : nil)
         }
     }
+    
+    func updatePrizeData(_ prizeDataUpdates: [String : Any], forPrizeWithID prizeID: String, completion: ((String?) -> Void)?) {
+        DataService.instance.REF_PRIZES.child(prizeID).updateChildValues(prizeDataUpdates) { (error, ref) in
+            completion?(error != nil ? "Database error: There was a problem updating the prize data." : nil)
+        }
+    }
+    
+    /**
+     Deletes the prize's ID from the school's list of prizes. Sets the quantity available to 0.
+     **BUT...** Preserves both the prize's information in the PRIZES node of the database and its image in storage.
+     - Important: This ensures that the prize info will still show in the transaction details screen if the purchased prize is no longer available for purchase.
+     // TODO: Change the other delete functions (for events, etc.) to mimic this behavior.
+     */
+    func deletePrizeFromSchoolList(prizeToDelete: Prize, completion: ((String?) -> Void)?) {
+        // 1) Delete the prize ID from the school's list of prizes.
+        // 2) Set the prize's quantity available to 0.
+        
+        let updates: [String : Any?] = [
+            "\(DBKeys.PRIZE.key)/\(prizeToDelete.prizeID)/\(DBKeys.PRIZE.quantityAvailable)" : 0,
+            "\(DBKeys.SCHOOL_PRIZES_KEY)/\(prizeToDelete.schoolID)/\(prizeToDelete.prizeID)" : nil
+        ]
+        
+        // Perform the updates to delete the prize from the database.
+        DataService.instance.REF_ROOT.updateChildValues(updates) { (error, ref) in
+            guard error == nil else {
+                completion?("Database error: Unable to delete the prize from your school's list.")
+                return
+            }
+            
+            completion?(nil)
+        }
+    }
+
+
     
     func getPrize(withID prizeID: String, completion: @escaping (Prize?) -> Void) {
         DataService.instance.REF_PRIZES.child(prizeID).observeSingleEvent(of: .value) { (snapshot) in

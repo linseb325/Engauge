@@ -109,7 +109,7 @@ class PrizeListTVC: UITableViewController {
                 DataService.instance.getPrize(withID: snapshot.key) { (newPrize) in
                     if newPrize != nil {
                         self.prizes.append(newPrize!)
-                        self.prizes.sort { $0.name < $1.name }
+                        self.prizes.sort { $0.name.lowercased() < $1.name.lowercased() }
                         self.tableView.reloadData()
                     }
                 }

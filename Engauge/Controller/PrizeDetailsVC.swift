@@ -128,10 +128,9 @@ class PrizeDetailsVC: UIViewController {
                 self.navigationItem.setRightBarButtonItems(nil, animated: true)
                 
             case UserRole.admin.toInt:
-                // I can edit this, but not buy
+                // I can edit or delete this, but not buy
                 self.hideRedeemButton()
-                let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.handleEditTapped))
-                self.navigationItem.setRightBarButton(editButton, animated: true)
+                self.setUpEditAndDeleteUI()
                 
             default:
                 break
@@ -168,6 +167,21 @@ class PrizeDetailsVC: UIViewController {
         redeemButton.isHidden = false
         redeemButtonContainerStackView.sizeToFit()
     }
+    
+    /** Sets the right bar buttons to Edit and Delete this prize. */
+    private func setUpEditAndDeleteUI() {
+        var barButtons = [UIBarButtonItem]()
+        let deleteButton = UIBarButtonItem(barButtonSystemItem: .trash , target: self, action: #selector(self.handleDeleteButtonTapped))
+        deleteButton.tintColor = UIColor.red
+        barButtons.append(deleteButton)
+        
+        let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.handleEditTapped))
+        barButtons.insert(contentsOf: [editButton, space], at: 0)
+        
+        self.navigationItem.setRightBarButtonItems(barButtons, animated: true)
+    }
+
     
     
     
@@ -245,6 +259,30 @@ class PrizeDetailsVC: UIViewController {
         }
     }
     
+    @objc private func handleDeleteButtonTapped() {
+        let areYouSureAlertDelete = UIAlertController(title: "Delete prize?", message: "Are you sure you'd like to delete this prize? You can't undo this operation!", preferredStyle: .alert)
+        areYouSureAlertDelete.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        areYouSureAlertDelete.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { (deleteAction) in
+            
+            guard let currPrize = self.prize else {
+                self.showErrorAlert(message: "Couldn't verify the prize info. Did not delete the prize.")
+                return
+            }
+            
+            // Delete the prize from the school's list of prizes.
+            DataService.instance.deletePrizeFromSchoolList(prizeToDelete: currPrize) { (errMsg) in
+                guard errMsg == nil else {
+                    self.showErrorAlert(message: errMsg!)
+                    return
+                }
+                
+                // Successfully deleted the prize from the list.
+                self.showSuccessAlert(withMessage: "Deleted this prize from your school's list of available prizes.")
+            }
+        }))
+        present(areYouSureAlertDelete, animated: true)
+    }
+    
     
     
     
@@ -270,7 +308,7 @@ class PrizeDetailsVC: UIViewController {
             DataService.instance.performTransaction(withPointValue: -currPrize.price, toUserWithUID: currUserUID, forSchoolWithID: currUserSchoolID, forPrizeWithID: currPrize.prizeID) { (transactionSuccessful) in
                 if transactionSuccessful {
                     // Completed the transaction.
-                    self.showSuccessAlert()
+                    self.showSuccessAlert(withMessage: "Redeemed your points for this prize.")
                 } else {
                     // Couldn't complete the transaction.
                     self.showErrorAlert(title: "Database Error", message: "Could not complete the transaction. Try again.")
@@ -284,16 +322,19 @@ class PrizeDetailsVC: UIViewController {
     
     // MARK: Alerts
     
-    private func showSuccessAlert() {
-        let successAlert = UIAlertController(title: "Success!", message: "Redeemed your points for this prize.", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default) { (okAction) in
-            // Dismiss this screen
-            if let navcon = self.navigationController {
-                navcon.popViewController(animated: true)
-            } else {
-                self.dismiss(animated: true)
-            }
-        }
+    /** Default onDismiss handler is to dismiss the current VC. */
+    private func showSuccessAlert(withMessage message: String, onDismiss: ((UIAlertAction) -> Void)? = nil) {
+        let successAlert = UIAlertController(title: "Success!", message: message, preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "OK", style: .default,
+                                     handler: onDismiss ?? { (okAction) in
+                                        // Dismiss this screen
+                                        if let navcon = self.navigationController {
+                                            navcon.popViewController(animated: true)
+                                        } else {
+                                            self.dismiss(animated: true)
+                                        }
+            })
         successAlert.addAction(okAction)
         present(successAlert, animated: true)
     }

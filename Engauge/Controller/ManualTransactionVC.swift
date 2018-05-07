@@ -103,7 +103,9 @@ class ManualTransactionVC: UIViewController, UITextFieldDelegate {
         }
         
         StorageService.instance.getImageForUser(withUID: selectedUser!.userID, thumbnail: true) { (userImage) in
-            self.imageView.image = userImage
+            if userImage != nil {
+                self.imageView.image = userImage
+            }
         }
         
         nameLabel.text = selectedUser?.fullName
