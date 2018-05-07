@@ -2306,7 +2306,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="199.66666666666666"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="gift" translatesAutoresizingMaskIntoConstraints="NO" id="tQD-xz-Lbs">
+                                                <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="gift" translatesAutoresizingMaskIntoConstraints="NO" id="tQD-xz-Lbs">
                                                     <rect key="frame" x="103.66666666666667" y="16" width="167.33333333333331" height="167.66666666666666"/>
                                                     <gestureRecognizers/>
                                                     <constraints>
