@@ -156,5 +156,3 @@ struct ManualTransaction {
 
 
 
-
-

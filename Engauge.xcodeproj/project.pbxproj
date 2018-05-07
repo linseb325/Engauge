@@ -29,6 +29,7 @@
 		C8A5AD572099512B0051FFA3 /* EngaugeNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */; };
 		C8A5AD5A209952D60051FFA3 /* NotificationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD58209952D60051FFA3 /* NotificationTableViewCell.swift */; };
 		C8A5AD5B209952D60051FFA3 /* NotificationTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8A5AD59209952D60051FFA3 /* NotificationTableViewCell.xib */; };
+		C8AE0A18209FD50B00952BDA /* NewPrizeTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8AE0A17209FD50B00952BDA /* NewPrizeTVC.swift */; };
 		C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B162058639700A24B95 /* FilterEventsTVC.swift */; };
 		C8B98B1920596E1400A24B95 /* EventFilterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B1820596E1400A24B95 /* EventFilterFactory.swift */; };
 		C8B98B1D205C086000A24B95 /* MyTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B98B1C205C086000A24B95 /* MyTabBarController.swift */; };
@@ -83,6 +84,7 @@
 		C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngaugeNotification.swift; sourceTree = "<group>"; };
 		C8A5AD58209952D60051FFA3 /* NotificationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTableViewCell.swift; sourceTree = "<group>"; };
 		C8A5AD59209952D60051FFA3 /* NotificationTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NotificationTableViewCell.xib; sourceTree = "<group>"; };
+		C8AE0A17209FD50B00952BDA /* NewPrizeTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPrizeTVC.swift; sourceTree = "<group>"; };
 		C8B98B162058639700A24B95 /* FilterEventsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterEventsTVC.swift; sourceTree = "<group>"; };
 		C8B98B1820596E1400A24B95 /* EventFilterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFilterFactory.swift; sourceTree = "<group>"; };
 		C8B98B1C205C086000A24B95 /* MyTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabBarController.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 				C85CCB0A209D2340000CBE5F /* QRScanResultVC.swift */,
 				C8DE9CAC209E57A20094B926 /* PrizeListTVC.swift */,
 				C8DE9CAE209E73FE0094B926 /* PrizeDetailsVC.swift */,
+				C8AE0A17209FD50B00952BDA /* NewPrizeTVC.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -411,6 +414,7 @@
 				C8B98B1920596E1400A24B95 /* EventFilterFactory.swift in Sources */,
 				C8CB84BD2064374600913E20 /* Transaction.swift in Sources */,
 				C8DE9CAB209E4B970094B926 /* Prize.swift in Sources */,
+				C8AE0A18209FD50B00952BDA /* NewPrizeTVC.swift in Sources */,
 				C8D51082204F742F00835AD3 /* School.swift in Sources */,
 				C8E9153D20792D7700E4E973 /* EditEventTVC.swift in Sources */,
 				C80F31FB2049F456002F6FED /* SignInVC.swift in Sources */,

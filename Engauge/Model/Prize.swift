@@ -16,4 +16,11 @@ struct Prize {
     var description: String
     var imageURL: String
     var schoolID: String
+    
+    // Constants
+    static var minPrice = 1
+    static var maxPrice = Int.max
+    
+    static var minQuantity = 0
+    static var maxQuantity = Int.max
 }
