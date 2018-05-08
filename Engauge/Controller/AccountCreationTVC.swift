@@ -40,8 +40,8 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     private var schools = [School]()
     private var selectedSchool: School? {
         didSet {
-            self.selectSchoolLabel.text = "School"
-            self.selectedSchoolLabel.text = selectedSchool?.name ?? "[Error]"
+            self.selectSchoolLabel.text = "SCHOOL"
+            self.selectedSchoolLabel.text = selectedSchool?.name ?? "-"
         }
     }
     private var didSelectImage = false

@@ -8,75 +8,27 @@
 
 import UIKit
 
-class AdjustableImageView: UIImageView {
+@IBDesignable class AdjustableImageView: UIImageView {
     
     // MARK: Rounded Edges
     
     @IBInspectable var cornerRadius: CGFloat = 0 {
         didSet {
-            if !isOval {
-                layer.cornerRadius = cornerRadius
-                // layer.masksToBounds = cornerRadius > 0
-            }
+            layer.cornerRadius = cornerRadius
+            layer.masksToBounds = cornerRadius > 0
         }
     }
     
+    // Must set a border width to use this
     @IBInspectable var isOval: Bool = false {
         didSet {
             if isOval {
-                layer.cornerRadius = min(layer.frame.height, layer.frame.width) / 2
-                // layer.masksToBounds = layer.cornerRadius > 0
+                self.cornerRadius = min(layer.frame.height, layer.frame.width) / 2
             } else {
                 layer.cornerRadius = self.cornerRadius
             }
+            layer.masksToBounds = cornerRadius > 0
         }
-    }
-    
-    
-    
-    
-    // MARK: Shadows
-    
-    @IBInspectable var shadowRadius: CGFloat = 0 {
-        didSet {
-            layer.shadowRadius = shadowRadius
-        }
-    }
-    
-    @IBInspectable var shadowColor: UIColor? {
-        didSet {
-            layer.shadowColor = shadowColor?.cgColor
-        }
-    }
-    
-    @IBInspectable var shadowOpacity: Float = 0.0 {
-        didSet {
-            layer.shadowOpacity = shadowOpacity
-        }
-    }
-    
-    @IBInspectable var shadowOffset: CGSize = CGSize(width: 0, height: 3) {
-        didSet {
-            layer.shadowOffset = shadowOffset
-        }
-    }
-    
-    
-    
-    
-    // MARK: Borders
-    
-    @IBInspectable var borderColor: UIColor? {
-        didSet {
-            layer.borderColor = borderColor?.cgColor
-        }
-    }
-    
-    @IBInspectable var borderWidth: CGFloat = 0 {
-        didSet {
-            layer.borderWidth = borderWidth
-        }
-        
     }
     
 }

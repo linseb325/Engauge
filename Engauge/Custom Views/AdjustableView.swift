@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AdjustableView: UIView {
+@IBDesignable class AdjustableView: UIView {
     
     // MARK: Rounded Edges
     

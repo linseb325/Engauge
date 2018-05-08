@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AdjustableButton: UIButton {
+@IBDesignable class AdjustableButton: UIButton {
     
     // MARK: Rounded Edges
     

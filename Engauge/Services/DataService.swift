@@ -510,7 +510,7 @@ class DataService {
     
     func didUser(withUID uid: String, alreadyAttendEventwithID eventID: String, completion: @escaping (Bool) -> Void) {
         DataService.instance.REF_USER_EVENTS_ATTENDED.child(uid).child(eventID).observeSingleEvent(of: .value) { (snapshot) in
-            if let x = snapshot.value as? Bool {
+            if let _ = snapshot.value as? Bool {
                 completion(true)
             } else {
                 completion(false)
