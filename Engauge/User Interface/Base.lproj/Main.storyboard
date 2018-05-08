@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="GKA-vk-Eax">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -21,8 +21,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PuM-f7-O0u" userLabel="Buttons">
-                                <rect key="frame" x="16" y="478" width="343" height="85"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="PuM-f7-O0u" userLabel="Buttons">
+                                <rect key="frame" x="16" y="478" width="343" height="88"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S8k-kX-T4e" customClass="AdjustableButton" customModule="Engauge" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="343" height="47"/>
@@ -36,13 +36,25 @@
                                                 <real key="value" value="0.0"/>
                                             </userDefinedRuntimeAttribute>
                                             <userDefinedRuntimeAttribute type="boolean" keyPath="isOval" value="YES"/>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="shadowRadius">
+                                                <real key="value" value="2"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="size" keyPath="shadowOffset">
+                                                <size key="value" width="1" height="1"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
+                                                <real key="value" value="0.5"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="shadowColor">
+                                                <color key="value" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="signInButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="vJT-la-AwL"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="usl-hb-ZaV">
-                                        <rect key="frame" x="110.66666666666669" y="52" width="122" height="33"/>
+                                        <rect key="frame" x="110.66666666666669" y="55" width="122" height="33"/>
                                         <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="15"/>
                                         <state key="normal" title="Create an account"/>
                                         <connections>
@@ -52,8 +64,8 @@
                                     </button>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="S8k-kX-T4e" secondAttribute="trailing" id="A8N-QW-qgz"/>
-                                    <constraint firstItem="S8k-kX-T4e" firstAttribute="leading" secondItem="PuM-f7-O0u" secondAttribute="leading" id="TKe-VM-JCd"/>
+                                    <constraint firstAttribute="trailing" secondItem="S8k-kX-T4e" secondAttribute="trailing" id="KRW-xe-KBA"/>
+                                    <constraint firstItem="S8k-kX-T4e" firstAttribute="leading" secondItem="PuM-f7-O0u" secondAttribute="leading" id="mvG-EL-juS"/>
                                 </constraints>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="GXN-rJ-HXP" userLabel="Text Fields">
@@ -2267,74 +2279,107 @@
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="odL-8f-2px">
                                 <rect key="frame" x="16" y="112" width="343" height="593"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="center" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="m6f-Mz-XQp">
-                                        <rect key="frame" x="0.0" y="0.0" width="343" height="88"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="center" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="m6f-Mz-XQp">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="131.33333333333334"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HnR-FH-Hig">
-                                                <rect key="frame" x="169" y="0.0" width="5.3333333333333428" height="30"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HnR-FH-Hig">
+                                                <rect key="frame" x="146.66666666666666" y="0.0" width="50" height="50"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="25"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kE2-t0-dAK">
-                                                <rect key="frame" x="169.33333333333334" y="35" width="4.6666666666666572" height="21.666666666666671"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kE2-t0-dAK">
+                                                <rect key="frame" x="146.66666666666666" y="52" width="50" height="50"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Book" family="Avenir" pointSize="16"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="wants to be a Scheduler" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SaD-3S-wQH">
-                                                <rect key="frame" x="58" y="61.666666666666664" width="227" height="26.333333333333336"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                                <rect key="frame" x="64.333333333333329" y="104" width="214.66666666666669" height="27.333333333333343"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Book" family="Avenir" pointSize="20"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
                                     </stackView>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="avatar-square-gray" translatesAutoresizingMaskIntoConstraints="NO" id="a7o-HU-0LG">
-                                        <rect key="frame" x="31" y="150" width="281" height="281"/>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="avatar-square-gray" translatesAutoresizingMaskIntoConstraints="NO" id="a7o-HU-0LG" customClass="AdjustableImageView" customModule="Engauge" customModuleProvider="target">
+                                        <rect key="frame" x="31" y="171.66666666666669" width="281" height="281"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="a7o-HU-0LG" secondAttribute="height" multiplier="1:1" id="HmY-D4-oBJ"/>
                                         </constraints>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="10"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                     </imageView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="7Pk-No-hDA">
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="7Pk-No-hDA">
                                         <rect key="frame" x="0.0" y="493" width="343" height="100"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DEy-oX-ntR">
-                                                <rect key="frame" x="0.0" y="0.0" width="343" height="46"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DEy-oX-ntR" customClass="AdjustableButton" customModule="Engauge" customModuleProvider="target">
+                                                <rect key="frame" x="31" y="0.0" width="281" height="42"/>
                                                 <color key="backgroundColor" red="0.0" green="0.97680455450000003" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="25"/>
                                                 <state key="normal" title="APPROVE">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isOval" value="YES"/>
+                                                    <userDefinedRuntimeAttribute type="color" keyPath="shadowColor">
+                                                        <color key="value" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="size" keyPath="shadowOffset">
+                                                        <size key="value" width="1" height="1"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
+                                                        <real key="value" value="0.5"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="shadowRadius">
+                                                        <real key="value" value="2"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
                                                 <connections>
                                                     <action selector="approveTapped:" destination="tsk-Ts-5UQ" eventType="touchUpInside" id="Zcp-Tb-ze4"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hfb-Ud-Se2">
-                                                <rect key="frame" x="0.0" y="54" width="343" height="46"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hfb-Ud-Se2" customClass="AdjustableButton" customModule="Engauge" customModuleProvider="target">
+                                                <rect key="frame" x="31" y="58" width="281" height="42"/>
                                                 <color key="backgroundColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="25"/>
                                                 <state key="normal" title="DENY">
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
+                                                <userDefinedRuntimeAttributes>
+                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isOval" value="YES"/>
+                                                    <userDefinedRuntimeAttribute type="color" keyPath="shadowColor">
+                                                        <color key="value" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
+                                                        <real key="value" value="0.5"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="size" keyPath="shadowOffset">
+                                                        <size key="value" width="1" height="1"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                    <userDefinedRuntimeAttribute type="number" keyPath="shadowRadius">
+                                                        <real key="value" value="2"/>
+                                                    </userDefinedRuntimeAttribute>
+                                                </userDefinedRuntimeAttributes>
                                                 <connections>
                                                     <action selector="denyTapped:" destination="tsk-Ts-5UQ" eventType="touchUpInside" id="eCv-w6-bdg"/>
                                                 </connections>
                                             </button>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="trailing" secondItem="DEy-oX-ntR" secondAttribute="trailing" id="3VF-Il-R28"/>
                                             <constraint firstAttribute="height" constant="100" id="VR4-4k-sMd"/>
-                                            <constraint firstAttribute="trailing" secondItem="hfb-Ud-Se2" secondAttribute="trailing" id="dN8-Vu-YfL"/>
-                                            <constraint firstItem="DEy-oX-ntR" firstAttribute="leading" secondItem="7Pk-No-hDA" secondAttribute="leading" id="iy7-Km-ack"/>
-                                            <constraint firstItem="hfb-Ud-Se2" firstAttribute="leading" secondItem="7Pk-No-hDA" secondAttribute="leading" id="xcZ-n1-HZ0"/>
                                         </constraints>
                                     </stackView>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstItem="hfb-Ud-Se2" firstAttribute="width" secondItem="a7o-HU-0LG" secondAttribute="width" id="IeA-dx-KJ1"/>
                                     <constraint firstAttribute="trailing" secondItem="m6f-Mz-XQp" secondAttribute="trailing" id="IiA-FS-eHW"/>
                                     <constraint firstItem="m6f-Mz-XQp" firstAttribute="leading" secondItem="odL-8f-2px" secondAttribute="leading" id="Php-ZE-BAt"/>
                                     <constraint firstItem="7Pk-No-hDA" firstAttribute="leading" secondItem="odL-8f-2px" secondAttribute="leading" id="nKi-ki-azf"/>
+                                    <constraint firstItem="DEy-oX-ntR" firstAttribute="width" secondItem="a7o-HU-0LG" secondAttribute="width" id="oZb-4O-A20"/>
                                     <constraint firstAttribute="trailing" secondItem="7Pk-No-hDA" secondAttribute="trailing" id="rgs-1p-G32"/>
                                 </constraints>
                             </stackView>

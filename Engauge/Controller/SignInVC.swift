@@ -178,6 +178,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
             fatalError("FATAL ERROR: Couldn't instantiate a tab bar controller from SignInVC on successful sign-in.")
         }
         
+        print(UIApplication.shared.keyWindow?.isKeyWindow ?? "nil")
         UIApplication.shared.keyWindow?.switchRootViewController(mainTabBarController, animated: true)
     }
     
