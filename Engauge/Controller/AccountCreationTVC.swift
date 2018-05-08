@@ -55,10 +55,10 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
         super.viewDidLoad()
         
         // Read the list of schools from the database and put them into the array.
-        DataService.instance.getAllSchools { (schools) in
-            self.schools = schools
-            self.schools.sort { $0.name < $1.name }
-            self.schoolPickerView.reloadAllComponents()
+        DataService.instance.getAllSchools { [weak self] (schools) in
+            self?.schools = schools
+            self?.schools.sort { $0.name < $1.name }
+            self?.schoolPickerView.reloadAllComponents()
         }
     }
     
@@ -275,8 +275,6 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                             
                             // Verification e-mail was sent.
                             print("Brennan - sent verification e-mail.")
-                            
-                            // TODO: Sign the user out right away?
                             print("Brennan - all 5 account creation steps COMPLETE.")
                             
                             // Sign out.

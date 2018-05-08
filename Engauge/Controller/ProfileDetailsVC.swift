@@ -127,7 +127,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         self.nameLabel.text = "\(thisProfileUser.firstName) \(thisProfileUser.lastName)"
         self.roleLabel.text = UserRole.stringFromInt(thisProfileUser.role)?.capitalized ?? "-"
         self.emailLabel.text = thisProfileUser.emailAddress
-        self.balanceLabel.text = (thisProfileUser.role == UserRole.student.toInt) ? "Balance: \(thisProfileUser.pointBalance ?? 0) points" : "-"
+        self.balanceLabel.text = (thisProfileUser.role == UserRole.student.toInt) ? "Balance: \(thisProfileUser.pointBalance ?? 0) point(s)" : "-"
         
     }
     
@@ -437,8 +437,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     // MARK: Button Actions
 
     @IBAction func signOutTapped(_ sender: UIButton) {
-        print("Brennan - sign out tapped")
-        // TODO: Sign out and show the sign-in screen.
         do {
             try Auth.auth().signOut()
         } catch let signOutError {

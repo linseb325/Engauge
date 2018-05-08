@@ -14,6 +14,13 @@ class MyTabBarController: UITabBarController {
     // MARK: Properties
     
     private var authListenerHandle: AuthStateDidChangeListenerHandle?
+    var currUserRoleNum: Int!
+    
+    static let storyboardIDs: [Int : [String]] = [
+        UserRole.student.toInt : ["EventsPillar", "ProfilePillar", "ScanPillar", "PrizesPillar"],
+        UserRole.scheduler.toInt : ["EventsPillar", "ProfilePillar", "PrizesPillar"],
+        UserRole.admin.toInt : ["EventsPillar", "ProfilePillar", "TransactionsPillar", "RequestsPillar", "PrizesPillar"]
+    ]
     
     
     
@@ -30,58 +37,42 @@ class MyTabBarController: UITabBarController {
                 // Nobody is signed in!
                 print("MyTabBarController knows I'm signed out")
                 
-                guard let signInVC = self.storyboard?.instantiateViewController(withIdentifier: "SignInVC") else {
-                    fatalError("FATAL ERROR: Couldn't instantiate SignInVC from MyTabBarController.")
+                self.dismiss(animated: true) {
+                    print("Dismissed the tab bar controller.")
                 }
                 
-                UIApplication.shared.keyWindow?.switchRootViewController(signInVC, animated: true, duration: 0.2, completion: {
-                    print("Successfully switched the root view controller!")
-                })
                 return
             }
             
             // Someone is signed in.
             
-            DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
+            DataService.instance.getRoleForUser(withUID: currUser.uid) { [weak self] (roleNum) in
                 guard let currUserRoleNum = roleNum else {
                     // TODO: Show an alert that tells the user we couldn't verify his/her role. Then, sign out.
                     return
                 }
                 
+                var pillars = [UIViewController]()
+                
                 switch currUserRoleNum {
-                case UserRole.student.toInt:
-                    // Events, Profile, Scan, Prizes
-                    break
-                    
-                case UserRole.scheduler.toInt:
-                    // Events, Profile, Transactions, Prizes
-                    break
-                    
-                case UserRole.admin.toInt:
-                    // Events, Profile, Transactions, Requests, Prizes
-                    break
+                case UserRole.admin.toInt, UserRole.scheduler.toInt, UserRole.student.toInt:
+                    if let storyboardIDs = MyTabBarController.storyboardIDs[currUserRoleNum] {
+                        for id in storyboardIDs {
+                            if let aPillar = self?.storyboard?.instantiateViewController(withIdentifier: id) {
+                                print("Loaded pillar with ID: \(id)")
+                                pillars.append(aPillar)
+                            }
+                        }
+                        
+                        self?.setViewControllers(pillars, animated: true)
+                        
+                    }
                     
                 default:
                     break
                 }
-                
-                
-                
             }
-            
         }
-        
-        
-        /*
-        print("Brennan - number of windows: \(UIApplication.shared.windows.count)")
-        
-        // Is this the window's root view controller?
-        if UIApplication.shared.windows[0].rootViewController === self {
-            print("Brennan - window's root view controller is MyTabBarController")
-        } else {
-            print("Brennan - window's root view controller is NOT MyTabBarController")
-        }
-        */
     }
     
     
@@ -95,6 +86,7 @@ class MyTabBarController: UITabBarController {
             authListenerHandle = nil
         }
     }
+    
     
     
     

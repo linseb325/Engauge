@@ -27,7 +27,14 @@ class SignInVC: UIViewController, UITextFieldDelegate {
         if let currUser = Auth.auth().currentUser {
             // Someone is signed in.
             print("\(currUser.email!) is already signed in! Bypassing the sign-in screen.")
-            self.loadMainTabBarControllerUIAndNavigate()
+            
+            DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
+                guard let currUserRoleNum = roleNum else {
+                    return
+                }
+                
+                self.navigateToMainTabBarControllerUI(withUserRoleNum: currUserRoleNum)
+            }
         } else {
             // Nobody is signed in.
             print("Brennan - no current user in SignInVC viewDidLoad")
@@ -164,7 +171,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                 
                 self.emailTextField.text = nil
                 self.passwordTextField.text = nil
-                self.loadMainTabBarControllerUIAndNavigate()
+                self.navigateToMainTabBarControllerUI(withUserRoleNum: roleNum)
             })
             
         }
@@ -174,7 +181,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     @IBAction func createAccountButtonTapped(_ sender: UIButton) {
         dismissKeyboard()
     }
-    
+    /*
     private func loadMainTabBarControllerUIAndNavigate() {
         guard let mainTabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MyTabBarController") else {
             fatalError("FATAL ERROR: Couldn't instantiate a tab bar controller from SignInVC on successful sign-in.")
@@ -182,6 +189,19 @@ class SignInVC: UIViewController, UITextFieldDelegate {
         
         print(UIApplication.shared.keyWindow?.isKeyWindow ?? "nil")
         UIApplication.shared.keyWindow?.switchRootViewController(mainTabBarController, animated: true)
+    }
+    */
+    
+    private func navigateToMainTabBarControllerUI(withUserRoleNum currUserRoleNum: Int) {
+        guard let myTabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MyTabBarController") as? MyTabBarController else {
+            self.showErrorAlert(message: "There was an issue loading the home screen's UI.")
+            return
+        }
+        
+        myTabBarController.currUserRoleNum = currUserRoleNum
+        self.present(myTabBarController, animated: true) {
+            print("SignInVC presented MyTabBarController")
+        }
     }
     
     
