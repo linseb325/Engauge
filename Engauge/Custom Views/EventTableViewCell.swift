@@ -90,7 +90,7 @@ class EventTableViewCell: UITableViewCell {
         }
     }
     
-    // Only works if eventRef is set
+    /** Make sure eventRef is already set. */
     private func attachDatabaseObserver() {
         self.eventRef?.observe(.value) { (snapshot) in
             if let eventData = snapshot.value as? [String : Any], let event = DataService.instance.eventFromSnapshotValues(eventData, withID: snapshot.key) {

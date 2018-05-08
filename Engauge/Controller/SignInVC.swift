@@ -162,6 +162,8 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                 // PASSED ALL CHECKS
                 print("Brennan - sign-in successful. User is verified (and approved if a Scheduler).")
                 
+                self.emailTextField.text = nil
+                self.passwordTextField.text = nil
                 self.loadMainTabBarControllerUIAndNavigate()
             })
             
