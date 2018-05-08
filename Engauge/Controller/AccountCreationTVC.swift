@@ -67,7 +67,6 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
         // Need to sign out before returning to the sign-in screen.
         // Sign out.
         do {
-            print("Brennan - gonna try to sign out now in viewWillDisappear.")
             try Auth.auth().signOut()
         } catch let signOutError {
             print("Brennan - error signing out: \(signOutError.localizedDescription)")

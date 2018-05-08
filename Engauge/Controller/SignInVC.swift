@@ -25,27 +25,15 @@ class SignInVC: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         
         if let currUser = Auth.auth().currentUser {
-            print("Brennan - found current user in SignInVC viewDidLoad: \(currUser.email!)")
-            self.dismiss(animated: true, completion: {
-                print("Brennan - dismissed SignInVC because there's already a current user")
-            })
+            // Someone is signed in.
+            print("\(currUser.email!) is already signed in! Bypassing the sign-in screen.")
+            self.loadMainTabBarControllerUIAndNavigate()
         } else {
+            // Nobody is signed in.
             print("Brennan - no current user in SignInVC viewDidLoad")
         }
         
         self.dismissKeyboardWhenTappedOutside()
-        
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        /*
-        // Sign out.
-        do {
-            try Auth.auth().signOut()
-        } catch let signOutError {
-            print("Brennan - error signing out: \(signOutError.localizedDescription)")
-        }
-        */
     }
     
     
@@ -55,7 +43,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     
     // Sign In
     @IBAction func signInButtonTapped(_ sender: UIButton) {
-        self.view.endEditing(true)
+        dismissKeyboard()
         
         let errorAlert = UIAlertController(title: "Error", message: nil, preferredStyle: .alert)
         errorAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
@@ -72,66 +60,45 @@ class SignInVC: UIViewController, UITextFieldDelegate {
             return
         }
         
-        // Try to sign in. Display an error message if necessary.
+        // 1) Can I sign in?
         AuthService.instance.signIn(email: email, password: password) { (errorMessage, user) in
-            if errorMessage != nil {
-                // There was a sign-in error.
+            guard errorMessage == nil else {
                 self.showErrorAlert(message: errorMessage!)
-            } else {
-                // Successfully signed in.
+                return
+            }
+            
+            // Successfully signed in.
+            
+            // User object returned?
+            guard let signedInUser = user else {
+                // Weird problem. Should never happen.
+                do {
+                    try Auth.auth().signOut()
+                } catch let signOutError {
+                    print("Brennan - error signing out: \(signOutError.localizedDescription)")
+                }
+                return
+            }
+            
+            // 2) Is my e-mail verified?
+            guard signedInUser.isEmailVerified else {
+                // NOT VERIFIED
+                // Tell the user to verify his/her e-mail. Resend the e-mail if necessary.
+                let notVerifiedAlert = UIAlertController(title: "Not verified", message: "Please verify your e-mail address.", preferredStyle: .alert)
                 
-                // User object returned?
-                guard let signedInUser = user else {
-                    // Weird problem. Should never happen.
+                // OK option
+                notVerifiedAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (action) in
+                    // User is not verified. Sign out.
                     do {
                         try Auth.auth().signOut()
                     } catch let signOutError {
                         print("Brennan - error signing out: \(signOutError.localizedDescription)")
                     }
-                    return
-                }
+                }))
                 
-                // Is the user's e-mail verified?
-                guard signedInUser.isEmailVerified else {
-                    // Tell the user to verify his/her e-mail. Resend the e-mail if necessary.
-                    let notVerifiedAlert = UIAlertController(title: "Not verified", message: "Please verify your e-mail address.", preferredStyle: .alert)
-                    notVerifiedAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (action) in
-                        // Sign out.
-                        do {
-                            try Auth.auth().signOut()
-                        } catch let signOutError {
-                            print("Brennan - error signing out: \(signOutError.localizedDescription)")
-                        }
-                    }))
-                    notVerifiedAlert.addAction(UIAlertAction(title: "Resend e-mail", style: .default, handler: { (action) in
-                        AuthService.instance.sendEmailVerification(toUser: signedInUser, completion: { (errorMessage, user) in
-                            // Sign out.
-                            do {
-                                try Auth.auth().signOut()
-                            } catch let signOutError {
-                                print("Brennan - error signing out: \(signOutError.localizedDescription)")
-                            }
-                            
-                            if errorMessage != nil {
-                                errorAlert.message = errorMessage!
-                                self.present(errorAlert, animated: true)
-                            } else {
-                                // Sent the verification e-mail.
-                                print("Brennan - re-sent the verification e-mail.")
-                            }
-                        })
-                    }))
-                    self.present(notVerifiedAlert, animated: true)
-                    
-                    return
-                }
-                
-                // If the user is a Scheduler, has he/she been approved for the role?
-                DataService.instance.REF_USERS.child(signedInUser.uid).observeSingleEvent(of: .value, with: { (snapshot) in
-                    // Can we verify the user's role?
-                    guard let userData = snapshot.value as? [String : Any], let roleNum = userData[DBKeys.USER.role] as? Int else {
-                        // Couldn't verify the user's role.
-                        
+                // Resend option
+                notVerifiedAlert.addAction(UIAlertAction(title: "Resend e-mail", style: .default, handler: { (action) in
+                    AuthService.instance.sendEmailVerification(toUser: signedInUser, completion: { (errorMessage, user) in
                         // Sign out.
                         do {
                             try Auth.auth().signOut()
@@ -139,39 +106,79 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                             print("Brennan - error signing out: \(signOutError.localizedDescription)")
                         }
                         
-                        self.showErrorAlert(message: "Database error: Couldn't verify your user role.")
-                        return
-                    }
-                    
-                    // Is the user a Scheduler?
-                    if roleNum == UserRole.scheduler.toInt {
-                        // Has the Scheduler been approved?
-                        guard userData[DBKeys.USER.approvedForScheduler] as? Bool == true else {
-                            // Scheduler hasn't been approved.
-                            // Sign out.
-                            do {
-                                try Auth.auth().signOut()
-                            } catch let signOutError {
-                                print("Brennan - error signing out: \(signOutError.localizedDescription)")
-                            }
-                            
-                            self.showErrorAlert(message: "Your school's Admin hasn't approved you for Scheduler status.")
+                        guard errorMessage == nil else {
+                            errorAlert.message = errorMessage!
+                            self.present(errorAlert, animated: true)
                             return
                         }
+                        
+                        if errorMessage != nil {
+                            errorAlert.message = errorMessage!
+                            self.present(errorAlert, animated: true)
+                        } else {
+                            // Sent the verification e-mail.
+                            print("Brennan - re-sent the verification e-mail.")
+                        }
+                    })
+                }))
+                
+                self.present(notVerifiedAlert, animated: true)
+                return
+            }
+            
+            // 3) If I'm a Scheduler, have I been approved for the role?
+            DataService.instance.REF_USERS.child(signedInUser.uid).observeSingleEvent(of: .value, with: { (snapshot) in
+                // Can we verify the user's role?
+                guard let userData = snapshot.value as? [String : Any], let roleNum = userData[DBKeys.USER.role] as? Int else {
+                    // Couldn't verify the user's role.
+                    // Sign out.
+                    do {
+                        try Auth.auth().signOut()
+                    } catch let signOutError {
+                        print("Brennan - error signing out: \(signOutError.localizedDescription)")
                     }
                     
-                    // PASSED ALL CHECKS
-                    print("Brennan - sign-in successful. User is verified (and approved if a Scheduler).")
-                    // TODO:
-                    self.dismiss(animated: true) { print("Brennan - dismissed SignInVC because sign-in was successful.") }
-                })
-            }
+                    self.showErrorAlert(message: "Database error: Couldn't verify your user role.")
+                    return
+                }
+                
+                // If this is a Scheduler, make sure he/she is approved for the role.
+                if roleNum == UserRole.scheduler.toInt {
+                    // Has the Scheduler been approved?
+                    guard userData[DBKeys.USER.approvedForScheduler] as? Bool == true else {
+                        // Scheduler hasn't been approved.
+                        // Sign out.
+                        do {
+                            try Auth.auth().signOut()
+                        } catch let signOutError {
+                            print("Brennan - error signing out: \(signOutError.localizedDescription)")
+                        }
+                        
+                        self.showErrorAlert(message: "Your school's Admin hasn't approved you for Scheduler status.")
+                        return
+                    }
+                }
+                
+                // PASSED ALL CHECKS
+                print("Brennan - sign-in successful. User is verified (and approved if a Scheduler).")
+                
+                self.loadMainTabBarControllerUIAndNavigate()
+            })
+            
         }
     }
     
     // Create Account
     @IBAction func createAccountButtonTapped(_ sender: UIButton) {
         dismissKeyboard()
+    }
+    
+    private func loadMainTabBarControllerUIAndNavigate() {
+        guard let mainTabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MyTabBarController") else {
+            fatalError("FATAL ERROR: Couldn't instantiate a tab bar controller from SignInVC on successful sign-in.")
+        }
+        
+        UIApplication.shared.keyWindow?.switchRootViewController(mainTabBarController, animated: true)
     }
     
     

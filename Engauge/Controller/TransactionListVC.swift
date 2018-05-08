@@ -59,8 +59,11 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
         super.viewDidLoad()
         
         self.authStateListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
+            print("Auth listener fired in TransactionListVC")
+            
             guard let currUser = user else {
                 // TODO: There's nobody signed in!
+                print("TransactionListVC knows I signed out")
                 return
             }
             

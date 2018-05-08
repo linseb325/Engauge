@@ -61,7 +61,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     private var searchOn: Bool { return searchText != nil }
     private var searchText: String? {
         didSet {
-            print("Brennan - did set searchText")
             if searchOn {
                 // Just set searchText to something.
                 // Re-apply filters, then apply searchText.
@@ -83,7 +82,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     private var filtersOn: Bool { return filters != nil }
     var filters: [EventFilterFactory.EventFilter]? {
         didSet {
-            print("Brennan - did set filters")
             searchBar.text = nil    // Gotta clear the search text in UI.
             searchText = nil        // Gotta clear the search text.
             if filtersOn {
@@ -113,40 +111,44 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         // Checking to see if a user is signed in
         // EXECUTES ANY TIME THE AUTH STATE CHANGES
         self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            if let currUser = user {
-                // User is logged in, so retrieve events.
-                print("Brennan - EventListVC auth listener in viewDidLoad says current user's e-mail is: \(currUser.email ?? "nil")")
-                
-                // If the current user is a Scheduler or Admin, show the "add event" button.
-                DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
-                    if roleNum != nil {
-                        switch roleNum! {
-                        case UserRole.admin.toInt, UserRole.scheduler.toInt:
-                            self.navigationItem.rightBarButtonItem = nil
-                            let newEventButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(self.handleNewEventTapped))
-                            self.navigationItem.rightBarButtonItem = newEventButton
-                        default:
-                            break
-                        }
-                    }
-                }
-                
-                // Get the user's school ID and set up database observers.
-                DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
-                    guard let userSchoolID = schoolID else {
-                        self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
-                        return
-                    }
-                    
-                    self.refAllEvents = DataService.instance.REF_EVENTS
-                    self.refSchoolEventIDs = DataService.instance.REF_SCHOOL_EVENTS.child(userSchoolID)
-                    self.attachDatabaseObservers()
-                }
-            } else {
-                // User is not logged in, so present SignInVC
-                print("Brennan - EventListVC auth listener in viewDidLoad says nobody is signed in!")
+            print("Auth listener fired in EventListVC")
+            guard let currUser = user else {
+                // TODO: Nobody is logged in!
+                print("EventListVC auth listener: Nobody is signed in!")
                 self.events.removeAll()
-                self.presentSignInVC(completion: { print("Brennan - presented SignInVC") })
+                self.tableView.reloadData()
+                // TODO: Dismiss all VCs? Swap this and a new instance of SignInVC as the root VC of the app's window?
+                // self.presentSignInVC(completion: { print("Brennan - presented SignInVC") })
+                return
+            }
+            // User is logged in, so retrieve events.
+            // print("EventListVC auth listener: \(currUser.email ?? "<nil e-mail>") is signed in")
+            
+            // If the current user is a Scheduler or Admin, show the "add event" button.
+            DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
+                if roleNum != nil {
+                    switch roleNum! {
+                    case UserRole.admin.toInt, UserRole.scheduler.toInt:
+                        self.navigationItem.rightBarButtonItem = nil
+                        let newEventButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(self.handleNewEventTapped))
+                        self.navigationItem.setRightBarButton(newEventButton, animated: true)
+                    default:
+                        self.navigationItem.setRightBarButtonItems(nil, animated: true)
+                        break
+                    }
+                }
+            }
+            
+            // Get the user's school ID and set up database observers.
+            DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
+                guard let userSchoolID = schoolID else {
+                    self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
+                    return
+                }
+                
+                self.refAllEvents = DataService.instance.REF_EVENTS
+                self.refSchoolEventIDs = DataService.instance.REF_SCHOOL_EVENTS.child(userSchoolID)
+                self.attachDatabaseObservers()
             }
         }
     }

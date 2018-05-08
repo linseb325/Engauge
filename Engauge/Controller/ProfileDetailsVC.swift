@@ -6,8 +6,6 @@
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
 
-// TODO: Listen for changes to events/transactions and update in the data model and table view.
-
 import UIKit
 import FirebaseAuth
 import FirebaseDatabase
@@ -81,7 +79,10 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         }
         
         self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
+            print("Auth listener fired in ProfileDetailsVC")
+            
             guard let currUser = user else {
+                print("ProfileDetailsVC knows I signed out")
                 self.currUserID = nil
                 // TODO: There is no user signed in!
                 return
@@ -265,7 +266,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     // Detaches any existing observers at the references.
     private func attachTableViewDatabaseObservers() {
         guard (userEventsRef != nil || userTransactionsRef != nil) else {
-            print("Brennan - Database refs weren't set before trying to attach observers")
+            print("BRENNAN - Database refs weren't set before trying to attach observers")
             return
         }
         
@@ -310,7 +311,7 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             }
             
         default:
-            print("Brennan - Table view mode is neither .events nor .transactions. Couldn't attach observers.")
+            print("BRENNAN - Table view mode is neither .events nor .transactions. Couldn't attach observers.")
         }
     }
 
@@ -438,6 +439,11 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     @IBAction func signOutTapped(_ sender: UIButton) {
         print("Brennan - sign out tapped")
         // TODO: Sign out and show the sign-in screen.
+        do {
+            try Auth.auth().signOut()
+        } catch let signOutError {
+            print("Brennan - there was an error trying to sign out in ProfileDetailsVC: \(signOutError.localizedDescription)")
+        }
     }
     
     @objc private func handleEditTapped() {

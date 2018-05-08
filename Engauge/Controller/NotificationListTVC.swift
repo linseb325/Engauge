@@ -35,7 +35,10 @@ class NotificationListTVC: UITableViewController {
         super.viewDidLoad()
         
         self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
+            print("Auth listener fired in NotificationListTVC")
+            
             guard let currUser = user else {
+                print("NotificationListTVC knows I signed out")
                 // TODO: No user is signed in!
                 return
             }
