@@ -1008,7 +1008,7 @@ class DataService {
                 let notifData: [String : Any] = [
                     DBKeys.NOTIFICATION.senderUID: senderUID,
                     DBKeys.NOTIFICATION.receiverUID: adminUID,
-                    DBKeys.NOTIFICATION.timestamp: Date().timeIntervalSince1970
+                    DBKeys.NOTIFICATION.timestamp: Date().timeIntervalSince1970.rounded()
                     ]
                 let updates: [String : Any] = [
                     "/\(DBKeys.NOTIFICATION.key)/\(notifID)/": notifData,
