@@ -193,11 +193,11 @@ class PrizeDetailsVC: UIViewController {
         removeDatabaseObserverIfNecessary()
         prizeDataRef = DataService.instance.REF_PRIZES.child(prizeID)
         
-        prizeDataChangedHandle = prizeDataRef?.observe(.value) { (snapshot) in
+        prizeDataChangedHandle = prizeDataRef?.observe(.value) { [weak self] (snapshot) in
             if let changedPrizeData = snapshot.value as? [String : Any], let changedPrize = DataService.instance.prizeFromSnapshotValues(changedPrizeData, withID: snapshot.key) {
-                self.prize = changedPrize
-                self.updateUIForCurrentPrize()
-                self.configureRoleBasedUI()
+                self?.prize = changedPrize
+                self?.updateUIForCurrentPrize()
+                self?.configureRoleBasedUI()
             }
         }
     }

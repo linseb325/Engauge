@@ -159,9 +159,9 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
         // If the user wants to be a Scheduler, ask if he/she is sure before proceeding.
         if selectedRoleIndex == UserRole.scheduler.toInt {
             let areYouSureAlert = UIAlertController(title: "Are you sure?", message: "You're requesting Scheduler status. We'll notify your school's Admin, and he/she will need to approve your request before you can sign in. Continue?", preferredStyle: .alert)
-            areYouSureAlert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { (action) in
+            areYouSureAlert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { [weak self] (action) in
                 // Continue with Firebase sign-up actions, passing relevant information to a helper function.
-                self.completeAccountCreationTasks(firstName: firstName, lastName: lastName, schoolPicked: schoolPicked, email: email, password: password, selectedRoleIndex: selectedRoleIndex, profileImage: profileImage, imageDataFull: imageDataFull, imageDataThumbnail: imageDataThumbnail)
+                self?.completeAccountCreationTasks(firstName: firstName, lastName: lastName, schoolPicked: schoolPicked, email: email, password: password, selectedRoleIndex: selectedRoleIndex, profileImage: profileImage, imageDataFull: imageDataFull, imageDataThumbnail: imageDataThumbnail)
             }))
             areYouSureAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 return
@@ -177,14 +177,14 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     func completeAccountCreationTasks(firstName: String, lastName: String, schoolPicked: School, email: String, password: String, selectedRoleIndex: Int, profileImage: UIImage, imageDataFull: Data, imageDataThumbnail: Data) {
         
         // 1) Create the new user in Firebase Auth.
-        AuthService.instance.createUser(email: email, password: password) { (errorMessage, user) in
+        AuthService.instance.createUser(email: email, password: password) { [weak self] (errorMessage, user) in
             // Check for errors
             guard errorMessage == nil else {
-                self.showErrorAlert(message: errorMessage!)
+                self?.showErrorAlert(message: errorMessage!)
                 return
             }
             guard let newUser = user else {
-                self.showErrorAlert(message: "There was a problem creating the new user.")
+                self?.showErrorAlert(message: "There was a problem creating the new user.")
                 return
             }
             print("Brennan - created the user in Auth.")
@@ -194,14 +194,14 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
             let uniqueID = UUID().uuidString
             let metadataFull = StorageMetadata()
             metadataFull.contentType = "image/jpeg"
-            StorageService.instance.REF_PROFILE_PICS_FULL.child(uniqueID).putData(imageDataFull, metadata: metadataFull) { (metadata, error) in
+            StorageService.instance.REF_PROFILE_PICS_FULL.child(uniqueID).putData(imageDataFull, metadata: metadataFull) { [weak self] (metadata, error) in
                 // Checks for errors
                 guard error == nil else {
-                    self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                    self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
                     return
                 }
                 guard let downloadURLFull = metadata?.downloadURLs?[0].absoluteString else {
-                    self.showErrorAlert(message: "There was a problem uploading your profile image to storage.")
+                    self?.showErrorAlert(message: "There was a problem uploading your profile image to storage.")
                     return
                 }
                 print("Brennan - uploaded the full image to storage.")
@@ -210,14 +210,14 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                 // 3) Save the profile image thumbnail in Firebase Storage.
                 let metadataThumbnail = StorageMetadata()
                 metadataThumbnail.contentType = "image/jpeg"
-                StorageService.instance.REF_PROFILE_PICS_THUMBNAIL.child(uniqueID).putData(imageDataThumbnail, metadata: metadataThumbnail) { (metadata, error) in
+                StorageService.instance.REF_PROFILE_PICS_THUMBNAIL.child(uniqueID).putData(imageDataThumbnail, metadata: metadataThumbnail) { [weak self] (metadata, error) in
                     // Checks for errors
                     guard error == nil else {
-                        self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                        self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
                         return
                     }
                     guard let downloadURLThumbnail = metadata?.downloadURLs?[0].absoluteString else {
-                        self.showErrorAlert(message: "There was a problem uploading your profile image to storage.")
+                        self?.showErrorAlert(message: "There was a problem uploading your profile image to storage.")
                         return
                     }
                     print("Brennan - uploaded the thumbnail image to storage.")
@@ -244,10 +244,10 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                         break
                     }
                     
-                    DataService.instance.createUserInDatabase(withUID: newUser.uid, forSchoolWithID: schoolPicked.schoolID, userInfo: userData) { (errorMessage) in
+                    DataService.instance.createUserInDatabase(withUID: newUser.uid, forSchoolWithID: schoolPicked.schoolID, userInfo: userData) { [weak self] (errorMessage) in
                         // Check for errors
                         guard errorMessage == nil else {
-                            self.showErrorAlert(message: errorMessage!)
+                            self?.showErrorAlert(message: errorMessage!)
                             return
                         }
                         
@@ -256,7 +256,7 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                             print("Brennan - about to try to send a notification")
                             DataService.instance.sendRoleRequestNotification(fromUserWithUID: newUser.uid, forSchoolWithID: schoolPicked.schoolID) { (errorMessage) in
                                 guard errorMessage == nil else {
-                                    self.showErrorAlert(message: errorMessage!)
+                                    self?.showErrorAlert(message: errorMessage!)
                                     return
                                 }
                                 print("Brennan - sent the Admin a notification.")
@@ -267,9 +267,9 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                         
                         
                         // 5) Send a verification e-mail.
-                        AuthService.instance.sendEmailVerification(toUser: newUser) { (errorMessage, user) in
+                        AuthService.instance.sendEmailVerification(toUser: newUser) { [weak self] (errorMessage, user) in
                             guard errorMessage == nil else {
-                                self.showErrorAlert(message: errorMessage!)
+                                self?.showErrorAlert(message: errorMessage!)
                                 return
                             }
                             
@@ -286,10 +286,10 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                             
                             // Show the user a success message and instruct him/her to verify his/her e-mail address.
                             let successAlert = UIAlertController(title: "Success", message: "You're almost done! Check your inbox for a verification e-mail.", preferredStyle: .alert)
-                            successAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
-                                self.dismiss(animated: true)
+                            successAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] (action) in
+                                self?.dismiss(animated: true)
                             }))
-                            self.present(successAlert, animated: true)
+                            self?.present(successAlert, animated: true)
                         }
                     }
                 }
@@ -366,10 +366,10 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
         self.pickerVisible = true
         tableView.beginUpdates()
         tableView.endUpdates()
-        UIView.animate(withDuration: 0.25, animations: {
-            self.schoolPickerView.alpha = 1.0
-        },  completion: { (finished) in
-            self.schoolPickerView.isHidden = false
+        UIView.animate(withDuration: 0.25, animations: { [weak self] in
+            self?.schoolPickerView.alpha = 1.0
+        },  completion: { [weak self] (finished) in
+            self?.schoolPickerView.isHidden = false
         })
     }
     
@@ -377,10 +377,10 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
         self.pickerVisible = false
         tableView.beginUpdates()
         tableView.endUpdates()
-        UIView.animate(withDuration: 0.25, animations: {
-            self.schoolPickerView.alpha = 0.0
-        }, completion: { (finished) in
-            self.schoolPickerView.isHidden = true
+        UIView.animate(withDuration: 0.25, animations: { [weak self] in
+            self?.schoolPickerView.alpha = 0.0
+        }, completion: { [weak self] (finished) in
+            self?.schoolPickerView.isHidden = true
         })
     }
     

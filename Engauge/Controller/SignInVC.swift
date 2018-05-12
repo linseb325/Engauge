@@ -24,23 +24,23 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let currUser = Auth.auth().currentUser {
-            // Someone is signed in.
-            print("\(currUser.email!) is already signed in! Bypassing the sign-in screen.")
-            
-            DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
-                guard let currUserRoleNum = roleNum else {
-                    return
-                }
-                
-                self.navigateToMainTabBarControllerUI(withUserRoleNum: currUserRoleNum)
-            }
-        } else {
-            // Nobody is signed in.
-            print("Brennan - no current user in SignInVC viewDidLoad")
+        dismissKeyboardWhenTappedOutside()
+        
+        guard let currUser = Auth.auth().currentUser else {
+            // TODO: Nobody is signed in.
+            return
         }
         
-        self.dismissKeyboardWhenTappedOutside()
+        // Someone is signed in.
+        print("\(currUser.email!) is already signed in! Bypassing the sign-in screen.")
+        
+        DataService.instance.getRoleForUser(withUID: currUser.uid) { [weak self] (roleNum) in
+            guard let currUserRoleNum = roleNum else {
+                return
+            }
+            
+            self?.navigateToMainTabBarControllerUI(withUserRoleNum: currUserRoleNum)
+        }
     }
     
     
@@ -68,9 +68,9 @@ class SignInVC: UIViewController, UITextFieldDelegate {
         }
         
         // 1) Can I sign in?
-        AuthService.instance.signIn(email: email, password: password) { (errorMessage, user) in
+        AuthService.instance.signIn(email: email, password: password) { [weak self] (errorMessage, user) in
             guard errorMessage == nil else {
-                self.showErrorAlert(message: errorMessage!)
+                self?.showErrorAlert(message: errorMessage!)
                 return
             }
             
@@ -105,7 +105,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                 
                 // Resend option
                 notVerifiedAlert.addAction(UIAlertAction(title: "Resend e-mail", style: .default, handler: { (action) in
-                    AuthService.instance.sendEmailVerification(toUser: signedInUser, completion: { (errorMessage, user) in
+                    AuthService.instance.sendEmailVerification(toUser: signedInUser, completion: { [weak self] (errorMessage, user) in
                         // Sign out.
                         do {
                             try Auth.auth().signOut()
@@ -115,13 +115,13 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                         
                         guard errorMessage == nil else {
                             errorAlert.message = errorMessage!
-                            self.present(errorAlert, animated: true)
+                            self?.present(errorAlert, animated: true)
                             return
                         }
                         
                         if errorMessage != nil {
                             errorAlert.message = errorMessage!
-                            self.present(errorAlert, animated: true)
+                            self?.present(errorAlert, animated: true)
                         } else {
                             // Sent the verification e-mail.
                             print("Brennan - re-sent the verification e-mail.")
@@ -129,12 +129,12 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                     })
                 }))
                 
-                self.present(notVerifiedAlert, animated: true)
+                self?.present(notVerifiedAlert, animated: true)
                 return
             }
             
             // 3) If I'm a Scheduler, have I been approved for the role?
-            DataService.instance.REF_USERS.child(signedInUser.uid).observeSingleEvent(of: .value, with: { (snapshot) in
+            DataService.instance.REF_USERS.child(signedInUser.uid).observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
                 // Can we verify the user's role?
                 guard let userData = snapshot.value as? [String : Any], let roleNum = userData[DBKeys.USER.role] as? Int else {
                     // Couldn't verify the user's role.
@@ -145,7 +145,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                         print("Brennan - error signing out: \(signOutError.localizedDescription)")
                     }
                     
-                    self.showErrorAlert(message: "Database error: Couldn't verify your user role.")
+                    self?.showErrorAlert(message: "Database error: Couldn't verify your user role.")
                     return
                 }
                 
@@ -161,7 +161,7 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                             print("Brennan - error signing out: \(signOutError.localizedDescription)")
                         }
                         
-                        self.showErrorAlert(message: "Your school's Admin hasn't approved you for Scheduler status.")
+                        self?.showErrorAlert(message: "Your school's Admin hasn't approved you for Scheduler status.")
                         return
                     }
                 }
@@ -169,9 +169,9 @@ class SignInVC: UIViewController, UITextFieldDelegate {
                 // PASSED ALL CHECKS
                 print("Brennan - sign-in successful. User is verified (and approved if a Scheduler).")
                 
-                self.emailTextField.text = nil
-                self.passwordTextField.text = nil
-                self.navigateToMainTabBarControllerUI(withUserRoleNum: roleNum)
+                self?.emailTextField.text = nil
+                self?.passwordTextField.text = nil
+                self?.navigateToMainTabBarControllerUI(withUserRoleNum: roleNum)
             })
             
         }
@@ -181,25 +181,15 @@ class SignInVC: UIViewController, UITextFieldDelegate {
     @IBAction func createAccountButtonTapped(_ sender: UIButton) {
         dismissKeyboard()
     }
-    /*
-    private func loadMainTabBarControllerUIAndNavigate() {
-        guard let mainTabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MyTabBarController") else {
-            fatalError("FATAL ERROR: Couldn't instantiate a tab bar controller from SignInVC on successful sign-in.")
-        }
-        
-        print(UIApplication.shared.keyWindow?.isKeyWindow ?? "nil")
-        UIApplication.shared.keyWindow?.switchRootViewController(mainTabBarController, animated: true)
-    }
-    */
     
     private func navigateToMainTabBarControllerUI(withUserRoleNum currUserRoleNum: Int) {
-        guard let myTabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MyTabBarController") as? MyTabBarController else {
+        guard let tbc = self.storyboard?.instantiateViewController(withIdentifier: "MyTabBarController") as? MyTabBarController else {
             self.showErrorAlert(message: "There was an issue loading the home screen's UI.")
             return
         }
         
-        myTabBarController.currUserRoleNum = currUserRoleNum
-        self.present(myTabBarController, animated: true) {
+        tbc.currUserRoleNum = currUserRoleNum
+        self.present(tbc, animated: true) {
             print("SignInVC presented MyTabBarController")
         }
     }

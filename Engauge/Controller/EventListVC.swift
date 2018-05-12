@@ -98,8 +98,6 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     // For profile image thumbnails
     static var imageCache = NSCache<NSString, UIImage>()
     
-    private var authListenerHandle: AuthStateDidChangeListenerHandle?
-    
     
     
     
@@ -108,48 +106,36 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Checking to see if a user is signed in
-        // EXECUTES ANY TIME THE AUTH STATE CHANGES
-        self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            print("Auth listener fired in EventListVC")
-            guard let currUser = user else {
-                // TODO: Nobody is logged in!
-                print("EventListVC auth listener: Nobody is signed in!")
-                self.events.removeAll()
-                self.tableView.reloadData()
-                // TODO: Dismiss all VCs? Swap this and a new instance of SignInVC as the root VC of the app's window?
-                // self.presentSignInVC(completion: { print("Brennan - presented SignInVC") })
+        guard let currUser = Auth.auth().currentUser else {
+            // TODO: Nobody is signed in!
+            return
+        }
+        
+        // User is logged in, so retrieve events.
+        
+        // If the current user is a Scheduler or Admin, show the "add event" button.
+        DataService.instance.getRoleForUser(withUID: currUser.uid) { (currUserRoleNum) in
+            switch currUserRoleNum {
+            case UserRole.admin.toInt, UserRole.scheduler.toInt:
+                self.navigationItem.rightBarButtonItem = nil
+                let newEventButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(self.handleNewEventTapped))
+                self.navigationItem.setRightBarButton(newEventButton, animated: true)
+            default:
+                self.navigationItem.setRightBarButtonItems(nil, animated: true)
+                break
+            }
+        }
+        
+        // Get the user's school ID and set up database observers.
+        DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
+            guard let userSchoolID = schoolID else {
+                self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
                 return
             }
-            // User is logged in, so retrieve events.
-            // print("EventListVC auth listener: \(currUser.email ?? "<nil e-mail>") is signed in")
             
-            // If the current user is a Scheduler or Admin, show the "add event" button.
-            DataService.instance.getRoleForUser(withUID: currUser.uid) { (roleNum) in
-                if roleNum != nil {
-                    switch roleNum! {
-                    case UserRole.admin.toInt, UserRole.scheduler.toInt:
-                        self.navigationItem.rightBarButtonItem = nil
-                        let newEventButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(self.handleNewEventTapped))
-                        self.navigationItem.setRightBarButton(newEventButton, animated: true)
-                    default:
-                        self.navigationItem.setRightBarButtonItems(nil, animated: true)
-                        break
-                    }
-                }
-            }
-            
-            // Get the user's school ID and set up database observers.
-            DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (schoolID) in
-                guard let userSchoolID = schoolID else {
-                    self.showErrorAlert(message: "Database error: Couldn't verify your school's ID.")
-                    return
-                }
-                
-                self.refAllEvents = DataService.instance.REF_EVENTS
-                self.refSchoolEventIDs = DataService.instance.REF_SCHOOL_EVENTS.child(userSchoolID)
-                self.attachDatabaseObservers()
-            }
+            self.refAllEvents = DataService.instance.REF_EVENTS
+            self.refSchoolEventIDs = DataService.instance.REF_SCHOOL_EVENTS.child(userSchoolID)
+            self.attachDatabaseObservers()
         }
     }
     
@@ -184,7 +170,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     }
     
     // Helper for titleForHeaderInSection function above.
-    // This function is only for English-speaking locales:
+    /** This function is only for English-speaking locales. */
     func stringForWeekday(_ num: Int, abbreviated: Bool) -> String? {
         return abbreviated ? WEEKDAY_INTS_TO_STRINGS_ABBREVIATED[num] : WEEKDAY_INTS_TO_STRINGS[num]
     }
@@ -229,8 +215,8 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // User tapped "Cancel" on the search bar. Resets the search bar's text to reflect the current search.
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = searchText
         dismissKeyboard()
+        searchBar.text = searchText
     }
     
     // Show the cancel button when the keyboard is visible.
@@ -248,7 +234,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // MARK: Filtering and searching events
     
-    // Only affects the data model, not UI
+    /** Only affects the data model, not UI */
     func applyFilters() {
         guard filtersOn else { return }
         
@@ -281,7 +267,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
     }
     
-    // Only affects the data model, not UI
+    /** Only affects the data model, not UI */
     func applySearch() {
         guard searchOn else { return }
         
@@ -339,6 +325,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
     }
     
+    // Called when the user navigates back to this screen after choosing filters to apply.
     @IBAction func unwindFromFilterEventsTVC(sender: UIStoryboardSegue) {
         if let sourceVC = sender.source as? FilterEventsTVC, let newFilters = sourceVC.filtersCreated {
             self.filters = newFilters
@@ -350,41 +337,41 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     
     // MARK: Observing Database Events
     
-    // Only works if both database reference properties are set.
+    /** Only works if both database reference properties are set. */
     private func attachDatabaseObservers() {
         // Some data for an event changed
         // TODO: This might become expensive because it fires every time ANY event's data changes, not just events at my school
-        self.eventDataChangedHandle = self.refAllEvents?.observe(.childChanged) { (snapshot) in
+        self.eventDataChangedHandle = self.refAllEvents?.observe(.childChanged) { [weak self] (snapshot) in
             let eventID = snapshot.key
-            if self.events.containsEvent(withID: eventID), let eventData = snapshot.value as? [String : Any], let updatedEvent = DataService.instance.eventFromSnapshotValues(eventData, withID: eventID) {
-                self.events.removeEvent(withID: eventID)
-                self.events.insertEvent(updatedEvent)
-                self.applyFilters()
-                self.applySearch()
-                self.tableView.reloadData()
+            if let changeIsRelevant = self?.events.containsEvent(withID: eventID), changeIsRelevant, let eventData = snapshot.value as? [String : Any], let updatedEvent = DataService.instance.eventFromSnapshotValues(eventData, withID: eventID) {
+                self?.events.removeEvent(withID: eventID)
+                self?.events.insertEvent(updatedEvent)
+                self?.applyFilters()
+                self?.applySearch()
+                self?.tableView.reloadData()
             }
         }
         
         // Event added for this school
-        self.eventAddedHandle = self.refSchoolEventIDs?.observe(.childAdded) { (snapshot) in
+        self.eventAddedHandle = self.refSchoolEventIDs?.observe(.childAdded) { [weak self] (snapshot) in
             let eventAddedID = snapshot.key
             DataService.instance.getEvent(withID: eventAddedID) { (event) in
                 if event != nil {
-                    self.events.insertEvent(event!)
-                    self.applyFilters()
-                    self.applySearch()
-                    self.tableView.reloadData()
+                    self?.events.insertEvent(event!)
+                    self?.applyFilters()
+                    self?.applySearch()
+                    self?.tableView.reloadData()
                 }
             }
         }
         
         // Event removed for this school
-        self.eventRemovedHandle = self.refSchoolEventIDs?.observe(.childRemoved) { (snapshot) in
+        self.eventRemovedHandle = self.refSchoolEventIDs?.observe(.childRemoved) { [weak self] (snapshot) in
             let eventRemovedID = snapshot.key
-            self.events.removeEvent(withID: eventRemovedID)
-            self.applyFilters()
-            self.applySearch()
-            self.tableView.reloadData()
+            self?.events.removeEvent(withID: eventRemovedID)
+            self?.applyFilters()
+            self?.applySearch()
+            self?.tableView.reloadData()
         }
     }
     
@@ -403,18 +390,14 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         }
     }
     
-    private func removeAuthObserverIfNecessary() {
-        if authListenerHandle != nil { Auth.auth().removeStateDidChangeListener(authListenerHandle!) }
-    }
     
     
     
     // MARK: Deinitializer
     
-    // Remove Database and Auth event listeners when this VC is deallocated.
+    // Remove database listeners when this VC is deallocated.
     deinit {
         print("Deallocating an instance of EventListVC")
-        removeAuthObserverIfNecessary()
         removeDatabaseObserversIfNecessary()
     }
     

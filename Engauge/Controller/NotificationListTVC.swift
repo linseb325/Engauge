@@ -20,7 +20,6 @@ class NotificationListTVC: UITableViewController {
     // MARK: Properties
     
     private var notifications = [EngaugeNotification]()
-    private var authListenerHandle: AuthStateDidChangeListenerHandle?
     
     private var userNotificationsRef: DatabaseReference?
     private var notificationAddedHandle: DatabaseHandle?
@@ -34,17 +33,12 @@ class NotificationListTVC: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            print("Auth listener fired in NotificationListTVC")
-            
-            guard let currUser = user else {
-                print("NotificationListTVC knows I signed out")
-                // TODO: No user is signed in!
-                return
-            }
-            
-            self.attachNotificationObservers(adminUID: currUser.uid)
+        guard let currUser = Auth.auth().currentUser else {
+            // TODO: No user is signed in!
+            return
         }
+        
+        self.attachNotificationObservers(adminUID: currUser.uid)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -64,25 +58,23 @@ class NotificationListTVC: UITableViewController {
         
         self.userNotificationsRef = DataService.instance.REF_USER_NOTIFICATIONS.child(adminUID)
         
-        self.notificationAddedHandle = userNotificationsRef?.observe(.childAdded) { (snapshot) in
-            print("Notif added")
+        self.notificationAddedHandle = userNotificationsRef?.observe(.childAdded) { [weak self] (snapshot) in
             DataService.instance.getNotification(withID: snapshot.key) { (newNotif) in
                 if newNotif != nil {
-                    self.notifications.append(newNotif!)
-                    self.notifications.sort { $0.timestamp > $1.timestamp }
-                    self.tableView.reloadData()
+                    self?.notifications.append(newNotif!)
+                    self?.notifications.sort { $0.timestamp > $1.timestamp }
+                    self?.tableView.reloadData()
                 }
             }
         }
         
-        self.notificationRemovedHandle = userNotificationsRef?.observe(.childRemoved, with: { (snapshot) in
-            print("Notif removed")
+        self.notificationRemovedHandle = userNotificationsRef?.observe(.childRemoved) { [weak self] (snapshot) in
             let oldNotifID = snapshot.key
-            if let removeHere = self.notifications.index(where: { $0.notificationID == oldNotifID }) {
-                self.notifications.remove(at: removeHere)
+            if let removeHere = self?.notifications.index(where: { $0.notificationID == oldNotifID }) {
+                self?.notifications.remove(at: removeHere)
             }
-            self.tableView.reloadData()
-        })
+            self?.tableView.reloadData()
+        }
     }
     
     private func removeNotificationObserverHandlesIfNecessary() {
@@ -93,12 +85,6 @@ class NotificationListTVC: UITableViewController {
         if notificationRemovedHandle != nil {
             userNotificationsRef?.removeObserver(withHandle: notificationRemovedHandle!)
             notificationRemovedHandle = nil
-        }
-    }
-    
-    private func removeAuthObserverHandleIfNecessary() {
-        if authListenerHandle != nil {
-            Auth.auth().removeStateDidChangeListener(authListenerHandle!)
         }
     }
     
@@ -154,7 +140,6 @@ class NotificationListTVC: UITableViewController {
     
     deinit {
         print("Deallocating an instance of NotificationListTVC")
-        removeAuthObserverHandleIfNecessary()
         removeNotificationObserverHandlesIfNecessary()
     }
     

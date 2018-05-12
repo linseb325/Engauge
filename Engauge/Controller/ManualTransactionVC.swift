@@ -330,9 +330,9 @@ class ManualTransactionVC: UIViewController, UITextFieldDelegate {
         }
         removeBalanceObserverIfNecessary()
         self.selectedUserBalanceRef = DataService.instance.REF_USERS.child(selectedUser!.userID).child(DBKeys.USER.pointBalance)
-        self.userBalanceChangedHandle = selectedUserBalanceRef?.observe(.value) { (snapshot) in
-            self.selectedUser?.pointBalance = snapshot.value as? Int
-            self.updateBalanceLabel()
+        self.userBalanceChangedHandle = selectedUserBalanceRef?.observe(.value) { [weak self] (snapshot) in
+            self?.selectedUser?.pointBalance = snapshot.value as? Int
+            self?.updateBalanceLabel()
         }
         
     }

@@ -58,23 +58,18 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.authStateListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            print("Auth listener fired in TransactionListVC")
-            
-            guard let currUser = user else {
-                // TODO: There's nobody signed in!
-                print("TransactionListVC knows I signed out")
-                return
-            }
-            
-            DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (currUserSchoolID) in
-                if currUserSchoolID != nil {
-                    self.schoolTransactionsRef = DataService.instance.REF_SCHOOL_TRANSACTIONS.child(currUserSchoolID!)
-                    self.attachDatabaseObserver()
-                }
-            }
+        guard let currUser = Auth.auth().currentUser else {
+            // TODO: There's nobody signed in!
+            return
         }
         
+        // Someone is signed in. Retrieve the transactions for his/her school.
+        DataService.instance.getSchoolIDForUser(withUID: currUser.uid) { (currUserSchoolID) in
+            if currUserSchoolID != nil {
+                self.schoolTransactionsRef = DataService.instance.REF_SCHOOL_TRANSACTIONS.child(currUserSchoolID!)
+                self.attachDatabaseObserver()
+            }
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -170,16 +165,16 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     
     // MARK: Observing Database Events
     
-    // Only works if self.schoolTransactionsRef is already set
+    /** Assumes that self.schoolTransactionsRef is already set. */
     private func attachDatabaseObserver() {
         // A new transaction occurred
-        self.schoolTransactionsChildAddedHandle = self.schoolTransactionsRef?.observe(.childAdded) { (snapshot) in
+        self.schoolTransactionsChildAddedHandle = self.schoolTransactionsRef?.observe(.childAdded) { [weak self] (snapshot) in
             DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
                 if addedTransaction != nil {
-                    self.transactions.insert(addedTransaction!, at: 0)
-                    self.transactions.sort { $0.timestamp > $1.timestamp }
-                    self.applySearch()
-                    self.tableView.reloadData()
+                    self?.transactions.insert(addedTransaction!, at: 0)
+                    self?.transactions.sort { $0.timestamp > $1.timestamp }
+                    self?.applySearch()
+                    self?.tableView.reloadData()
                 }
             }
         }
@@ -189,10 +184,6 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     
     
     // MARK: Removing Observers
-    
-    private func removeAuthObserverIfNecessary() {
-        if authStateListenerHandle != nil { Auth.auth().removeStateDidChangeListener(authStateListenerHandle!) }
-    }
     
     private func removeDatabaseObserversIfNecessary() {
         if self.schoolTransactionsChildAddedHandle != nil {
@@ -206,7 +197,6 @@ class TransactionListVC: UIViewController, UITableViewDataSource, UITableViewDel
     
     deinit {
         print("Deallocating an instance of TransactionListVC")
-        removeAuthObserverIfNecessary()
         removeDatabaseObserversIfNecessary()
     }
 }

@@ -30,14 +30,14 @@ class MyTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
+        self.authListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in
             
             
             guard let currUser = user else {
                 // Nobody is signed in!
                 print("MyTabBarController knows I'm signed out")
                 
-                self.dismiss(animated: true) {
+                self?.dismiss(animated: true) {
                     print("Dismissed the tab bar controller.")
                 }
                 

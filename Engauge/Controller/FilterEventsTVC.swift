@@ -227,7 +227,7 @@ class FilterEventsTVC: UITableViewController {
                     let newFilter = try EventFilterFactory.filterForEventsBeforeDate(endDate!)
                     filtersAdded.append(newFilter)
                 } catch EventFilterFactory.DateFilterError.dateConversionError {
-                    showErrorAlert(message: "There was an internal problem creating your date filter.")
+                    showErrorAlert(message: "There was an internal issue creating your date filter.")
                     return
                 } catch {
                     showErrorAlert(message: error.localizedDescription)
@@ -240,22 +240,23 @@ class FilterEventsTVC: UITableViewController {
         // Favorites filter on? (*** This should be the last filter checked because of the asynchronous database calls ***)
         if favoritesSwitch.isOn {
             // Add favorites filter
-            if let currUser = Auth.auth().currentUser {
-                DataService.instance.getFavoriteEventIDsForUser(withUID: currUser.uid, completion: { (eventIDs) in
-                    if eventIDs != nil {
-                        // Successfully retrieved the favorite event IDs.
-                        let newFilter = EventFilterFactory.filterForFavorites(inListOfEventIDs: eventIDs!)
-                        filtersAdded.append(newFilter)
-                        self.filtersCreated = filtersAdded.isEmpty ? nil : filtersAdded
-                        self.performSegue(withIdentifier: "unwindToEventListVC", sender: nil)
-                    } else {
-                        // Didn't retrieve any favorite event IDs. No need to add this filter.
-                        self.filtersCreated = filtersAdded.isEmpty ? nil : filtersAdded
-                        self.performSegue(withIdentifier: "unwindToEventListVC", sender: nil)
-                    }
-                })
-            } else {
-                // TODO: There is no user logged in! (Shouldn't happen...)
+            guard let currUser = Auth.auth().currentUser else {
+                filtersCreated = nil
+                self.showErrorAlert(message: "Couldn't verify your user credentials. Try signing out, then signing back in.")
+                return
+            }
+            
+            DataService.instance.getFavoriteEventIDsForUser(withUID: currUser.uid) { (eventIDs) in
+                if eventIDs != nil {
+                    // Successfully retrieved the favorite event IDs.
+                    let newFilter = EventFilterFactory.filterForFavorites(inListOfEventIDs: eventIDs!)
+                    filtersAdded.append(newFilter)
+                } else {
+                    // Didn't retrieve any favorite event IDs. No need to add this filter.
+                }
+                
+                self.filtersCreated = filtersAdded.isEmpty ? nil : filtersAdded
+                self.performSegue(withIdentifier: "unwindToEventListVC", sender: nil)
             }
         } else {
             // No favorites filter and all done getting filters.

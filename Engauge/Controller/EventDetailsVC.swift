@@ -107,8 +107,6 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
      - Lays out the main view/subviews if needed.
      */
     func resizeContainerAndScrollViewsToFitContent() {
-        // TODO: Can I just call sizeToFit() here, then add margins after that call?
-        
         self.view.layoutIfNeeded()
         
         let newHeight = CGPoint.verticalDistanceBetween(point: self.containerView.bounds.origin, andPoint: CGPoint(x: 0, y: contentStackView.frame.origin.y + contentStackView.frame.height + imageViewTopSpaceConstraint.constant))
@@ -140,9 +138,8 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     private func updateUIForCurrentEvent() {
         // Download the event image if there is one.
         if let eventImageURL = event.imageURL {
-            Storage.storage().reference(forURL: eventImageURL).getData(maxSize: 2 * 1024 * 1024) { (data, error) in
-                if error == nil, data != nil {
-                    let eventImage = UIImage(data: data!)
+            StorageService.instance.getImageForEvent(withID: event.eventID, thumbnail: false) { (eventImage) in
+                if eventImage != nil {
                     self.imageView.image = eventImage
                 }
             }
@@ -304,12 +301,6 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
         areYouSureAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         areYouSureAlert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { (deleteAction) in
             
-            // Delete the event images from Storage if necessary.
-            if self.event.imageURL != nil, self.event.thumbnailURL != nil {
-                StorageService.instance.deleteImage(atURL: self.event.imageURL!)
-                StorageService.instance.deleteImage(atURL: self.event.thumbnailURL!)
-            }
-            
             // Delete the event data from the database.
             DataService.instance.deleteEvent(self.event) { (errorMessage) in
                 guard errorMessage == nil else {
@@ -364,11 +355,11 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     // MARK: Database Observer
     
     private func attachDatabaseObserver() {
-        self.eventDataChangedHandle = self.eventDataRef?.observe(.value) { (snapshot) in
+        self.eventDataChangedHandle = self.eventDataRef?.observe(.value) { [weak self] (snapshot) in
             if let eventData = snapshot.value as? [String : Any], let updatedEvent = DataService.instance.eventFromSnapshotValues(eventData, withID: snapshot.key) {
-                self.event = updatedEvent
-                self.updateUIForCurrentEvent()
-                self.configureAdaptableUI()
+                self?.event = updatedEvent
+                self?.updateUIForCurrentEvent()
+                self?.configureAdaptableUI()
             }
         }
     }

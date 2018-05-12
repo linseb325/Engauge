@@ -136,7 +136,7 @@ class TransactionDetailsVC: UIViewController {
         }
     }
     
-    // Image will be different based on what type of event caused this transaction.
+    /** The left image will be different based on what type of event caused this transaction. */
     private func setAppropriateImage() {
         switch transaction.source {
             

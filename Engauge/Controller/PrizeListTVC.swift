@@ -12,11 +12,6 @@ import FirebaseAuth
 
 class PrizeListTVC: UITableViewController {
     
-    // MARK: Outlets
-    
-    
-    
-    
     // MARK: Properties
     
     private var prizes = [Prize]()
@@ -105,32 +100,32 @@ class PrizeListTVC: UITableViewController {
             self.schoolPrizesRef = DataService.instance.REF_SCHOOL_PRIZES.child(currUserSchoolID)
             self.allPrizesRef = DataService.instance.REF_PRIZES
             
-            self.prizeAddedHandle = self.schoolPrizesRef?.observe(.childAdded) { (snapshot) in
+            self.prizeAddedHandle = self.schoolPrizesRef?.observe(.childAdded) { [weak self] (snapshot) in
                 DataService.instance.getPrize(withID: snapshot.key) { (newPrize) in
                     if newPrize != nil {
-                        self.prizes.append(newPrize!)
-                        self.prizes.sort { $0.name.lowercased() < $1.name.lowercased() }
-                        self.tableView.reloadData()
+                        self?.prizes.append(newPrize!)
+                        self?.prizes.sort { $0.name.lowercased() < $1.name.lowercased() }
+                        self?.tableView.reloadData()
                     }
                 }
             }
             
-            self.prizeRemovedHandle = self.schoolPrizesRef?.observe(.childRemoved) { (snapshot) in
-                if let indexOfPrizeToRemove = self.prizes.index(where: { $0.prizeID == snapshot.key }) {
-                    self.prizes.remove(at: indexOfPrizeToRemove)
-                    self.tableView.reloadData()
+            self.prizeRemovedHandle = self.schoolPrizesRef?.observe(.childRemoved) { [weak self] (snapshot) in
+                if let indexOfPrizeToRemove = self?.prizes.index(where: { $0.prizeID == snapshot.key }) {
+                    self?.prizes.remove(at: indexOfPrizeToRemove)
+                    self?.tableView.reloadData()
                 }
             }
             
-            self.prizeDataChangedHandle = self.allPrizesRef?.observe(.childChanged) { (snapshot) in
+            self.prizeDataChangedHandle = self.allPrizesRef?.observe(.childChanged) { [weak self] (snapshot) in
                 // Was the prize that changed in our array?
-                if let indexOfChangedPrize = self.prizes.index(where: { $0.prizeID == snapshot.key }) {
+                if let indexOfChangedPrize = self?.prizes.index(where: { $0.prizeID == snapshot.key }) {
                     // Can we build a prize object from the changed prize data?
                     if let changedPrizeData = snapshot.value as? [String : Any], let changedPrize = DataService.instance.prizeFromSnapshotValues(changedPrizeData, withID: snapshot.key) {
-                        self.prizes[indexOfChangedPrize] = changedPrize
+                        self?.prizes[indexOfChangedPrize] = changedPrize
                     }
                     
-                    self.tableView.reloadData()
+                    self?.tableView.reloadData()
                 }
             }
             

@@ -36,8 +36,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     // MARK: Properties
     
-    private var authListenerHandle: AuthStateDidChangeListenerHandle?
-    
     // userID is only for fetching initial data when this screen loads.
     var userID: String?
     private var currUserID: String?
@@ -78,25 +76,20 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             enableTableViewSelection()
         }
         
-        self.authListenerHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            print("Auth listener fired in ProfileDetailsVC")
-            
-            guard let currUser = user else {
-                print("ProfileDetailsVC knows I signed out")
-                self.currUserID = nil
-                // TODO: There is no user signed in!
-                return
-            }
-            
-            // There is a user signed in.
-            self.currUserID = currUser.uid
-            if self.userID == nil {
-                self.userID = currUser.uid
-            }
-            
-            self.userInfoRef = DataService.instance.REF_USERS.child(self.userID!)
-            self.attachUserInfoDatabaseObserver()
+        guard let currUser = Auth.auth().currentUser else {
+            self.currUserID = nil
+            // TODO: Nobody is signed in!
+            return
         }
+        
+        // There is a user signed in.
+        self.currUserID = currUser.uid
+        if self.userID == nil {
+            self.userID = currUser.uid
+        }
+        
+        self.userInfoRef = DataService.instance.REF_USERS.child(self.userID!)
+        self.attachUserInfoDatabaseObserver()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -253,11 +246,11 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     private func attachUserInfoDatabaseObserver() {
         removeUserInfoDatabaseObserverIfNecessary()
         
-        self.userInfoChangedHandle = userInfoRef?.observe(.value) { (snapshot) in
+        self.userInfoChangedHandle = userInfoRef?.observe(.value) { [weak self] (snapshot) in
             if let userData = snapshot.value as? [String : Any], let updatedUser = DataService.instance.userFromSnapshotValues(userData, withUID: snapshot.key) {
-                self.thisProfileUser = updatedUser
-                self.updateUIForCurrentUser()
-                self.configureAdaptableUI()
+                self?.thisProfileUser = updatedUser
+                self?.updateUIForCurrentUser()
+                self?.configureAdaptableUI()
             }
         }
     }
@@ -276,38 +269,38 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
             removeTableViewDatabaseObserversIfNecessary()
             
             // This user scheduled an event
-            self.eventAddedHandle = self.userEventsRef?.observe(.childAdded) { (snapshot) in
+            self.eventAddedHandle = self.userEventsRef?.observe(.childAdded) { [weak self] (snapshot) in
                 DataService.instance.getEvent(withID: snapshot.key) { (addedEvent) in
                     if addedEvent != nil {
-                        self.usersScheduledEvents?.append(addedEvent!)
-                        self.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
-                        self.recentTransactionsEventsTableView.reloadData()
+                        self?.usersScheduledEvents?.append(addedEvent!)
+                        self?.usersScheduledEvents?.sort { $0.startTime > $1.startTime }
+                        self?.recentTransactionsEventsTableView.reloadData()
                     }
                 }
             }
             // This user removed an event
-            self.eventRemovedHandle = self.userEventsRef?.observe(.childRemoved) { (snapshot) in
-                self.usersScheduledEvents?.removeEvent(withID: snapshot.key)
-                self.recentTransactionsEventsTableView.reloadData()
+            self.eventRemovedHandle = self.userEventsRef?.observe(.childRemoved) { [weak self] (snapshot) in
+                self?.usersScheduledEvents?.removeEvent(withID: snapshot.key)
+                self?.recentTransactionsEventsTableView.reloadData()
             }
             
         case .transactions:
             removeTableViewDatabaseObserversIfNecessary()
             
             // This user was involved in a transaction
-            self.transactionAddedHandle = self.userTransactionsRef?.observe(.childAdded) { (snapshot) in
+            self.transactionAddedHandle = self.userTransactionsRef?.observe(.childAdded) { [weak self] (snapshot) in
                 DataService.instance.getTransaction(withID: snapshot.key) { (addedTransaction) in
                     if addedTransaction != nil {
-                        self.usersRecentTransactions?.append(addedTransaction!)
-                        self.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
-                        self.recentTransactionsEventsTableView.reloadData()
+                        self?.usersRecentTransactions?.append(addedTransaction!)
+                        self?.usersRecentTransactions?.sort { $0.timestamp > $1.timestamp }
+                        self?.recentTransactionsEventsTableView.reloadData()
                     }
                 }
             }
             // A transaction was removed for this user (probably impossible)
-            self.transactionRemovedHandle = self.userTransactionsRef?.observe(.childRemoved) { (snapshot) in
-                self.usersRecentTransactions?.removeTransaction(withID: snapshot.key)
-                self.recentTransactionsEventsTableView.reloadData()
+            self.transactionRemovedHandle = self.userTransactionsRef?.observe(.childRemoved) { [weak self] (snapshot) in
+                self?.usersRecentTransactions?.removeTransaction(withID: snapshot.key)
+                self?.recentTransactionsEventsTableView.reloadData()
             }
             
         default:
@@ -502,13 +495,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
         }
     }
     
-    private func removeAuthObserverIfNecessary() {
-        if authListenerHandle != nil {
-            Auth.auth().removeStateDidChangeListener(authListenerHandle!)
-            self.authListenerHandle = nil
-        }
-    }
-    
     
     
     
@@ -516,7 +502,6 @@ class ProfileDetailsVC: UIViewController, UITableViewDataSource, UITableViewDele
     
     deinit {
         print("Deallocating an instance of ProfileDetailsVC")
-        removeAuthObserverIfNecessary()
         removeUserInfoDatabaseObserverIfNecessary()
         removeTableViewDatabaseObserversIfNecessary()
     }
