@@ -43,5 +43,9 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera is required for account creation and QR code scanning.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Calendar access is required to add events to your iOS calendar from within the app.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Reminders access is required to add events to your iOS calendar from within the app.</string>
 </dict>
 </plist>

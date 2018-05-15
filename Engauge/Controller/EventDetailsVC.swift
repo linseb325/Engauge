@@ -10,6 +10,7 @@ import UIKit
 import FirebaseStorage
 import FirebaseAuth
 import FirebaseDatabase
+import EventKit
 
 class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -51,6 +52,8 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     
     private var eventDataRef: DatabaseReference?
     private var eventDataChangedHandle: DatabaseHandle?
+    
+    private var eventStore = EKEventStore()
     
     
     
@@ -210,8 +213,17 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
                 // Set up UI for favoriting an event.
                 DataService.instance.isEventFavoritedByUser(withUID: currUserUID, eventID: self.event.eventID) { (isFavorite) in
                     let favoriteButton = FavoriteBarButtonItem(isFilled: isFavorite, target: self, action: #selector(self.handleFavoriteButtonTapped))
+                    var buttons: [UIBarButtonItem] = [favoriteButton]
+                    // Set up UI for adding the event to your calendar if the event hasn't started yet.
+                    if self.event.startTime > Date() {
+                        let space = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.fixedSpace, target: nil, action: nil)
+                        let calendarAddButton = UIBarButtonItem(image: UIImage(named: "calendar-add"), style: .plain, target: self, action: #selector(self.handleCalendarAddButtonTapped))
+                        buttons += [space, calendarAddButton]
+                    }
+
                     self.navigationItem.setRightBarButtonItems(nil, animated: true)     // Clears out any existing bar buttons.
-                    self.navigationItem.setRightBarButton(favoriteButton, animated: true)
+                    
+                    self.navigationItem.setRightBarButtonItems(buttons, animated: true)
                 }
                 // Students can't see the event's transactions.
                 self.hideTransactionsUI()
@@ -282,7 +294,7 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     
     // MARK: Bar button item actions
     
-    @objc func handleFavoriteButtonTapped() {
+    @objc private func handleFavoriteButtonTapped() {
         if let favoriteButton = self.navigationItem.rightBarButtonItem as? FavoriteBarButtonItem {
             favoriteButton.toggle()
             DataService.instance.setFavorite(favoriteButton.isFilled, eventWithID: self.event.eventID, forUserWithUID: Auth.auth().currentUser?.uid ?? "no-current-user") { (errMsg) in
@@ -295,7 +307,7 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
         }
     }
     
-    @objc func handleDeleteButtonTapped() {
+    @objc private func handleDeleteButtonTapped() {
         
         let areYouSureAlert = UIAlertController(title: "Delete event?", message: "Are you sure you'd like to delete this event? You can't undo this operation!", preferredStyle: .alert)
         areYouSureAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -324,9 +336,52 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
         present(areYouSureAlert, animated: true)
     }
     
-    @objc func handleEditButtonTapped() {
+    @objc private func handleEditButtonTapped() {
         // Launch the Edit Event Screen.
         performSegue(withIdentifier: "toEditEventTVC", sender: self.event)
+    }
+    
+    @objc private func handleCalendarAddButtonTapped() {
+        let areYouSureAlert = UIAlertController(title: "Add to calendar?", message: "Would you like to add this event to your iOS calendar?", preferredStyle: .alert)
+        areYouSureAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        areYouSureAlert.addAction(UIAlertAction(title: "Add", style: .default, handler: { (addAction) in
+            
+            self.eventStore.requestAccess(to: .event) { (accessGranted, error) in
+                guard accessGranted else {
+                    self.showErrorAlert(message: "Access to calendars is not granted. Please configure this in system settings.")
+                    return
+                }
+                
+                let newEvent = EKEvent(eventStore: self.eventStore)
+                newEvent.title = self.event.name
+                newEvent.location = self.event.location
+                newEvent.startDate = self.event.startTime
+                newEvent.endDate = self.event.endTime
+                newEvent.notes = self.event.description
+                
+                guard let defaultCalendar = self.eventStore.defaultCalendarForNewEvents else {
+                    self.showErrorAlert(message: "Couldn't save the event to your calendar. Please select a default calendar in your calendar settings.")
+                    return
+                }
+                
+                newEvent.calendar = defaultCalendar
+                
+                do {
+                    try self.eventStore.save(newEvent, span: .thisEvent, commit: true)
+                    self.showSuccessAlertForEventCreated()
+                } catch let saveEventError {
+                    self.showErrorAlert(message: "There was an issue adding this event to your calendar.")
+                    print("Error saving event to calendar: \(saveEventError.localizedDescription)")
+                }
+            }
+        }))
+        present(areYouSureAlert, animated: true)
+    }
+    
+    private func showSuccessAlertForEventCreated() {
+        let successAlert = UIAlertController(title: "Success!", message: "Saved the event to your calendar.", preferredStyle: .alert)
+        successAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(successAlert, animated: true)
     }
     
     
