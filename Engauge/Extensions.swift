@@ -286,14 +286,20 @@ extension UIViewController: Blurrable {
     
     
     /** Disables bar buttons, blurs the background, and shows the spinner. */
-    func showLoadingUI(withBlurStyle style: UIBlurEffectStyle, andSpinnerText text: String, andSpinnerFont font: UIFont? = nil) {
+    func showLoadingUI(withBlurStyle style: UIBlurEffectStyle? = nil, withSpinnerText text: String? = nil, withSpinnerFont font: UIFont? = nil) {
         disableBarButtons()
-        addBlur(withStyle: style)
+        
+        addBlur(withStyle: style ?? .light)
         
         if font != nil {
             SVProgressHUD.setFont(font!)
         }
-        SVProgressHUD.show(withStatus: text)
+        
+        if text != nil {
+            SVProgressHUD.show(withStatus: text!)
+        } else {
+            SVProgressHUD.show()
+        }
     }
     
     /** Dismisses the spinner, removes the blur, and enables bar buttons. */

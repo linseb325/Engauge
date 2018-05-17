@@ -311,26 +311,35 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
     
     private func saveEventToFirebase(eventData: [String : Any], eventImageDataFull: Data?, eventImageDataThumbnail: Data?) {
         
+        self.showLoadingUI(withSpinnerText: "Saving...")
+        
         let eventID = DataService.instance.REF_EVENTS.childByAutoId().key
         
         guard let qrImage = generateQRCode(fromEventID: eventID), let qrImageData = UIImageJPEGRepresentation(qrImage, StorageImageQuality.FULL) else {
-            showErrorAlert(message: "There was a problem generating a QR code for the new event.")
+            self.hideLoadingUI {
+                self.showErrorAlert(message: "There was a problem generating a QR code for the new event.")
+            }
             return
         }
         
         let uniqueID = UUID().uuidString
         
         // Upload the QR code image to Storage.
+        
         let metadataQR = StorageMetadata()
         metadataQR.contentType = "image/jpeg"
-        StorageService.instance.REF_QR_CODE_PICS.child(uniqueID).putData(qrImageData, metadata: metadataQR) { (metadata, error) in
+        StorageService.instance.REF_QR_CODE_PICS.child(uniqueID).putData(qrImageData, metadata: metadataQR) { [weak self] (metadata, error) in
             guard error == nil else {
-                self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                self?.hideLoadingUI(completion: {
+                    self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                })
                 return
             }
             
             guard let qrURL = metadata?.downloadURL()?.absoluteString else {
-                self.showErrorAlert(message: "There was a problem saving the QR code to storage.")
+                self?.hideLoadingUI(completion: {
+                    self?.showErrorAlert(message: "There was a problem saving the QR code to storage.")
+                })
                 return
             }
             
@@ -342,12 +351,16 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
                 
                 StorageService.instance.REF_EVENT_PICS_FULL.child(uniqueID).putData(eventImageDataFull!, metadata: metadataFull) { (metadata, error) in
                     guard error == nil else {
-                        self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                        self?.hideLoadingUI(completion: {
+                            self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                        })
                         return
                     }
                     
                     guard let imageURL = metadata?.downloadURL()?.absoluteString else {
-                        self.showErrorAlert(message: "There was a problem saving the event image to storage.")
+                        self?.hideLoadingUI(completion: {
+                            self?.showErrorAlert(message: "There was a problem saving the event image to storage.")
+                        })
                         return
                     }
                     
@@ -356,12 +369,16 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
                     
                     StorageService.instance.REF_EVENT_PICS_THUMBNAIL.child(uniqueID).putData(eventImageDataThumbnail!, metadata: metadataThumbnail) { (metadata, error) in
                         guard error == nil else {
-                            self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                            self?.hideLoadingUI(completion: {
+                                self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                            })
                             return
                         }
                         
                         guard let thumbnailURL = metadata?.downloadURL()?.absoluteString else {
-                            self.showErrorAlert(message: "There was a problem saving the event image to storage.")
+                            self?.hideLoadingUI(completion: {
+                                self?.showErrorAlert(message: "There was a problem saving the event image to storage.")
+                            })
                             return
                         }
                         
@@ -373,11 +390,15 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
                         
                         DataService.instance.createEvent(withID: eventID, eventData: newEventData) { (errorMessage) in
                             guard errorMessage == nil else {
-                                self.showErrorAlert(message: errorMessage!)
+                                self?.hideLoadingUI(completion: {
+                                    self?.showErrorAlert(message: errorMessage!)
+                                })
                                 return
                             }
                             print("Brennan - successfully created the new event!")
-                            self.showSuccessAlert()
+                            self?.hideLoadingUI(completion: {
+                                self?.showSuccessAlert()
+                            })
                         }
                     }
                 }
@@ -388,11 +409,16 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
                 
                 DataService.instance.createEvent(withID: eventID, eventData: newEventData) { (errorMessage) in
                     guard errorMessage == nil else {
-                        self.showErrorAlert(message: errorMessage!)
+                        self?.hideLoadingUI(completion: {
+                            self?.showErrorAlert(message: errorMessage!)
+                        })
                         return
                     }
+                    
                     print("Brennan - successfully created the new event!")
-                    self.showSuccessAlert()
+                    self?.hideLoadingUI(completion: {
+                        self?.showSuccessAlert()
+                    })
                 }
             }
         }
