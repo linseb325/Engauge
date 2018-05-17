@@ -82,7 +82,6 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
         dismiss(animated: true)
     }
     
-    // TODO: Show a spinner while saving the new user in Auth/Storage/Database.
     // User wants to submit the new account details.
     @IBAction func createButtonTapped(_ sender: UIBarButtonItem) {
         dismissKeyboard()
@@ -168,7 +167,7 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
             }))
             self.present(areYouSureAlert, animated: true)
         } else {
-            // Continue with Firebase sign-up actions without presenting the "are you sure" prompt.
+            // The user wants to be a Student. Continue with Firebase sign-up actions without presenting the "are you sure" prompt.
             completeAccountCreationTasks(firstName: firstName, lastName: lastName, schoolPicked: schoolPicked, email: email, password: password, selectedRoleIndex: selectedRoleIndex, profileImage: profileImage, imageDataFull: imageDataFull, imageDataThumbnail: imageDataThumbnail)
         }
         
@@ -176,15 +175,21 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     
     func completeAccountCreationTasks(firstName: String, lastName: String, schoolPicked: School, email: String, password: String, selectedRoleIndex: Int, profileImage: UIImage, imageDataFull: Data, imageDataThumbnail: Data) {
         
+        self.showLoadingUI()
+        
         // 1) Create the new user in Firebase Auth.
         AuthService.instance.createUser(email: email, password: password) { [weak self] (errorMessage, user) in
             // Check for errors
             guard errorMessage == nil else {
-                self?.showErrorAlert(message: errorMessage!)
+                self?.hideLoadingUI(completion: {
+                    self?.showErrorAlert(message: errorMessage!)
+                })
                 return
             }
             guard let newUser = user else {
-                self?.showErrorAlert(message: "There was a problem creating the new user.")
+                self?.hideLoadingUI(completion: {
+                    self?.showErrorAlert(message: "There was a problem creating the new user.")
+                })
                 return
             }
             print("Brennan - created the user in Auth.")
@@ -197,11 +202,15 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
             StorageService.instance.REF_PROFILE_PICS_FULL.child(uniqueID).putData(imageDataFull, metadata: metadataFull) { [weak self] (metadata, error) in
                 // Checks for errors
                 guard error == nil else {
-                    self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                    self?.hideLoadingUI(completion: {
+                        self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                    })
                     return
                 }
                 guard let downloadURLFull = metadata?.downloadURLs?[0].absoluteString else {
-                    self?.showErrorAlert(message: "There was a problem uploading your profile image to storage.")
+                    self?.hideLoadingUI(completion: {
+                        self?.showErrorAlert(message: "There was a problem uploading your profile image to storage.")
+                    })
                     return
                 }
                 print("Brennan - uploaded the full image to storage.")
@@ -213,11 +222,15 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                 StorageService.instance.REF_PROFILE_PICS_THUMBNAIL.child(uniqueID).putData(imageDataThumbnail, metadata: metadataThumbnail) { [weak self] (metadata, error) in
                     // Checks for errors
                     guard error == nil else {
-                        self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                        self?.hideLoadingUI(completion: {
+                            self?.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                        })
                         return
                     }
                     guard let downloadURLThumbnail = metadata?.downloadURLs?[0].absoluteString else {
-                        self?.showErrorAlert(message: "There was a problem uploading your profile image to storage.")
+                        self?.hideLoadingUI(completion: {
+                            self?.showErrorAlert(message: "There was a problem uploading your profile image to storage.")
+                        })
                         return
                     }
                     print("Brennan - uploaded the thumbnail image to storage.")
@@ -247,7 +260,9 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                     DataService.instance.createUserInDatabase(withUID: newUser.uid, forSchoolWithID: schoolPicked.schoolID, userInfo: userData) { [weak self] (errorMessage) in
                         // Check for errors
                         guard errorMessage == nil else {
-                            self?.showErrorAlert(message: errorMessage!)
+                            self?.hideLoadingUI(completion: {
+                                self?.showErrorAlert(message: errorMessage!)
+                            })
                             return
                         }
                         
@@ -256,7 +271,9 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                             print("Brennan - about to try to send a notification")
                             DataService.instance.sendRoleRequestNotification(fromUserWithUID: newUser.uid, forSchoolWithID: schoolPicked.schoolID) { (errorMessage) in
                                 guard errorMessage == nil else {
-                                    self?.showErrorAlert(message: errorMessage!)
+                                    self?.hideLoadingUI(completion: {
+                                        self?.showErrorAlert(message: errorMessage!)
+                                    })
                                     return
                                 }
                                 print("Brennan - sent the Admin a notification.")
@@ -269,7 +286,9 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                         // 5) Send a verification e-mail.
                         AuthService.instance.sendEmailVerification(toUser: newUser) { [weak self] (errorMessage, user) in
                             guard errorMessage == nil else {
-                                self?.showErrorAlert(message: errorMessage!)
+                                self?.hideLoadingUI(completion: {
+                                    self?.showErrorAlert(message: errorMessage!)
+                                })
                                 return
                             }
                             
@@ -289,13 +308,16 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
                             successAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] (action) in
                                 self?.dismiss(animated: true)
                             }))
-                            self?.present(successAlert, animated: true)
+                            
+                            self?.hideLoadingUI(completion: {
+                                self?.present(successAlert, animated: true)
+                            })
                         }
                     }
                 }
             }
         }
-
+        
         
     }
     
