@@ -271,6 +271,7 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
         
         if eventImageDataFull != nil, eventImageDataThumbnail != nil {
             // Changed the image.
+            self.showLoadingUI()
             
             var updates = eventDataUpdates
             
@@ -282,7 +283,9 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
             // 1) Upload full image to storage.
             StorageService.instance.REF_EVENT_PICS_FULL.child(uniqueID).putData(eventImageDataFull!, metadata: metadataFull) { (metadata, error) in
                 guard error == nil, let imageURL = metadata?.downloadURL()?.absoluteString else {
-                    self.showErrorAlert(message: "There was a problem uploading the new event image to storage.")
+                    self.hideLoadingUI(completion: {
+                        self.showErrorAlert(message: "There was a problem uploading the new event image to storage.")
+                    })
                     return
                 }
                 
@@ -294,7 +297,9 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
                 // 2) Upload thumbnail image to storage.
                 StorageService.instance.REF_EVENT_PICS_THUMBNAIL.child(uniqueID).putData(eventImageDataThumbnail!, metadata: metadataThumbnail) { (metadata, error) in
                     guard error == nil, let thumbnailURL = metadata?.downloadURL()?.absoluteString else {
-                        self.showErrorAlert(message: "There was a problem uploading the new event image to storage.")
+                        self.hideLoadingUI(completion: {
+                            self.showErrorAlert(message: "There was a problem uploading the new event image to storage.")
+                        })
                         return
                     }
                     
@@ -303,7 +308,9 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
                     // 3) Update the event data in the database.
                     DataService.instance.updateEventData(updates, forEventWithID: self.event.eventID) { (errorMessage) in
                         guard errorMessage == nil else {
-                            self.showErrorAlert(message: errorMessage!)
+                            self.hideLoadingUI(completion: {
+                                self.showErrorAlert(message: errorMessage!)
+                            })
                             return
                         }
                         
@@ -315,14 +322,15 @@ class EditEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDele
                         
                         // All Firebase updates were successful.
                         // Now, show a success alert and dismiss this screen.
-                        self.showSuccessAlert(onDismiss: { (okAction) in
-                            if let navcon = self.navigationController, navcon.viewControllers.count > 1 {
-                                navcon.popViewController(animated: true)
-                            } else {
-                                self.dismiss(animated: true)
-                            }
+                        self.hideLoadingUI(completion: {
+                            self.showSuccessAlert(onDismiss: { [weak self] (okAction) in
+                                if let navcon = self?.navigationController, navcon.viewControllers.count > 1 {
+                                    navcon.popViewController(animated: true)
+                                } else {
+                                    self?.dismiss(animated: true)
+                                }
+                            })
                         })
-                        
                     }
                 }
             }
