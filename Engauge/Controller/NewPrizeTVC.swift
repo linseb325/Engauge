@@ -387,6 +387,8 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
     
     private func savePrizeToFirebase(prizeData: [String : Any], prizeImageData: Data) {
         
+        self.showLoadingUI(withSpinnerText: "Saving...")
+        
         let prizeID = DataService.instance.REF_PRIZES.childByAutoId().key
         
         let uniqueID = UUID().uuidString
@@ -396,12 +398,16 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
         metadata.contentType = "image/jpeg"
         StorageService.instance.REF_PRIZE_PICS.child(uniqueID).putData(prizeImageData, metadata: metadata) { (metadata, error) in
             guard error == nil else {
-                self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                self.hideLoadingUI(completion: {
+                    self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                })
                 return
             }
             
             guard let prizeImageURL = metadata?.downloadURL()?.absoluteString else {
-                self.showErrorAlert(message: "There was a problem saving the prize image to storage.")
+                self.hideLoadingUI(completion: {
+                    self.showErrorAlert(message: "There was a problem saving the prize image to storage.")
+                })
                 return
             }
             
@@ -411,12 +417,16 @@ class NewPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegat
             
             DataService.instance.createPrize(withID: prizeID, prizeData: newPrizeData) { (errMsg) in
                 guard errMsg == nil else {
-                    self.showErrorAlert(message: errMsg!)
+                    self.hideLoadingUI(completion: {
+                        self.showErrorAlert(message: errMsg!)
+                    })
                     return
                 }
                 
                 // Successfully created the new prize.
-                self.showSuccessAlert()
+                self.hideLoadingUI(completion: {
+                    self.showSuccessAlert()
+                })
             }
         }
     }
