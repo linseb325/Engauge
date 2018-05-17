@@ -310,23 +310,31 @@ class PrizeDetailsVC: UIViewController {
         }
         
         guard let currUserUID = Auth.auth().currentUser?.uid else {
-            showErrorAlert(message: "Couldn't verify your user credentials. Did not complete the transaction.")
+            showErrorAlert(message: "Couldn't verify your user credentials. Did not complete the transaction. Try signing out, then signing back in.")
             return
         }
         
+        self.showLoadingUI(withSpinnerText: "Purchasing...")
+        
         DataService.instance.getSchoolIDForUser(withUID: currUserUID) { (schoolID) in
             guard let currUserSchoolID = schoolID else {
-                self.showErrorAlert(message: "Couldn't verify your school's information. Did not complete the transaction.")
+                self.hideLoadingUI(completion: {
+                    self.showErrorAlert(message: "Couldn't verify your school's information. Did not complete the transaction.")
+                })
                 return
             }
             
             DataService.instance.performTransaction(withPointValue: -currPrize.price, toUserWithUID: currUserUID, forSchoolWithID: currUserSchoolID, forPrizeWithID: currPrize.prizeID) { (transactionSuccessful) in
                 if transactionSuccessful {
                     // Completed the transaction.
-                    self.showSuccessAlert(withMessage: "Redeemed your points for this prize.")
+                    self.hideLoadingUI(completion: {
+                        self.showSuccessAlert(withMessage: "Redeemed your points for this prize.")
+                    })
                 } else {
                     // Couldn't complete the transaction.
-                    self.showErrorAlert(title: "Database Error", message: "Could not complete the transaction. Try again.")
+                    self.hideLoadingUI(completion: {
+                        self.showErrorAlert(title: "Database Error", message: "Could not complete the transaction. Try again.")
+                    })
                 }
             }
         }
