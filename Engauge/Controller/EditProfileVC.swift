@@ -116,6 +116,8 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
     
     private func saveChangesToFirebase(profileDataUpdates: [String : Any], imageDataFull: Data? = nil, imageDataThumbnail: Data? = nil) {
         
+        self.showLoadingUI(withSpinnerText: "Saving...")
+        
         if imageDataFull != nil, imageDataThumbnail != nil {
             // User updated the image.
             
@@ -129,7 +131,9 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
             // Upload the full image to storage.
             StorageService.instance.REF_PROFILE_PICS_FULL.child(uniqueID).putData(imageDataFull!, metadata: metadataFull) { (metadata, error) in
                 guard error == nil, let imageURL = metadata?.downloadURLs?.first?.absoluteString else {
-                    self.showErrorAlert(message: "There was a problem uploading your new profile image to storage.")
+                    self.hideLoadingUI(completion: {
+                        self.showErrorAlert(message: "There was a problem uploading your new profile image to storage.")
+                    })
                     return
                 }
                 
@@ -141,7 +145,9 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
                 // Upload the thumbnail image to storage.
                 StorageService.instance.REF_PROFILE_PICS_THUMBNAIL.child(uniqueID).putData(imageDataThumbnail!, metadata: metadataThumbnail) { (metadata, error) in
                     guard error == nil, let thumbnailURL = metadata?.downloadURLs?.first?.absoluteString else {
-                        self.showErrorAlert(message: "There was a problem uploading your new profile image to storage.")
+                        self.hideLoadingUI(completion: {
+                            self.showErrorAlert(message: "There was a problem uploading your new profile image to storage.")
+                        })
                         return
                     }
                     
@@ -150,7 +156,9 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
                     // Update the profile data in the database.
                     DataService.instance.updateUserData(updates, forUserWithUID: self.user.userID) { (errMsg) in
                         guard errMsg == nil else {
-                            self.showErrorAlert(message: errMsg!)
+                            self.hideLoadingUI(completion: {
+                                self.showErrorAlert(message: errMsg!)
+                            })
                             return
                         }
                     }
@@ -159,8 +167,11 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
                     StorageService.instance.deleteImage(atURL: self.user.imageURL)
                     StorageService.instance.deleteImage(atURL: self.user.thumbnailURL)
                     
-                    self.showSuccessAlert(onDismiss: { (okAction) in
-                        self.dismiss(animated: true)
+                    // All profile updates were successful.
+                    self.hideLoadingUI(completion: {
+                        self.showSuccessAlert(onDismiss: { (okAction) in
+                            self.dismiss(animated: true)
+                        })
                     })
                 }
             }
@@ -169,12 +180,17 @@ class EditProfileVC: UIViewController, UIImagePickerControllerDelegate, UINaviga
             
             DataService.instance.updateUserData(profileDataUpdates, forUserWithUID: self.user.userID) { (errMsg) in
                 guard errMsg == nil else {
-                    self.showErrorAlert(message: errMsg!)
+                    self.hideLoadingUI(completion: {
+                        self.showErrorAlert(message: errMsg!)
+                    })
                     return
                 }
                 
-                self.showSuccessAlert(onDismiss: { (okAction) in
-                    self.dismiss(animated: true)
+                // All profile updates were successful.
+                self.hideLoadingUI(completion: {
+                    self.showSuccessAlert(onDismiss: { (okAction) in
+                        self.dismiss(animated: true)
+                    })
                 })
             }
         }
