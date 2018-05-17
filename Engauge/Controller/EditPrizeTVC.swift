@@ -218,6 +218,8 @@ class EditPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelega
     
     private func saveChangesToFirebase(prizeData: [String : Any], prizeImageData: Data) {
         
+        self.showLoadingUI(withSpinnerText: "Saving...")
+        
         if didChangeImage {
             // User changed the image.
             // Upload the prize image to Storage before performing the database updates.
@@ -228,12 +230,16 @@ class EditPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelega
             
             StorageService.instance.REF_PRIZE_PICS.child(uniqueID).putData(prizeImageData, metadata: metadata) { (metadata, error) in
                 guard error == nil else {
-                    self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                    self.hideLoadingUI(completion: {
+                        self.showErrorAlert(message: StorageService.instance.messageForStorageError(error! as NSError))
+                    })
                     return
                 }
                 
                 guard let prizeImageURL = metadata?.downloadURL()?.absoluteString else {
-                    self.showErrorAlert(message: "There was a problem saving the prize image to storage.")
+                    self.hideLoadingUI(completion: {
+                        self.showErrorAlert(message: "There was a problem saving the prize image to storage.")
+                    })
                     return
                 }
                 
@@ -243,26 +249,34 @@ class EditPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelega
                 
                 DataService.instance.updatePrizeData(changedPrizeData, forPrizeWithID: self.prize.prizeID) { (errMsg) in
                     guard errMsg == nil else {
-                        self.showErrorAlert(message: errMsg!)
+                        self.hideLoadingUI(completion: {
+                            self.showErrorAlert(message: errMsg!)
+                        })
                         return
                     }
                     
                     // Successfully updated the prize data. Now it's safe to delete the old image from storage.
                     StorageService.instance.deleteImage(atURL: self.prize.imageURL)
                     
-                    self.showSuccessAlertAndDismiss()
+                    self.hideLoadingUI(completion: {
+                        self.showSuccessAlertAndDismiss()
+                    })
                 }
             }
         } else {
             // User didn't change the image.
             DataService.instance.updatePrizeData(prizeData, forPrizeWithID: self.prize.prizeID) { (errMsg) in
                 guard errMsg == nil else {
-                    self.showErrorAlert(message: errMsg!)
+                    self.hideLoadingUI(completion: {
+                        self.showErrorAlert(message: errMsg!)
+                    })
                     return
                 }
                 
                 // Successfully updated the prize data.
-                self.showSuccessAlertAndDismiss()
+                self.hideLoadingUI(completion: {
+                    self.showSuccessAlertAndDismiss()
+                })
             }
         }
         
