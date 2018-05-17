@@ -26,6 +26,7 @@
 		C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85333612062D52400D01734 /* EventDetailsVC.swift */; };
 		C85CCB0B209D2340000CBE5F /* QRScanResultVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85CCB0A209D2340000CBE5F /* QRScanResultVC.swift */; };
 		C87AA262204E21F400AA3849 /* AccountCreationTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */; };
+		C87AA61720AE233C00F9A04E /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87AA61620AE233C00F9A04E /* Protocols.swift */; };
 		C8A5AD5520994F3C0051FFA3 /* NotificationListTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */; };
 		C8A5AD572099512B0051FFA3 /* EngaugeNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */; };
 		C8A5AD5A209952D60051FFA3 /* NotificationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A5AD58209952D60051FFA3 /* NotificationTableViewCell.swift */; };
@@ -86,6 +87,7 @@
 		C85333612062D52400D01734 /* EventDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsVC.swift; sourceTree = "<group>"; };
 		C85CCB0A209D2340000CBE5F /* QRScanResultVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanResultVC.swift; sourceTree = "<group>"; };
 		C87AA261204E21F400AA3849 /* AccountCreationTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationTVC.swift; sourceTree = "<group>"; };
+		C87AA61620AE233C00F9A04E /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		C8A5AD5420994F3C0051FFA3 /* NotificationListTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationListTVC.swift; sourceTree = "<group>"; };
 		C8A5AD562099512B0051FFA3 /* EngaugeNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngaugeNotification.swift; sourceTree = "<group>"; };
 		C8A5AD58209952D60051FFA3 /* NotificationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTableViewCell.swift; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 			children = (
 				C80F3212204B4D6E002F6FED /* Constants.swift */,
 				C8FA5AF62063054A00EE7F64 /* Extensions.swift */,
+				C87AA61620AE233C00F9A04E /* Protocols.swift */,
 				C80F320F204A2CE0002F6FED /* Services */,
 				C8F46566208963C60051F279 /* User Interface */,
 				C80F320E204A0291002F6FED /* Custom Views */,
@@ -287,7 +290,6 @@
 				C80F31F22049F456002F6FED /* Frameworks */,
 				C80F31F32049F456002F6FED /* Resources */,
 				E065271193AED4B84CAA2D69 /* [CP] Embed Pods Frameworks */,
-				45C34DB4870CB8A84E9CEE0D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -370,21 +372,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		45C34DB4870CB8A84E9CEE0D /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Engauge/Pods-Engauge-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		E065271193AED4B84CAA2D69 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -394,6 +381,7 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Engauge/Pods-Engauge-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/SVProgressHUD/SVProgressHUD.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
@@ -401,6 +389,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SVProgressHUD.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
@@ -417,6 +406,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C8DE9CA8209E3B6C0094B926 /* PrizeTableViewCell.swift in Sources */,
+				C87AA61720AE233C00F9A04E /* Protocols.swift in Sources */,
 				C8F4656D208965310051F279 /* EventTableViewCell.swift in Sources */,
 				C8B98B172058639700A24B95 /* FilterEventsTVC.swift in Sources */,
 				C85333622062D52400D01734 /* EventDetailsVC.swift in Sources */,

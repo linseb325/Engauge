@@ -33,15 +33,7 @@ class DataService {
     let REF_USER_FAVORITE_EVENTS = Database.database().reference().child(DBKeys.USER_FAVORITE_EVENTS_KEY)
     let REF_USER_NOTIFICATIONS = Database.database().reference().child(DBKeys.USER_NOTIFICATIONS_KEY)
     let REF_USER_TRANSACTIONS = Database.database().reference().child(DBKeys.USER_TRANSACTIONS_KEY)
-    let REF_USERS = Database.database().reference().child(DBKeys.USER.key)
-    
-    var REF_CURRENT_USER: DatabaseReference? {
-        if let currentUser = Auth.auth().currentUser {
-            return DataService.instance.REF_USERS.child(currentUser.uid)
-        }
-        return nil
-    }
-    
+    let REF_USERS = Database.database().reference().child(DBKeys.USER.key)    
     
     
     
@@ -433,8 +425,6 @@ class DataService {
             completion(snapshot.value as? String)
         }
     }
-    
-    
     
     func wasEventScheduledByUser(withUID uid: String, eventID: String, completion: @escaping (Bool) -> Void) {
         DataService.instance.REF_USER_EVENTS.child("\(uid)/\(eventID)").observeSingleEvent(of: .value) { (snapshot) in

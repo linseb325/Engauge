@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import SVProgressHUD
 import FirebaseAuth
 
 // MARK: Date
@@ -206,7 +207,7 @@ extension Dictionary where Key == Date, Value == [Event] {
 // MARK: UIViewController
 extension UIViewController {
     
-    // If I'm a Navigation Controller, returns my visible View Controller.
+    /** If I'm a Navigation Controller, returns my visible View Controller. */
     var contentsViewController: UIViewController {
         if let navigationController = self as? UINavigationController {
             return navigationController.visibleViewController ?? self
@@ -215,7 +216,7 @@ extension UIViewController {
         }
     }
     
-    // Am I at the root of a tab in a tab bar controller?
+    /** Am I at the root of a tab in a tab bar controller? */
     var isFirstVisibleVCofATab: Bool {
         guard self.tabBarController != nil else {
             return false
@@ -231,7 +232,7 @@ extension UIViewController {
         
     }
     
-    // If the user taps somewhere outside the keyboard while editing text, dismiss the keyboard.
+    /** If the user taps somewhere outside the keyboard while editing text, dismiss the keyboard. */
     func dismissKeyboardWhenTappedOutside() {
         let tapOutsideKeyboard: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         self.view.addGestureRecognizer(tapOutsideKeyboard)
@@ -247,21 +248,87 @@ extension UIViewController {
         self.present(errorAlert, animated: true)
     }
     
-    func presentSignInVC(completion: (() -> Void)? = nil) {
-        let signInScreen = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SignInVC")
-        self.present(signInScreen, animated: true, completion: completion)
+}
+
+
+/** Methods for changing the UI to show something is loading. */
+extension UIViewController: Blurrable {
+    
+    private func setBarButtonsEnabled(_ flag: Bool) {
+        // Enable/disable the right bar buttons if necessary.
+        if let rightButtons = self.navigationItem.rightBarButtonItems {
+            for btn in rightButtons {
+                btn.isEnabled = flag
+            }
+        }
+        
+        // Enable/disable the left bar buttons if necessary.
+        if let leftButtons = self.navigationItem.leftBarButtonItems {
+            for btn in leftButtons {
+                btn.isEnabled = flag
+            }
+        }
+        
+        // Show/hide the back button if necessary.
+        self.navigationItem.setHidesBackButton(!flag, animated: true)
     }
     
-    func signOutOfFirebaseForDebugging() {
-        do {
-            try Auth.auth().signOut()
-            print("Brennan - signed out successfully")
-        } catch {
-            print("Brennan - error signing out: \(error.localizedDescription)")
+    /** Enables all navigation bar buttons and shows the back button. */
+    func enableBarButtons() {
+        setBarButtonsEnabled(true)
+    }
+    
+    /** Disables all navigation bar buttons and hides the back button. */
+    func disableBarButtons() {
+        setBarButtonsEnabled(false)
+    }
+    
+    
+    
+    /** Disables bar buttons, blurs the background, and shows the spinner. */
+    func showLoadingUI(withBlurStyle style: UIBlurEffectStyle, andSpinnerText text: String, andSpinnerFont font: UIFont? = nil) {
+        disableBarButtons()
+        addBlur(withStyle: style)
+        
+        if font != nil {
+            SVProgressHUD.setFont(font!)
+        }
+        SVProgressHUD.show(withStatus: text)
+    }
+    
+    /** Dismisses the spinner, removes the blur, and enables bar buttons. */
+    func hideLoadingUI(completion: (() -> Void)? = nil) {
+        SVProgressHUD.dismiss()
+        removeBlurIfNecessary()
+        enableBarButtons()
+        completion?()
+    }
+    
+}
+
+
+/** Provides default implementations for Blurrable methods if the adopting instance is a UIViewController. */
+extension Blurrable where Self: UIViewController {
+    
+    /** Adds a UIEffectView with a blur effect as an immediate subview of the main view. */
+    func addBlur(withStyle blurStyle: UIBlurEffectStyle) {
+        let blurEffect = UIBlurEffect(style: blurStyle)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = self.view.frame
+        self.view.addSubview(blurView)
+    }
+    
+    /** Removes any immediate subviews of the main view if they are UIVisualEffectViews whose effects are blur effects. */
+    func removeBlurIfNecessary() {
+        for subview in self.view.subviews {
+            if let blurView = subview as? UIVisualEffectView, blurView.effect is UIBlurEffect {
+                blurView.removeFromSuperview()
+            }
         }
     }
     
 }
+
 
 
 

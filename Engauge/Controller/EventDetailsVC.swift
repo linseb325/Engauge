@@ -185,7 +185,7 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
     /**
      Configures UI based on the current user's role.
      - This affects:
-     - The right bar buttons (favorite button, edit/delete buttons, or none)
+     - The right bar buttons (favorite/calendar add button, edit/delete buttons, or none)
      - The transactions table view (shows/hides it and populates it with data)
      */
     private func configureAdaptableUI() {
@@ -198,7 +198,7 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
         // Retrieve my role.
         DataService.instance.getRoleForUser(withUID: currUserUID) { (roleNum) in
             guard let currUserRoleNum = roleNum else {
-                // TESTME: Couldn't retrieve the user's role.
+                // Couldn't retrieve the user's role.
                 self.showErrorAlert(message: "Database error: Couldn't verify your role.", dismissHandler: { (okAction) in
                     self.navigationController?.popViewController(animated: true)
                 })
@@ -220,7 +220,7 @@ class EventDetailsVC: UIViewController, UITableViewDataSource, UITableViewDelega
                         let calendarAddButton = UIBarButtonItem(image: UIImage(named: "calendar-add"), style: .plain, target: self, action: #selector(self.handleCalendarAddButtonTapped))
                         buttons += [space, calendarAddButton]
                     }
-
+                    
                     self.navigationItem.setRightBarButtonItems(nil, animated: true)     // Clears out any existing bar buttons.
                     
                     self.navigationItem.setRightBarButtonItems(buttons, animated: true)

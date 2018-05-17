@@ -196,7 +196,7 @@ class NewEventTVC: UITableViewController, UIPickerViewDelegate, UITextFieldDeleg
         }
         
         guard let eventSchedulerUID = Auth.auth().currentUser?.uid else {
-            presentSignInVC()
+            showErrorAlert(message: "Couldn't verify your user credentials. Try signing out, then back in.")
             return
         }
         

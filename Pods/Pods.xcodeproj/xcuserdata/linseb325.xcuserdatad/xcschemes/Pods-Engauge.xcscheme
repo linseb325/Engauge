@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FD9850EFC3A2DC0531A509DF183C6DF6"
+               BlueprintIdentifier = "E1CEF3B6C758BE99754AE86FE88FFD95"
                BuildableName = "Pods_Engauge.framework"
                BlueprintName = "Pods-Engauge"
                ReferencedContainer = "container:Pods.xcodeproj">
@@ -45,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FD9850EFC3A2DC0531A509DF183C6DF6"
+            BlueprintIdentifier = "E1CEF3B6C758BE99754AE86FE88FFD95"
             BuildableName = "Pods_Engauge.framework"
             BlueprintName = "Pods-Engauge"
             ReferencedContainer = "container:Pods.xcodeproj">
