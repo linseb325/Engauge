@@ -175,7 +175,7 @@ class AccountCreationTVC: UITableViewController, UIPickerViewDataSource, UIPicke
     
     func completeAccountCreationTasks(firstName: String, lastName: String, schoolPicked: School, email: String, password: String, selectedRoleIndex: Int, profileImage: UIImage, imageDataFull: Data, imageDataThumbnail: Data) {
         
-        self.showLoadingUI()
+        self.showLoadingUI(withSpinnerText: "Saving...")
         
         // 1) Create the new user in Firebase Auth.
         AuthService.instance.createUser(email: email, password: password) { [weak self] (errorMessage, user) in
