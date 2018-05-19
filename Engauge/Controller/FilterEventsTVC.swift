@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/13/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Select filters for the event list.
 
 import UIKit
 import FirebaseAuth

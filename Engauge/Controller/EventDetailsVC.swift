@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/21/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: View detailed information about an event. Students: Favorite the event or add it to your system calendar app.
 
 import UIKit
 import FirebaseStorage

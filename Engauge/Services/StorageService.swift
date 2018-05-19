@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/8/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Provide convenient methods for communicating with Firebase Storage.
 
 import Foundation
 import FirebaseStorage
@@ -12,7 +13,13 @@ import UIKit
 
 class StorageService {
     
+    // MARK: Shared Instance
     static let instance = StorageService()
+    
+    
+    
+    
+    // MARK: References
     
     let REF_ROOT = Storage.storage().reference()
     
@@ -23,6 +30,10 @@ class StorageService {
     let REF_QR_CODE_PICS = Storage.storage().reference().child(StorageKeys.QR_CODE_PICS)
     let REF_PRIZE_PICS = Storage.storage().reference().child(StorageKeys.PRIZE_PICS)
     
+    
+    
+    
+    // MARK: Retrieving Images
     func getImage(atStorageURL imageURL: String, withMaxSize maxBytes: Int64, completion: @escaping (UIImage?) -> Void) {
         Storage.storage().reference(forURL: imageURL).getData(maxSize: maxBytes) { (data, error) in
             guard error == nil, let imageData = data else {
@@ -31,12 +42,6 @@ class StorageService {
             }
             
             completion(UIImage(data: imageData))
-        }
-    }
-    
-    func deleteImage(atURL imageURL: String, completion: ((String?) -> Void)? = nil) {
-        Storage.storage().reference(forURL: imageURL).delete { (error) in
-            completion?(error != nil ? self.messageForStorageError(error! as NSError) : nil)
         }
     }
     
@@ -97,9 +102,18 @@ class StorageService {
     
     
     
+    // MARK: Deleting Images
+    
+    func deleteImage(atURL imageURL: String, completion: ((String?) -> Void)? = nil) {
+        Storage.storage().reference(forURL: imageURL).delete { (error) in
+            completion?(error != nil ? self.messageForStorageError(error! as NSError) : nil)
+        }
+    }
+
     
     
     
+    // MARK: Handling Errors
     
     func messageForStorageError(_ error: NSError) -> String {
         guard let errorCode = StorageErrorCode(rawValue: error.code) else {
@@ -113,8 +127,5 @@ class StorageService {
             return "A storage error occurred."
         }
     }
-    
-    
-    
     
 }

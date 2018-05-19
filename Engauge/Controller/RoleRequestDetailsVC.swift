@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 5/2/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Give the Admin an opportunity to accept or deny someone's request for Scheduler status.
 
 import UIKit
 

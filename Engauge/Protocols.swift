@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 5/17/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Define a protocol for types that can implement a blurring effect.
 
 import Foundation
 import UIKit

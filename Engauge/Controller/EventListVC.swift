@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/12/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: View the list of events happening at your school.
 
 import UIKit
 import FirebaseAuth
@@ -107,7 +108,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
         super.viewDidLoad()
         
         guard let currUser = Auth.auth().currentUser else {
-            // TODO: Nobody is signed in!
+            // Nobody is signed in!
             return
         }
         
@@ -340,7 +341,7 @@ class EventListVC: UIViewController, UITableViewDataSource, UITableViewDelegate,
     /** Only works if both database reference properties are set. */
     private func attachDatabaseObservers() {
         // Some data for an event changed
-        // TODO: This might become expensive because it fires every time ANY event's data changes, not just events at my school
+        // TODO: This might become expensive because it fires every time ANY event's data changes, not just events at my school. Investigate a way around this in the future.
         self.eventDataChangedHandle = self.refAllEvents?.observe(.childChanged) { [weak self] (snapshot) in
             let eventID = snapshot.key
             if let changeIsRelevant = self?.events.containsEvent(withID: eventID), changeIsRelevant, let eventData = snapshot.value as? [String : Any], let updatedEvent = DataService.instance.eventFromSnapshotValues(eventData, withID: eventID) {

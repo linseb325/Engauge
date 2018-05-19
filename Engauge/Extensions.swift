@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/21/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Provide useful methods for working with pre-defined system types.
 
 import Foundation
 import UIKit

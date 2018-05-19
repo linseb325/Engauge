@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/6/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Provide convenient methods for communicating with Firebase Realtime Database.
 
 import Foundation
 import FirebaseDatabase

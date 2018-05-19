@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/26/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Add a new event to the calendar.
 
 import UIKit
 import CoreImage

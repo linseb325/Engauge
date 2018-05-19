@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/2/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Provide convenient functions for performing common tasks related to authentication.
 
 import Foundation
 import FirebaseAuth

@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 5/6/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Add a new prize to the list.
 
 import UIKit
 import FirebaseStorage

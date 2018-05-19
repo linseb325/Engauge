@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 5/5/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Display a list of prizes available for redemption at a school.
 
 import UIKit
 import FirebaseDatabase

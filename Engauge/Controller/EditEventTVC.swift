@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 4/7/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Change event information.
 
 import UIKit
 import FirebaseAuth

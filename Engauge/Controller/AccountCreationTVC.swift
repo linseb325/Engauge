@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/5/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Create an Engauge account with your school e-mail address.
 
 import UIKit
 import FirebaseStorage

@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 5/4/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Confirm that a QR code was successfully scanned and a point was added to the Student's balance.
 
 import UIKit
 

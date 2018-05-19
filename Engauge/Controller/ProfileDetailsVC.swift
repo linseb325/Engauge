@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 4/16/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: View a user's info and/or sign out.
 
 import UIKit
 import FirebaseAuth

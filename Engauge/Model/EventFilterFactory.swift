@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/14/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Build predicates that filter events.
 
 import Foundation
 import FirebaseAuth

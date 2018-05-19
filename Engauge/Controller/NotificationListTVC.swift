@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 5/1/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Show an Admin any pending requests for Scheduler status at his/her school.
 
 import UIKit
 import FirebaseAuth

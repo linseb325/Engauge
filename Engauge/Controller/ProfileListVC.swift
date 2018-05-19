@@ -5,12 +5,10 @@
 //  Created by Brennan Linse on 4/21/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: View a list of profiles for all users at the Scheduler or Admin's school.
 
 import UIKit
 import FirebaseAuth
-
-// TODO: Admin choosing for manual transaction logic/navigation
-// TODO: Manual refreshing OR database listeners for adding/removing users?
 
 class ProfileListVC: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     

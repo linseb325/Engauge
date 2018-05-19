@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 4/29/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Manually add or subtract points from a Student's balance.
 
 import UIKit
 import FirebaseDatabase

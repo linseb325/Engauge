@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 5/5/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: View prize details. Students can purchase the prize here, and Admins can edit/delete the prize.
 
 import UIKit
 import FirebaseDatabase

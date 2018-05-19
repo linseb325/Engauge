@@ -5,17 +5,13 @@
 //  Created by Brennan Linse on 5/3/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Students scan a QR code with the device's back camera.
 
 import UIKit
 import FirebaseAuth
 import AVFoundation
 
 class QRScanVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
-    
-    // MARK: Outlets
-    
-    
-    
     
     // MARK: Properties
     

@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/2/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Sign in with your Engauge credentials.
 
 import UIKit
 import FirebaseAuth
@@ -13,6 +14,7 @@ import FirebaseDatabase
 class SignInVC: UIViewController, UITextFieldDelegate {
     
     // MARK: Outlets
+    
     @IBOutlet weak var emailTextField: UITextField! { didSet { emailTextField.delegate = self } }
     @IBOutlet weak var passwordTextField: UITextField! { didSet { passwordTextField.delegate = self } }
     

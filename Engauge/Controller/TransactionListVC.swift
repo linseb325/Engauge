@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 4/26/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: View all transactions at the Admin's school.
 
 import UIKit
 import FirebaseDatabase

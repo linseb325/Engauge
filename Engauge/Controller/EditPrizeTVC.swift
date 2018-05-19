@@ -5,15 +5,13 @@
 //  Created by Brennan Linse on 5/7/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Edit the information for an existing prize.
 
 import UIKit
 import FirebaseStorage
 import FirebaseAuth
 
 class EditPrizeTVC: UITableViewController, UITextFieldDelegate, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    
-    
     
     // MARK: Outlets
     

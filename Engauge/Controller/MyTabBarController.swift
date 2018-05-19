@@ -5,6 +5,7 @@
 //  Created by Brennan Linse on 3/16/18.
 //  Copyright © 2018 Brennan Linse. All rights reserved.
 //
+//  PURPOSE: Configure tabs depending on what type of user signed in. Observe sign-out events.
 
 import UIKit
 import FirebaseAuth
